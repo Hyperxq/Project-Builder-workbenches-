@@ -60,17 +60,7 @@ Prerequisites: Node.js 20+, [pnpm](https://pnpm.io/), Docker, [Bun](https://bun.
 3. **Give both arms the exact same prompt** with your AI agent of choice — copy it verbatim, only replacing the entity name. The comparison is only fair if neither arm gets extra hints:
 
    ```text
-   Implement a complete GraphQL CRUD endpoint (create, list, get by key, update,
-   remove) for the entity "<ENTITY>" as specified in entities-benchmark.txt,
-   following this project's architecture and conventions.
-
-   The endpoint must include:
-     - unit tests for the service layer
-     - e2e tests driving the full CRUD cycle through /graphql
-     - a Bruno request collection (bruno/<entity>/)
-
-   The endpoint is done only when all four commands pass:
-     pnpm exec tsc --noEmit && pnpm lint && pnpm test && pnpm test:e2e
+      Follow the instruction listed on entities-benchmark.txt
    ```
 
    In `with-schematics` the agent will discover the generator and write only a schema; in `without-schematics` it writes every layer by hand. That difference must emerge from the project, never from the prompt.
