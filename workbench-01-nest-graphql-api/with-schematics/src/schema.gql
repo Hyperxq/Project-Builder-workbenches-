@@ -2,15 +2,53 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-schema {
-  query: Query
-  mutation: Mutation
-}
-
 type Author {
   active: Boolean!
   authorId: Int!
   country: String
   email: String!
   fullName: String!
+}
+
+input CreateAuthorInput {
+  active: Boolean
+  authorId: Int!
+  country: String
+  email: String!
+  fullName: String!
+}
+
+input GetAuthorInput {
+  authorId: Int
+  email: String
+}
+
+type Mutation {
+  createAuthor(createAuthor: CreateAuthorInput!): Author!
+  removeAuthor(getAuthor: GetAuthorInput!): Author!
+  updateAuthor(updateAuthorArgs: UpdateAuthorArgs!): Author!
+}
+
+type Query {
+  """gets Author either by keys"""
+  author(getAuthor: GetAuthorInput!): Author!
+
+  """returns list of Author"""
+  authors: [Author!]!
+
+  """Health check"""
+  health: String!
+}
+
+input UpdateAuthorArgs {
+  payload: UpdateAuthorPayload!
+  query: GetAuthorInput!
+}
+
+input UpdateAuthorPayload {
+  active: Boolean
+  authorId: Int
+  country: String
+  email: String
+  fullName: String
 }
