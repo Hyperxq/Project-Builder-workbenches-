@@ -19,7 +19,7 @@ Field notation: name: type, constraints
 
 ------------------------------------------------------------------
 
-1. Author (collection: authors)
+1. Author (collection: authors)  [reference — already implemented in both arms]
    - authorId: number, required, unique
    - fullName: string, required
    - email: string, required, unique
