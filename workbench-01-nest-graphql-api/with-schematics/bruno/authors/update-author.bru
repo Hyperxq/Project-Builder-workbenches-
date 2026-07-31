@@ -1,0 +1,36 @@
+meta {
+  name: Update Author
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateAuthor($updateAuthorArgs: UpdateAuthorArgs!) {
+    updateAuthor(updateAuthorArgs: $updateAuthorArgs) {
+      authorId
+    fullName
+    email
+    country
+    active
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "updateAuthorArgs": {
+      "query": {
+        "authorId": 1
+      },
+      "payload": {
+        "fullName": "fullName-2"
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+name: nest-graphql-api
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./src/Dockerfile
+      target: development
+    command: ['npm', 'run', 'start:dev']
+    env_file: .env
+    environment:
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASS}@mongodb:27017/?authSource=admin
+    depends_on:
+      - mongodb
+    volumes:
+      - node_modules:/usr/src/app/node_modules
+    ports:
+      - 3000:3000
+
+  mongodb:
+    container_name: nest-graphql-api-db
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS}
+    ports:
+      - ${MONGO_PORT}:27017
+    volumes:
+      - mongo_app_db:/data/db
+      - mongo_app_config:/data/config-db
+
+volumes:
+  node_modules:
+  mongo_app_db:
+  mongo_app_config:

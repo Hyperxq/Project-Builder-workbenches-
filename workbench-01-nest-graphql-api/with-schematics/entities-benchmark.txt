@@ -1,0 +1,131 @@
+ENDPOINT BENCHMARK — ENTITY SPECIFICATIONS
+==========================================
+
+Task: for EACH entity below, create a complete GraphQL CRUD endpoint
+(create, list, get by key, update, remove) following the project's
+architecture and conventions. Every endpoint must include:
+  - unit tests for the service layer
+  - e2e tests driving the full CRUD cycle through /graphql
+  - a Bruno request collection (bruno/<entity>/)
+
+Definition of done (per endpoint, all four green):
+  pnpm exec tsc --noEmit && pnpm lint && pnpm test && pnpm test:e2e
+
+Field notation: name: type, constraints
+  - "unique" fields are the lookup keys for get/remove
+  - "default X" fields are optional on create
+  - "optional" fields are nullable
+  - "embedded" objects are sub-documents stored inside the entity
+
+------------------------------------------------------------------
+
+1. Author (collection: authors)
+   - authorId: number, required, unique
+   - fullName: string, required
+   - email: string, required, unique
+   - country: string, optional
+   - active: boolean, required, default true
+
+2. Book (collection: books)
+   - isbn: string, required, unique
+   - title: string, required
+   - pages: number, required
+   - publishedAt: date, optional
+   - inPrint: boolean, required, default true
+
+3. Category (collection: categories)
+   - code: string, required, unique
+   - name: string, required
+   - description: string, optional
+   - enabled: boolean, required, default true
+
+4. Supplier (collection: suppliers)
+   - supplierId: number, required, unique
+   - name: string, required
+   - email: string, required, unique
+   - phone: string, optional
+
+5. Warehouse (collection: warehouses)  [has embedded object]
+   - code: string, required, unique
+   - name: string, required
+   - capacity: number, required
+   - location: embedded, required
+       - street: string, required
+       - city: string, required
+       - latitude: number, required
+       - longitude: number, required
+
+6. Employee (collection: employees)
+   - employeeId: number, required, unique
+   - fullName: string, required
+   - email: string, required, unique
+   - hiredAt: date, required
+   - remote: boolean, required, default false
+
+7. Review (collection: reviews)
+   - reviewId: number, required, unique
+   - rating: number, required
+   - comment: string, optional
+   - verified: boolean, required, default false
+   - reviewedAt: date, required
+
+8. Coupon (collection: coupons)
+   - code: string, required, unique
+   - discount: number, required
+   - expiresAt: date, required
+   - active: boolean, required, default true
+
+9. Invoice (collection: invoices)  [has embedded object]
+   - invoiceNumber: number, required, unique
+   - total: number, required
+   - issuedAt: date, required
+   - paid: boolean, required, default false
+   - billing: embedded, required
+       - street: string, required
+       - city: string, required
+       - zipCode: string, required
+
+10. Shipment (collection: shipments)  [has embedded object]
+    - trackingCode: string, required, unique
+    - weight: number, required
+    - shippedAt: date, optional
+    - delivered: boolean, required, default false
+    - destination: embedded, required
+        - street: string, required
+        - city: string, required
+        - country: string, required
+
+11. Payment (collection: payments)
+    - paymentId: number, required, unique
+    - amount: number, required
+    - method: string, required
+    - processedAt: date, optional
+    - confirmed: boolean, required, default false
+
+12. Ticket (collection: tickets)
+    - ticketNumber: number, required, unique
+    - subject: string, required
+    - priority: number, required
+    - openedAt: date, required
+    - open: boolean, required, default true
+
+13. Event (collection: events)
+    - slug: string, required, unique
+    - title: string, required
+    - startsAt: date, required
+    - seats: number, required
+    - published: boolean, required, default false
+
+14. Subscription (collection: subscriptions)
+    - subscriptionId: number, required, unique
+    - plan: string, required
+    - startedAt: date, required
+    - renewals: number, required, default 0
+    - active: boolean, required, default true
+
+15. Vehicle (collection: vehicles)
+    - plate: string, required, unique
+    - brand: string, required
+    - model: string, required
+    - year: number, required
+    - electric: boolean, required, default false

@@ -1,0 +1,31 @@
+meta {
+  name: Get Author
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query Author($getAuthor: GetAuthorInput!) {
+    author(getAuthor: $getAuthor) {
+      authorId
+    fullName
+    email
+    country
+    active
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "getAuthor": {
+      "authorId": 1
+    }
+  }
+}

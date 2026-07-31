@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "nest-graphql-api - without schematics",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "properties": {
+    "name": {
+      "type": "string",
+      "label": "Resource name, singular or plural (e.g. products)",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,34 @@
+meta {
+  name: Create Author
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateAuthor($createAuthor: CreateAuthorInput!) {
+    createAuthor(createAuthor: $createAuthor) {
+      authorId
+    fullName
+    email
+    country
+    active
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "createAuthor": {
+      "authorId": 1,
+      "fullName": "fullName-1",
+      "email": "user1@example.com",
+      "country": "country-1"
+    }
+  }
+}

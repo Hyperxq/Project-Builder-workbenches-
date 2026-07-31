@@ -1,0 +1,9 @@
+{
+  "properties": {
+    "schema": {
+      "type": "string",
+      "label": "Path to the mongoose schema file (e.g. src/products/schemas/product.schema.ts)",
+      "required": true
+    }
+  }
+}

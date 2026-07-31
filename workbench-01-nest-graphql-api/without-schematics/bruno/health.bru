@@ -1,0 +1,17 @@
+meta {
+  name: Health
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query Health {
+    health
+  }
+}

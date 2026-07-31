@@ -1,0 +1,23 @@
+meta {
+  name: List Authors
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/graphql
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query Authors {
+    authors {
+      authorId
+    fullName
+    email
+    country
+    active
+    }
+  }
+}
