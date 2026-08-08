@@ -1,3 +1,12 @@
+import {
+  Node,
+  Project,
+  SyntaxKind,
+  type Expression,
+  type ObjectLiteralExpression,
+  type SourceFile,
+} from 'ts-morph';
+
 export type MongooseFieldType =
   | 'String'
   | 'Number'
@@ -24,79 +33,121 @@ export interface ParsedSchema {
 
 const PRIMITIVE_TYPES = ['String', 'Number', 'Boolean', 'Date'] as const;
 
-const stripComments = (source: string): string =>
-  source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+const parseSourceFile = (source: string): SourceFile =>
+  new Project({ useInMemoryFileSystem: true }).createSourceFile(
+    'schema.ts',
+    source,
+  );
 
-const parseSchemaImports = (source: string): Record<string, string> => {
-  const imports: Record<string, string> = {};
-  const importRe = /import\s*\{([^}]+)\}\s*from\s*'([^']+)'/g;
-  let match: RegExpExecArray | null;
+const findSchemaDeclaration = (sf: SourceFile) =>
+  sf.getVariableDeclarations().find((decl) => {
+    if (!decl.getName().endsWith('Schema')) return false;
+    if (decl.getVariableStatement()?.isExported() !== true) return false;
+    const init = decl.getInitializer();
+    return (
+      Node.isNewExpression(init) &&
+      init.getExpression().getText() === 'mongoose.Schema'
+    );
+  });
 
-  while ((match = importRe.exec(source)) !== null) {
-    match[1]
-      .split(',')
-      .map((id) => id.trim())
-      .filter((id) => /Schema$/.test(id))
-      .forEach((id) => {
-        imports[id] = match![2];
-      });
+const findAddedFieldsLiteral = (
+  sf: SourceFile,
+  schemaVariable: string,
+): ObjectLiteralExpression | undefined => {
+  for (const call of sf.getDescendantsOfKind(SyntaxKind.CallExpression)) {
+    const callee = call.getExpression();
+    if (!Node.isPropertyAccessExpression(callee)) continue;
+    if (callee.getName() !== 'add') continue;
+    if (callee.getExpression().getText() !== schemaVariable) continue;
+
+    const arg = call.getArguments()[0];
+    if (Node.isObjectLiteralExpression(arg)) return arg;
   }
+  return undefined;
+};
 
+const collectSchemaImports = (sf: SourceFile): Record<string, string> => {
+  const imports: Record<string, string> = {};
+  for (const decl of sf.getImportDeclarations()) {
+    for (const named of decl.getNamedImports()) {
+      if (named.getName().endsWith('Schema')) {
+        imports[named.getName()] = decl.getModuleSpecifierValue();
+      }
+    }
+  }
   return imports;
 };
 
-export const parseMongooseSchema = (rawSource: string): ParsedSchema => {
-  const source = stripComments(rawSource);
+const isTrue = (expr: Expression | undefined): boolean =>
+  expr?.getKind() === SyntaxKind.TrueKeyword;
 
-  const classMatch = source.match(
-    /export const (\w+)Schema\s*=\s*new mongoose\.Schema/,
-  );
-  if (!classMatch) {
+export const parseMongooseSchema = (rawSource: string): ParsedSchema => {
+  const sf = parseSourceFile(rawSource);
+
+  const schemaDecl = findSchemaDeclaration(sf);
+  if (!schemaDecl) {
     throw new Error(
       'Could not find `export const <Name>Schema = new mongoose.Schema(...)` in the schema file.',
     );
   }
+  const schemaVariable = schemaDecl.getName();
+  const className = schemaVariable.slice(0, -'Schema'.length);
 
-  const addMatch = source.match(/\.add\(\{([\s\S]*?)\n\}\);/);
-  if (!addMatch) {
+  const fieldsLiteral = findAddedFieldsLiteral(sf, schemaVariable);
+  if (!fieldsLiteral) {
     throw new Error(
       'Could not find a `<Name>Schema.add({ ... });` block in the schema file.',
     );
   }
 
-  const schemaImports = parseSchemaImports(source);
+  const schemaImports = collectSchemaImports(sf);
   const fields: ParsedField[] = [];
-  const fieldRe = /(\w+)\s*:\s*\{([^}]*)\}/g;
-  let entry: RegExpExecArray | null;
 
-  while ((entry = fieldRe.exec(addMatch[1])) !== null) {
-    const [, name, options] = entry;
+  for (const prop of fieldsLiteral.getProperties()) {
+    if (!Node.isPropertyAssignment(prop)) continue;
+    const name = prop.getName();
 
-    const typeMatch = options.match(/type\s*:\s*([\w.]+)/);
-    if (!typeMatch) {
+    const options = prop.getInitializer();
+    if (!Node.isObjectLiteralExpression(options)) {
       throw new Error(`Field "${name}": missing type.`);
     }
 
-    const base = {
-      name,
-      required: /required\s*:\s*true/.test(options),
-      unique: /unique\s*:\s*true/.test(options),
-      hasDefault: /default\s*:/.test(options),
+    const option = (key: string): Expression | undefined => {
+      const entry = options.getProperty(key);
+      return Node.isPropertyAssignment(entry)
+        ? entry.getInitializer()
+        : undefined;
     };
 
-    if ((PRIMITIVE_TYPES as readonly string[]).includes(typeMatch[1])) {
-      fields.push({ ...base, type: typeMatch[1] as MongooseFieldType });
+    const typeExpr = option('type');
+    if (!typeExpr) {
+      throw new Error(`Field "${name}": missing type.`);
+    }
+    const typeName = typeExpr.getText();
+
+    const base = {
+      name,
+      required: isTrue(option('required')),
+      unique: isTrue(option('unique')),
+      hasDefault: option('default') !== undefined,
+    };
+
+    if ((PRIMITIVE_TYPES as readonly string[]).includes(typeName)) {
+      fields.push({ ...base, type: typeName as MongooseFieldType });
       continue;
     }
 
-    const subMatch = typeMatch[1].match(/^(\w+)Schema$/);
-    if (subMatch && schemaImports[typeMatch[1]] !== undefined) {
-      fields.push({ ...base, type: 'SubSchema', subSchemaClass: subMatch[1] });
+    if (typeName.endsWith('Schema') && schemaImports[typeName] !== undefined) {
+      fields.push({
+        ...base,
+        type: 'SubSchema',
+        subSchemaClass: typeName.slice(0, -'Schema'.length),
+      });
       continue;
     }
 
     throw new Error(
-      `Field "${name}": unsupported type "${typeMatch[1]}". Supported: ${PRIMITIVE_TYPES.join(', ')}, or an imported <Name>Schema for embedded sub-documents.`,
+      `Field "${name}": unsupported type "${typeName}". Supported: ${PRIMITIVE_TYPES.join(', ')}, or an imported <Name>Schema for embedded sub-documents.`,
     );
   }
 
@@ -106,5 +157,5 @@ export const parseMongooseSchema = (rawSource: string): ParsedSchema => {
     );
   }
 
-  return { className: classMatch[1], fields, schemaImports };
+  return { className, fields, schemaImports };
 };

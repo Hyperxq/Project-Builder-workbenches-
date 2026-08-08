@@ -1,4 +1,6 @@
-import { create, find, replaceContent } from '@pbuilder/sdk/commons';
+import { create, find } from '@pbuilder/sdk/commons';
+import * as tsd from '@pbuilder/sdk/typescript';
+import { Node, type SourceFile } from 'ts-morph';
 import type { Input } from './schema.generated.ts';
 import { camelize, classify, dasherize, resourceNames } from '../shared/names.ts';
 import { parseMongooseSchema, type ParsedSchema } from './parser.ts';
@@ -156,30 +158,40 @@ const registerInAppModule = async (
   }
 
   const moduleName = `${moduleClass}Module`;
+  // Skip BEFORE scheduling the edit — an already-registered module must leave
+  // app.module.ts out of the batch entirely, not rewrite it byte-identical.
   if (source.includes(moduleName)) return;
 
-  const importLine = `import { ${moduleName} } from './${moduleDir}/${moduleDir}.module';`;
-  const lastImport = source.match(/import [^\n]+;(?![\s\S]*import [^\n]+;)/);
-  if (!lastImport || lastImport.index === undefined) {
-    throw new Error(`Could not find import statements in ${appModulePath}.`);
+  await tsd.find(appModulePath).modify((sf) => {
+    // The dialect pins double-quote style; this repo is single-quote — set the
+    // specifier text explicitly so generated code matches the file around it.
+    sf.addImportDeclaration({
+      namedImports: [moduleName],
+      moduleSpecifier: `./${moduleDir}/${moduleDir}.module`,
+    })
+      .getModuleSpecifier()
+      .replaceWithText(`'./${moduleDir}/${moduleDir}.module'`);
+
+    const importsArray = findModuleImportsArray(sf);
+    if (!importsArray) {
+      throw new Error(
+        `Could not locate the @Module imports array in ${appModulePath} — register ${moduleName} manually.`,
+      );
+    }
+    importsArray.addElement(moduleName);
+  });
+};
+
+const findModuleImportsArray = (sf: SourceFile) => {
+  for (const cls of sf.getClasses()) {
+    const arg = cls.getDecorator('Module')?.getArguments()[0];
+    if (!Node.isObjectLiteralExpression(arg)) continue;
+
+    const importsProp = arg.getProperty('imports');
+    if (!Node.isPropertyAssignment(importsProp)) continue;
+
+    const init = importsProp.getInitializer();
+    if (Node.isArrayLiteralExpression(init)) return init;
   }
-
-  const withImport =
-    source.slice(0, lastImport.index + lastImport[0].length) +
-    `\n${importLine}` +
-    source.slice(lastImport.index + lastImport[0].length);
-
-  const importsClose = withImport.match(/\n(\s*)\],\n\s*(providers|controllers)/);
-  if (!importsClose || importsClose.index === undefined) {
-    throw new Error(
-      `Could not locate the imports array closing in ${appModulePath} — register ${moduleName} manually.`,
-    );
-  }
-
-  const registered =
-    withImport.slice(0, importsClose.index) +
-    `\n${importsClose[1]}  ${moduleName},` +
-    withImport.slice(importsClose.index);
-
-  replaceContent(appModulePath, registered);
+  return undefined;
 };

@@ -44,8 +44,15 @@ writes to disk.
   `unrepresentable-content` (SDK issue #60).
 - `find(path).read()` → branch on `=== undefined` (absent) / `=== ''` (empty)
   — never `if (!content)`.
-- Mutate existing files with `find().read()` + string surgery +
-  `replaceContent(path, next)`; make it idempotent (check before inserting).
+- Mutate existing TypeScript with the AST dialect, never string surgery:
+  `import * as tsd from '@pbuilder/sdk/typescript'` →
+  `tsd.find(path).modify((sf) => …)` hands you a ts-morph `SourceFile` and
+  preserves the file's own newline convention (CRLF-safe). Gotchas: check
+  idempotence BEFORE scheduling (a no-op `.modify()` still commits a write);
+  the dialect pins double-quote style — `replaceWithText` the module specifier
+  for single-quote repos; walking/parsing raw source needs `ts-morph` as a
+  direct devDependency (pin the SDK's own version — pnpm doesn't hoist it).
+  For non-TS files only: `find().read()` + `replaceContent(path, next)`.
 - Templates are Go-template with `{= .name | pipe =}` delimiters; 7 pipes
   (`upper lower capitalize dasherize underscore camelize classify`), NO
   pluralize, `classify` does NOT singularize. Simplest robust path: build

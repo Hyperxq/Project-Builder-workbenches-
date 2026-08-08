@@ -57,6 +57,27 @@ describe('parser', () => {
     const skeleton = productSchema.replace(/\n {2}\w+.*$/gm, '\n  // example: { type: String },');
     expect(() => parseMongooseSchema(skeleton)).toThrow(/no fields/);
   });
+
+  test('parses a CRLF schema file', () => {
+    const parsed = parseMongooseSchema(productSchema.replace(/\n/g, '\r\n'));
+
+    expect(parsed.className).toBe('Product');
+    expect(parsed.fields.map((f) => f.name)).toEqual(['sku', 'title', 'price', 'inStock']);
+  });
+
+  test('parses a compact single-line add block', () => {
+    const compact = `import * as mongoose from 'mongoose';
+export const ProductSchema = new mongoose.Schema({}, { versionKey: false });
+ProductSchema.add({ sku: { type: String, required: true, unique: true }, price: { type: Number, required: true } });
+`;
+
+    const parsed = parseMongooseSchema(compact);
+
+    expect(parsed.fields).toEqual([
+      { name: 'sku', type: 'String', required: true, unique: true, hasDefault: false },
+      { name: 'price', type: 'Number', required: true, unique: false, hasDefault: false },
+    ]);
+  });
 });
 
 describe('resource factory', () => {
@@ -125,7 +146,39 @@ describe('resource factory', () => {
     expect(mutated).toContain(
       "import { ProductsModule } from './products/products.module';",
     );
-    expect(mutated).toContain('    ProductsModule,\n  ],');
+    // Trailing comma is prettier's call, not the schematic's contract.
+    expect(mutated).toMatch(/ProductsModule,?\n\s*\],/);
+  });
+
+  test('registers the module when app.module.ts uses CRLF line endings', async () => {
+    const result = await runFactoryForTest(
+      factory,
+      { schema: 'src/products/schemas/product.schema.ts' },
+      { seed: { ...seed, 'src/app.module.ts': appModule.replace(/\n/g, '\r\n') } },
+    );
+
+    expect(result.error).toBeUndefined();
+    const mutated = result.tree.get('src/app.module.ts')!;
+    expect(mutated).toContain(
+      "import { ProductsModule } from './products/products.module';",
+    );
+    expect(mutated).toMatch(/ProductsModule,?\r\n\s*\],/);
+  });
+
+  test('registers the module when the imports array is written inline', async () => {
+    const inlineAppModule = appModule.replace(
+      'imports: [\n    DatabaseModule,\n  ],',
+      'imports: [DatabaseModule],',
+    );
+    const result = await runFactoryForTest(
+      factory,
+      { schema: 'src/products/schemas/product.schema.ts' },
+      { seed: { ...seed, 'src/app.module.ts': inlineAppModule } },
+    );
+
+    expect(result.error).toBeUndefined();
+    const mutated = result.tree.get('src/app.module.ts')!;
+    expect(mutated).toMatch(/imports: \[[\s\S]*ProductsModule[\s\S]*\],/);
   });
 
   test('is idempotent on app.module.ts when the module is already registered', async () => {
