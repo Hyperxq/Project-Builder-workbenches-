@@ -79,8 +79,8 @@ importers:
         specifier: ^11.0.1
         version: 11.1.28(@nestjs/common@11.1.28(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.28)(@nestjs/platform-express@11.1.28)
       '@pbuilder/sdk':
-        specifier: ^0.2.2
-        version: 0.2.2
+        specifier: ^0.2.4
+        version: 0.2.4
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
@@ -1007,8 +1007,8 @@ packages:
   '@paralleldrive/cuid2@2.3.1':
     resolution: {integrity: sha512-XO7cAxhnTZl0Yggq6jOgjiOHhbgcO4NqFqwSmQpjK3b6TEE6Uj/jfSk6wzYyemh3+I0sHirKSetjQwn5cZktFw==}
 
-  '@pbuilder/sdk@0.2.2':
-    resolution: {integrity: sha512-FBZ39/wOPoiVBSqnN/3JJ7r5iSqlX6lrcxRGNIFHyCfEil9NDkjkGDl16XA/hVsyvbJCjnYmifKlh0f+LCFOSw==}
+  '@pbuilder/sdk@0.2.4':
+    resolution: {integrity: sha512-dp40sdJBFT9gMZwiq6nsje9LMH2khiYb3eIVxOyTo32Ss4oQiN9ZKtsvGZvJTWuzsGJD2rea6MAeB+hG8JTLOA==}
     engines: {bun: 1.3.14, node: '>=25.9.0'}
     hasBin: true
 
@@ -4740,7 +4740,7 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.8.0
 
-  '@pbuilder/sdk@0.2.2':
+  '@pbuilder/sdk@0.2.4':
     dependencies:
       ts-morph: 28.0.0
 
