@@ -7,13 +7,15 @@ FROM node:${NODE_VERSION}
 ARG CLAUDE_CODE_VERSION=2.1.226
 ARG PNPM_VERSION=11.21.0
 ARG BUN_VERSION=1.3.14
+ARG BRUNO_CLI_VERSION=4.0.0
 ARG PBUILDER_VERSION=0.8.5
 ARG TARGETARCH
 
 RUN npm install -g \
     @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
     pnpm@${PNPM_VERSION} \
-    bun@${BUN_VERSION}
+    bun@${BUN_VERSION} \
+    @usebruno/cli@${BRUNO_CLI_VERSION}
 
 # pbuilder ships the `builder` binary via GoReleaser tarballs (linux amd64/arm64)
 RUN curl -fsSL "https://github.com/Project-Builder-Schematics/homebrew-tap/releases/download/v${PBUILDER_VERSION}/pbuilder_${PBUILDER_VERSION}_linux_${TARGETARCH}.tar.gz" \
