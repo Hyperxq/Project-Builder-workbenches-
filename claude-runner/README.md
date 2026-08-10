@@ -87,6 +87,30 @@ Methodology for a fair comparison:
 4. **Consistency check**: diff the generated code *between runs of the same arm*. Identical task, identical standard — how identical is the output?
 5. Tokens are the primary cost metric; `cost_usd` is the API-equivalent price and is informational when running under a subscription.
 
+## Cleaning between runs
+
+Arms are bind-mounted, so agent sessions write straight into your working tree — and `git clean` treats uncommitted work and run leftovers exactly the same. The order below is not optional; each step exists because skipping it has already burned a run:
+
+1. **Kill every agent session before cleaning.** A live (or zombie) container keeps writing into the arm through the bind mount and re-dirties it right after you clean:
+
+   ```bash
+   docker ps --filter name=bench        # anything alive? docker stop <id>
+   ```
+
+2. **Commit anything you want to keep first.** Untracked files — harness scripts, env fixes, results you care about — are indistinguishable from run garbage to `git clean -fd`.
+
+3. **Clean the arm** (from the repo root; per arm, or the whole workbench):
+
+   ```bash
+   git checkout -- <workbench>/<arm> && git clean -fd <workbench>/<arm>
+   ```
+
+   Note: cleaning the whole workbench directory also deletes untracked `results/` runs — move any scorecard you want to keep out of the way (or commit it) first.
+
+4. **Verify before launching**: `git status` must be empty for the arm. `bench.sh` double-checks this and aborts if any benchmark entity already exists — a run that starts on a dirty arm reports `files_created: 0` and green gates earned by old code: numbers that lie.
+
+One session per arm, always — two agents writing into the same bind mount produce a tree nobody can attribute.
+
 ## Isolation model
 
 | Concern | How it's handled |
