@@ -1,0 +1,27 @@
+name: claude-runner
+
+services:
+  runner:
+    build: .
+    env_file: .env
+    environment:
+      # Overrides the localhost URI in the arm's .env — process.env wins over dotenv
+      MONGODB_URI: mongodb://root:example@mongodb:27017/?authSource=admin
+    depends_on:
+      - mongodb
+    volumes:
+      - ../${WORKBENCH:-workbench-01-nest-graphql-api}/${ARM:?set ARM=with-schematics or ARM=without-schematics}:/workspace
+      - /workspace/node_modules
+      - pnpm_store:/home/agent/.pnpm-store
+    ports:
+      - '3000:3000'
+
+  mongodb:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    # No data volume on purpose: every `up` starts with an empty database
+
+volumes:
+  pnpm_store:
