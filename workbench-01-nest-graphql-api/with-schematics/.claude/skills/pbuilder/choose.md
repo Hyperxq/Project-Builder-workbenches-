@@ -2,25 +2,39 @@
 
 # Choosing a schematic
 
-`project-builder.json`'s `collections` map is the source of truth for what schematics exist in this workspace. Read it before choosing anything else.
+`project-builder.json`'s `collections` map is the source of truth for what schematics exist in this workspace, but `builder info` is how you read it — prefer it over opening the file yourself.
+
+## Primary: `builder info` (use `--output=json` for machine-parseable output)
+
+A three-level ladder — bare, collection, schematic — each level's output teaching you the next command to run:
+
+1. **`builder info`** (bare) — lists every registered collection, and the concrete `builder info <collection>` command to descend into one.
+2. **`builder info <collection>`** — lists that collection's schematics: name, description, and the `builder info <collection>:<name>` command to descend further. Inline-mode entries are marked non-executable, no description.
+3. **`builder info <collection>:<schematic>`** — full input detail: type, required, default, enum, and label per property, plus the schematic's own description. This is the terminal read — no `schema.json` or `factory.ts` follow-up needed.
+
+Pass `--output=json` on any of the three forms for a single machine-parseable JSON object (no themed text mixed in) — the detail form's JSON carries everything an agent needs to invoke `builder execute` correctly, in one call.
 
 ## Where schematics are registered
 
 A schematic reaches you through one of **three registration shapes**:
 
 - **Path-mode** — a direct entry under a collection container: `"<name>": {"path": "./schematics/<name>"}`. One `schema.json` read per candidate.
-- **Collection-mode** — a top-level collection entry: `"<collection>": {"path": "./schematics/<collection>/collection.json"}`. Candidate names live in `collection.json`, and each one's `schema.json` lives at `dirname(factory)/schema.json` — **2-3 reads per candidate** (collection.json, then the factory path, then the schema itself), costlier than path-mode's single read.
+- **Collection-mode** — a top-level collection entry: `"<collection>": {"path": "./schematics/<collection>/collection.json"}`. Candidate names live in `collection.json`, and each one's `schema.json` lives at `dirname(factory)/schema.json` — **2-3 reads per candidate** (collection.json, then the factory path, then the schema itself), costlier than path-mode's single read. `builder info` performs these reads for you.
 - **Inline-mode** — nested under a collection's `schematics` key: `"schematics": {"<name>": {"inputs": {}}}`. Inline registrations are **NOT currently executable** — `builder execute` supports path-mode and collection-mode only. Never select an inline entry expecting a successful run.
 
 Every schematic is referenced as `<collection>:<name>` — for example `default:<name>` for anything registered under the `default` container.
 
 `project-builder.json` may carry unknown top-level keys beyond `collections`, `dependencies`, and `settings`. These are legal and preserved untouched by `builder init --force` — never treat one as an error.
 
-## Tier 0 — shortlist from names alone
+## Fallback: reading files directly (pre-`info` binary, or absent from PATH)
+
+If `builder info` is unavailable — an older CLI version, or the binary missing from PATH — fall back to this three-tier file-reading procedure. It reaches the same conclusions `builder info` would, at the cost of manual reads.
+
+### Tier 0 — shortlist from names alone
 
 Zero reads beyond `project-builder.json` itself. Registration keys and directory names build your shortlist — nothing opened yet. A shortlist of "all of them" is a legitimate Tier 0 outcome when nothing narrows the field, not a failure of the tier — it just means Tier 1 does the real work.
 
-## Tier 1 — one schema.json read per candidate
+### Tier 1 — one schema.json read per candidate
 
 For each shortlisted candidate, read its `schema.json` **once** and pull everything you need from that single read, checked in this order:
 
@@ -30,13 +44,13 @@ For each shortlisted candidate, read its `schema.json` **once** and pull everyth
 
 All three live in the SAME `schema.json` read. Never open the file twice for the same candidate.
 
-## Tier 2 — the head of factory.ts
+### Tier 2 — the head of factory.ts
 
 If Tier 1 still leaves more than one plausible candidate, read the HEAD of `factory.ts` — its imports and template folder names — as a last structural signal, capped at **3 candidates**. Never read the full factory body just to choose between finalists; the head is enough.
 
 This three-tier procedure is the SAME regardless of how many schematics are registered — the same Tier 0 → Tier 1 → Tier 2 sequence applies whether there are two candidates or two hundred. There is no separate branch keyed on registration count.
 
-## When a description is empty or missing
+### When a description is empty or missing
 
 Treat a schematic as having **no usable description** when its `description` key is either **missing entirely** or present with the value `""` — a structural check on the key itself, never a comparison against placeholder text. Both states are functionally identical and fall through to the SAME fallback ladder:
 
@@ -46,7 +60,7 @@ Treat a schematic as having **no usable description** when its `description` key
 
 This applies identically whether the description was left at the scaffold's empty `""` or the schematic predates this convention and has no `description` key at all — missing and empty are the same code path, not two.
 
-## When nothing fits
+### When nothing fits
 
 An honest no-match is a valid outcome. If no candidate — by description, labels, names, or the Tier 2 factory-head check — genuinely matches the task, say so and route to `create.md`, or ask the user. Never select a poor fit to avoid saying "no match."
 

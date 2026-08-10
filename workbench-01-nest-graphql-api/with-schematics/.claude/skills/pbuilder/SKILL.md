@@ -19,11 +19,11 @@ If no row matches, you do not need this skill.
 
 ## Guardrails — read before running anything
 
-Four commands work today: `builder init`, `builder new schematic <name>`,
+Five commands work today: `builder init`, `builder new schematic <name>`,
 `builder new collection <name>`, `builder execute <collection>:<schematic>
---<input>=<value>`. Everything else in `--help` (`add`, `info`, `sync`,
-`validate`, `remove`, `skill update`) is a stub that exits not-implemented.
-
+--<input>=<value>`, `builder info [<collection>[:<schematic>]]`. Everything
+else in `--help` (`add`, `sync`, `validate`, `remove`, `skill update`) is a
+stub that exits not-implemented.
 Run `builder execute` STANDALONE, one per shell call — never in a for-loop,
 pipe or `&&` chain, or the native engine dies with a system fault. There is no
 working dry-run: every `builder execute` writes for real.
