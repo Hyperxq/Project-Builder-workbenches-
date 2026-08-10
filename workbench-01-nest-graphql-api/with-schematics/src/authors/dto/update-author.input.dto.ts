@@ -43,10 +43,10 @@ export class UpdateAuthorArgs {
   @Field(() => GetAuthorInput)
   @ValidateNested()
   @Type(() => GetAuthorInput)
-  query: GetAuthorInput;
+  query!: GetAuthorInput;
 
   @Field(() => UpdateAuthorPayload)
   @ValidateNested()
   @Type(() => UpdateAuthorPayload)
-  payload: UpdateAuthorPayload;
+  payload!: UpdateAuthorPayload;
 }
