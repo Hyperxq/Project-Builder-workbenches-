@@ -57,7 +57,13 @@ Prerequisites: Node.js 20+, [pnpm](https://pnpm.io/), Docker, [Bun](https://bun.
 
 2. **Pick one or more entities** from `entities-benchmark.txt` — the file is identical in both arms.
 
-3. **Give both arms the exact same prompt** with your AI agent of choice — copy it verbatim, only replacing the entity name. The comparison is only fair if neither arm gets extra hints:
+3. **Give both arms the exact same prompt** with your AI agent of choice — copy it verbatim, only replacing the entity name. The comparison is only fair if neither arm gets extra hints. For a clean-room agent (no personal config, hooks, or plugins influencing either arm), run Claude Code through the isolated container in [`claude-runner/`](./claude-runner/README.md):
+
+   ```bash
+   ARM=with-schematics docker compose -p bench-with run --rm runner
+   ```
+
+   The prompt itself stays the same:
 
    ```text
       Follow the instruction listed on entities-benchmark.txt

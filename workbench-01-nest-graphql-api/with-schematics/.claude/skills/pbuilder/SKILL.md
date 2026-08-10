@@ -1,73 +1,34 @@
 ---
 name: pbuilder
-description: Project Builder CLI + SDK distilled reference — commands, schematic authoring, proven gotchas. Load INSTEAD of exploring the SDK/CLI repos.
+description: Project Builder — the `builder` CLI and @pbuilder/sdk. Routes to how to run a schematic, how to pick one for a task, and when to author a new one. Load before generating code in this workspace, before hand-writing anything that looks like a repeated pattern, and whenever a `builder` command fails.
 ---
+# Project Builder — agent router
 
-# Project Builder — distilled reference (CLI v0.6.0, @pbuilder/sdk 0.2.x)
+**Mindset**: where a pattern repeats, code is GENERATED. `project-builder.json`
+registers collections of schematics — prefer running one over hand-writing.
 
-**Context discipline**: this file + `AGENTS.md` carry everything needed for
-routine work. Do NOT re-explore `~/Projects/Project-Builder-Renaissance/`
-(SDK/CLI/engine sources) unless changing the schematic infrastructure itself.
+## Load ONE file, act on it, then come back
 
-## Commands that actually work
+| If you are about to… | Load | Not for |
+|---|---|---|
+| write code, unsure a generator exists | [choose.md](choose.md) | running one |
+| run a schematic you picked, or recover a failed `execute` | [use.md](use.md) | picking one |
+| author a schematic, or nothing fitted a repeated pattern | [create.md](create.md) | one-off code |
 
-- `builder new schematic <name>` — scaffold a local schematic (`builder add` is a STUB, despite older docs).
-- `builder execute default:<name> --input=value` — run it. Global flags go BEFORE the positional; everything after is schematic input.
-- `builder skill update` — regenerates this file on CLI upgrades (re-apply this content if it does).
-- Inputs are CLI flags only (no JSON file, no stdin). `list` type accumulates by repeating the flag; commas are literal. Execute never prompts — already non-interactive. `--dry-run` currently fails closed; don't use.
-- Run `builder execute` as a STANDALONE command, one per Bash call. Inside compound shell commands (for-loops, pipes) the native engine dies with `engine_native_system_fault`; sequential single calls also avoid racing the shared `src/app.module.ts` edit.
+If no row matches, you do not need this skill.
 
-## Local schematic anatomy
+## Guardrails — read before running anything
 
-```
-schematics/<name>/
-├── schema.json           # {"properties": {"x": {"type": "string", "label": "…", "required": true}}}
-├── schema.generated.ts   # pnpm generate:types → NEVER edit
-└── factory.ts            # default export: (input: Input) => void | Promise<void>
-```
+Four commands work today: `builder init`, `builder new schematic <name>`,
+`builder new collection <name>`, `builder execute <collection>:<schematic>
+--<input>=<value>`. Everything else in `--help` (`add`, `info`, `sync`,
+`validate`, `remove`, `skill update`) is a stub that exits not-implemented.
 
-Registered in `project-builder.json` under `collections.default.<name>`.
-Factories run as TypeScript directly under Bun — no build step, and
-`schematics/` stays OUT of the Nest tsconfigs (`.ts`-extension imports,
-`bun:test` types).
+Run `builder execute` STANDALONE, one per shell call — never in a for-loop,
+pipe or `&&` chain, or the native engine dies with a system fault. There is no
+working dry-run: every `builder execute` writes for real.
 
-**`label` is REQUIRED on every schema.json property** — codegen fails without it.
-
-## Authoring API (`@pbuilder/sdk/commons`)
-
-Verbs: `create`, `replaceContent`, `remove`, `rename`, `move`, `copy`,
-`copyIn`, `scaffold`, `find`. The factory schedules directives; the engine
-writes to disk.
-
-- **`create(path, { template, options: {} })` — ALWAYS pass `options: {}`.**
-  Omitting it puts `undefined` in the IR batch → rejected as
-  `unrepresentable-content` (SDK issue #60).
-- `find(path).read()` → branch on `=== undefined` (absent) / `=== ''` (empty)
-  — never `if (!content)`.
-- Mutate existing TypeScript with the AST dialect, never string surgery:
-  `import * as tsd from '@pbuilder/sdk/typescript'` →
-  `tsd.find(path).modify((sf) => …)` hands you a ts-morph `SourceFile` and
-  preserves the file's own newline convention (CRLF-safe). Gotchas: check
-  idempotence BEFORE scheduling (a no-op `.modify()` still commits a write);
-  the dialect pins double-quote style — `replaceWithText` the module specifier
-  for single-quote repos; walking/parsing raw source needs `ts-morph` as a
-  direct devDependency (pin the SDK's own version — pnpm doesn't hoist it).
-  For non-TS files only: `find().read()` + `replaceContent(path, next)`.
-- Templates are Go-template with `{= .name | pipe =}` delimiters; 7 pipes
-  (`upper lower capitalize dasherize underscore camelize classify`), NO
-  pluralize, `classify` does NOT singularize. Simplest robust path: build
-  final strings in factory TS (no `{= =}` at all) — rendered verbatim.
-
-## Testing factories
-
-`runFactoryForTest(factory, input, { seed })` from `@pbuilder/sdk/testing`,
-under `bun test` (`pnpm test:schematics`). In-memory, no engine:
-`result.tree` = committed writes ONLY (untouched seeds absent — that's how you
-assert idempotence), `result.error` = authoring rejection or factory throw.
-Name files `*.test.ts` so Jest ignores them.
-
-## This project's schematics
-
-- `builder execute default:schema --name=<resource>` → mongoose schema skeleton.
-- `builder execute default:resource --schema=src/<plural>/schemas/<singular>.schema.ts` → full slice (entity, DTOs, service, repository, resolver, module, unit spec, e2e spec, Bruno, app.module registration). Endpoint workflow + supported field types: see `AGENTS.md`.
-- Generator bugs get fixed in `schematics/resource/` and regenerated — never patched in generated files.
+These four files are written by `builder init` — do not hand-edit them; put
+project-specific guidance in AGENTS.md instead. `builder init --force`
+re-applies them and upgrades `project-builder.json` in place, preserving
+registered collections, dependencies and settings.

@@ -11,15 +11,15 @@ import {
 export class CreateAuthorInput {
   @Field(() => Int)
   @IsInt()
-  authorId: number;
+  authorId!: number;
 
   @Field(() => String)
   @IsString()
-  fullName: string;
+  fullName!: string;
 
   @Field(() => String)
   @IsEmail()
-  email: string;
+  email!: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

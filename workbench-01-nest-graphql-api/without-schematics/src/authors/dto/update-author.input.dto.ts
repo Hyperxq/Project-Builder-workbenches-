@@ -1,4 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
@@ -7,7 +8,6 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { GetAuthorInput } from './get-author.input.dto';
 
 @InputType()
@@ -43,10 +43,10 @@ export class UpdateAuthorArgs {
   @Field(() => GetAuthorInput)
   @ValidateNested()
   @Type(() => GetAuthorInput)
-  query: GetAuthorInput;
+  query!: GetAuthorInput;
 
   @Field(() => UpdateAuthorPayload)
   @ValidateNested()
   @Type(() => UpdateAuthorPayload)
-  payload: UpdateAuthorPayload;
+  payload!: UpdateAuthorPayload;
 }
