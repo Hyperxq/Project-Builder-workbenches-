@@ -80,6 +80,22 @@ Prerequisites: Node.js 20+, [pnpm](https://pnpm.io/), Docker, [Bun](https://bun.
 
 Each arm's own `README.md` documents its stack, architecture, and workflow in detail.
 
+## Workbench 02 — React Admin (Schematic Amortization)
+
+**Stack**: React 19 · Vite 8 · TypeScript strict · Tailwind v4 + shadcn/ui · TanStack Router/Query · Zustand · react-hook-form + Zod v4 · MSW v2 · Playwright + axe
+
+Workbench 01 measured running a pre-built schematic. Workbench 02 measures the claim behind it: **the schematic doesn't exist yet** — the `with-schematics` arm starts from a bare `builder init` (workspace wired, zero templates) and must AUTHOR its own generator during batch 1, while `without-schematics` implements everything by hand. 14 entities in three tiers (vanilla CRUD, real-world quirks, heavy workflows) across 5 clean-room batches expose the amortization curve: heavy first iteration, near-free rest — and the break-even point where authoring pays for itself.
+
+**Task**: build the admin CRUD modules specified in `entities-benchmark.txt` over an identical base app (Linear design language via `DESIGN.md`, clean architecture per `AGENTS.md`, Authors reference module included, all gates green at the starting commit).
+
+**Definition of done** (per entity, all four green):
+
+```bash
+pnpm typecheck && pnpm lint && pnpm test:run && pnpm test:e2e
+```
+
+Full experiment design, protocol, and metrics: [`workbench-02-react-admin/README.md`](./workbench-02-react-admin/README.md).
+
 ## Adding a workbench
 
 Future workbenches follow the same convention: `workbench-NN-<name>/` containing a `with-schematics/` and a `without-schematics/` arm sharing an identical task specification and definition of done.

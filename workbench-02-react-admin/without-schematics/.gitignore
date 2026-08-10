@@ -1,0 +1,46 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing
+test-results
+playwright-report
+coverage
+
+# Benchmark run output — generated during measured runs, never committed.
+# The generated entity modules ARE the experiment result; only the starting
+# state (reference module + harness) is tracked. Clean a finished experiment
+# with: git checkout -- <arm> && git clean -fdx <arm>
+src/routeTree.gen.ts
+schematics/*
+!schematics/.gitkeep
+src/features/*/
+!src/features/authors/
+src/routes/*/
+!src/routes/authors/
+mocks/domains/*
+!mocks/domains/authors.mock.ts
+!mocks/domains/authors.mock.spec.ts
+mocks/fixtures/*
+!mocks/fixtures/authors.fixture.ts
