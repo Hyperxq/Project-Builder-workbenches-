@@ -36,6 +36,55 @@ Tear down (also discards the MongoDB data — every run starts with an empty dat
 docker compose down
 ```
 
+## Measured runs — the standard evaluation protocol
+
+Interactive sessions are for *watching*; measured runs are for *numbers*. Never mix them in the same dataset. A measured run executes one entity on one arm with a fixed canonical prompt, then runs the full definition of done, and records everything under `../<workbench>/results/`:
+
+```bash
+ARM=with-schematics    docker compose -p bench-with    run --rm runner bench.sh books
+ARM=without-schematics docker compose -p bench-without run --rm runner bench.sh books
+```
+
+Each run produces `results/<stamp>_<arm>_<entity>/`:
+
+| File | Contents |
+|---|---|
+| `bench.json` | The scorecard — see schema below |
+| `claude-output.json` | Raw agent telemetry (`claude -p --output-format json`) |
+| `gate-{tsc,lint,test,e2e}.log` | Full output of each definition-of-done gate |
+| `claude-stderr.log` | Agent stderr, for debugging failed runs |
+
+`bench.json` schema:
+
+```json
+{
+  "date": "…",
+  "arm": "with-schematics",
+  "entity": "books",
+  "agent": {
+    "wall_seconds": 312,          // total wall-clock for the agent run
+    "api_seconds": 280,           // time spent in API calls
+    "num_turns": 24,
+    "tokens": { "input_tokens": 0, "output_tokens": 0, "cache_read_input_tokens": 0, "cache_creation_input_tokens": 0 },
+    "cost_usd": 0.42,             // API-equivalent cost (informational under subscription)
+    "exit_code": 0
+  },
+  "definition_of_done": {
+    "first_attempt_pass": true,   // all four gates green with zero human help
+    "gates": [ { "gate": "tsc", "pass": true, "seconds": 11 }, "…lint/test/e2e" ]
+  },
+  "output": { "files_created": 9, "loc_delta": 640 }
+}
+```
+
+Methodology for a fair comparison:
+
+1. **Clean arm before every measured run** — from the repo root: `git checkout -- <workbench>/<arm> && git clean -fd <workbench>/<arm>`. A run against a dirty arm measures nothing.
+2. **Same entity, both arms, back to back** — hardware and network conditions stay comparable.
+3. **N ≥ 3 runs per entity per arm** — AI is variant; a single run is an anecdote, not a measurement. Compare medians.
+4. **Consistency check**: diff the generated code *between runs of the same arm*. Identical task, identical standard — how identical is the output?
+5. Tokens are the primary cost metric; `cost_usd` is the API-equivalent price and is informational when running under a subscription.
+
 ## Isolation model
 
 | Concern | How it's handled |

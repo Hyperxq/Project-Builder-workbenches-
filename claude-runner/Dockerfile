@@ -38,6 +38,6 @@ RUN echo '{"hasCompletedOnboarding": true}' > /home/agent/.claude.json \
 
 WORKDIR /workspace
 
-COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --chmod=755 entrypoint.sh bench.sh /usr/local/bin/
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["claude", "--strict-mcp-config", "--dangerously-skip-permissions"]
