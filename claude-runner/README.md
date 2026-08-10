@@ -4,33 +4,48 @@ Runs Claude Code against a workbench arm inside a container with a **fresh HOME*
 
 This keeps the comparison honest: results measure the agent + the arm, not whatever harness happens to live on your machine.
 
+## Which service for which workbench
+
+| Service | Workbench | Sidecar | Port |
+|---|---|---|---|
+| `runner` | `workbench-01-nest-graphql-api` (default) | MongoDB (auto-started) | 3000 |
+| `runner-web` | `workbench-02-react-admin` (default) | none — MSW mocks the backend | 3010 (`with-schematics`) / 3011 (`without-schematics`) |
+
+`WORKBENCH=` overrides the default workbench of either service; `bench.sh` detects the flavour (Nest vs Vite) from the mounted arm itself.
+
 ## One-time setup
 
 ```bash
 claude setup-token          # on your machine, requires a Claude subscription
 cp .env.example .env        # paste the token into .env (gitignored)
+docker compose build        # ARM can be anything for building: ARM=with-schematics docker compose build
 ```
 
-## Run an arm
+## Run an arm interactively
 
 ```bash
+# Workbench 01
 ARM=with-schematics docker compose run --rm runner
-ARM=without-schematics docker compose run --rm runner
+# Workbench 02
+ARM=with-schematics docker compose run --rm runner-web
+ARM=without-schematics docker compose run --rm runner-web
 ```
 
 That drops you into an interactive Claude session at `/workspace` (the arm, bind-mounted read-write so results persist on the host for `git diff` afterwards). The entrypoint copies `.env.example` → `.env` if missing and runs `pnpm install --frozen-lockfile` before handing over.
 
-Future workbenches: `WORKBENCH=workbench-02-... ARM=... docker compose run --rm runner`.
-
 To get a shell instead of Claude:
 
 ```bash
-ARM=with-schematics docker compose run --rm runner bash
+ARM=with-schematics docker compose run --rm runner-web bash
 ```
 
-`docker compose run` does not publish ports; to reach the GraphQL explorer from the host add `--service-ports` and start the app (`pnpm start:dev`) from a shell.
+`docker compose run` does not publish ports; to reach the app from the host add `--service-ports` and start it from a shell (`pnpm dev:mock`). For `runner-web` set `WEB_PORT` to the arm's port (3010 with / 3011 without) so parallel arms don't collide:
 
-Tear down (also discards the MongoDB data — every run starts with an empty database):
+```bash
+WEB_PORT=3011 ARM=without-schematics docker compose run --rm --service-ports runner-web bash
+```
+
+Tear down (for wb-01 this also discards the MongoDB data — every run starts with an empty database):
 
 ```bash
 docker compose down
@@ -38,14 +53,34 @@ docker compose down
 
 ## Measured runs — the standard evaluation protocol
 
-Interactive sessions are for *watching*; measured runs are for *numbers*. Never mix them in the same dataset. A measured run gives one arm the canonical prompt — `Follow the instruction listed on entities-benchmark.txt`, verbatim, zero hints — so the agent performs the full sweep the benchmark file demands. Then it runs the definition of done and records everything under `../<workbench>/results/`. The script refuses to start if any benchmark entity already exists in the arm (a dirty arm measures nothing).
+Interactive sessions are for *watching*; measured runs are for *numbers*. Never mix them in the same dataset. `bench.sh` detects the workbench flavour from the mounted arm, gives the agent the canonical prompt, runs the definition of done, and records everything under `../<workbench>/results/`.
+
+### Workbench 01 — full sweep
+
+One run implements the whole benchmark file. The prompt is identical in both arms (`Follow the instruction listed on entities-benchmark.txt`); the schematic advantage must emerge from the project. The script aborts if any benchmark entity already exists (a dirty arm measures nothing).
 
 ```bash
 ARM=with-schematics    docker compose -p bench-with    run --rm runner bench.sh
 ARM=without-schematics docker compose -p bench-without run --rm runner bench.sh
 ```
 
-Each run produces `results/<stamp>_<arm>/`:
+### Workbench 02 — batch by batch (amortization)
+
+One measured run = ONE batch of `entities-benchmark.txt`'s schedule, in a fresh session. Earlier batches MUST remain in the tree — the amortization thesis lives in what batch N inherits from batch N−1 — so the dirty check only rejects the arm if the *requested* batch already exists. The prompt is minimal (`Implement Batch N as specified in entities-benchmark.txt.`); the `with-schematics` arm gets ONE extra sentence instructing it to author/use a Project Builder schematic. That sentence is the experiment's only variable.
+
+Full experiment, start to finish:
+
+```bash
+# 0. Fresh experiment? Reset both arms first (see Cleaning below), then:
+for N in 1 2 3 4 5; do
+  ARM=with-schematics    docker compose -p bench-with    run --rm runner-web bench.sh $N
+  ARM=without-schematics docker compose -p bench-without run --rm runner-web bench.sh $N
+done
+```
+
+Run batches in order (relations point at earlier batches) and both arms of a batch back to back. Between batches there is nothing to clean and nothing to commit: the generated modules are gitignored by design and persist on disk, which is exactly what the next batch needs.
+
+Each run produces `results/<stamp>_<arm>[_batchN]/`:
 
 | File | Contents |
 |---|---|
@@ -81,7 +116,7 @@ The run is live-narrated in the terminal (tool calls as `[Write] src/books/…`,
 
 Methodology for a fair comparison:
 
-1. **Clean arm before every measured run** — from the repo root: `git checkout -- <workbench>/<arm> && git clean -fd <workbench>/<arm>`. The script enforces this and aborts on a dirty arm.
+1. **Clean arm before every measured run** (wb-01) / **before every fresh experiment** (wb-02) — see Cleaning below. The script enforces the relevant dirty check and aborts.
 2. **Both arms back to back** — hardware and network conditions stay comparable.
 3. **N ≥ 3 runs per arm** — AI is variant; a single run is an anecdote, not a measurement. Compare medians.
 4. **Consistency check**: diff the generated code *between runs of the same arm*. Identical task, identical standard — how identical is the output?
@@ -102,10 +137,13 @@ Arms are bind-mounted, so agent sessions write straight into your working tree �
 3. **Clean the arm** (from the repo root; per arm, or the whole workbench):
 
    ```bash
+   # wb-01 (run output is untracked):
    git checkout -- <workbench>/<arm> && git clean -fd <workbench>/<arm>
+   # wb-02 (run output is GITIGNORED — the -x flag is what removes it):
+   git checkout -- <workbench>/<arm> && git clean -fdx <workbench>/<arm>
    ```
 
-   Note: cleaning the whole workbench directory also deletes untracked `results/` runs — move any scorecard you want to keep out of the way (or commit it) first.
+   wb-01 note: cleaning the whole workbench directory also deletes untracked `results/` runs — move any scorecard you want to keep out of the way (or commit it) first. wb-02 note: `results/` is gitignored and lives outside the arms, so cleaning an arm never touches scorecards — but clean between EXPERIMENTS only, never between batches.
 
 4. **Verify before launching**: `git status` must be empty for the arm. `bench.sh` double-checks this and aborts if any benchmark entity already exists — a run that starts on a dirty arm reports `files_created: 0` and green gates earned by old code: numbers that lie.
 
@@ -125,7 +163,7 @@ One session per arm, always — two agents writing into the same bind mount prod
 
 ## Pinned toolchain
 
-Versions are build args in the `Dockerfile` (claude-code, pnpm, bun, pbuilder). Bump them deliberately — a benchmark where the toolchain drifts between runs compares nothing. Rebuild after changing:
+Versions are build args in the `Dockerfile` (claude-code, pnpm, bun, pbuilder, playwright). Bump them deliberately — a benchmark where the toolchain drifts between runs compares nothing. `PLAYWRIGHT_VERSION` MUST match the `@playwright/test` version in the web arms' `pnpm-lock.yaml` (each Playwright release pins its own browser build). Rebuild after changing:
 
 ```bash
 docker compose build

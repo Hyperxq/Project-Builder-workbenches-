@@ -1,6 +1,7 @@
 name: claude-runner
 
 services:
+  # Workbench 01 (NestJS + MongoDB). Needs the database sibling.
   runner:
     build: .
     env_file: .env
@@ -17,6 +18,23 @@ services:
       - pnpm_store:/home/agent/.pnpm-store
     ports:
       - '3000:3000'
+
+  # Workbench 02+ (frontend, MSW — no database at all).
+  runner-web:
+    build: .
+    env_file: .env
+    environment:
+      ARM: ${ARM:-}
+    volumes:
+      - ../${WORKBENCH:-workbench-02-react-admin}/${ARM:?set ARM=with-schematics or ARM=without-schematics}:/workspace
+      - ../${WORKBENCH:-workbench-02-react-admin}/results:/results
+      - /workspace/node_modules
+      - pnpm_store:/home/agent/.pnpm-store
+    ports:
+      # with-schematics runs on 3010, without-schematics on 3011 — set
+      # WEB_PORT accordingly when using --service-ports (arms can then
+      # run in parallel without colliding).
+      - '${WEB_PORT:-3010}:${WEB_PORT:-3010}'
 
   mongodb:
     image: mongo:8

@@ -9,6 +9,9 @@ ARG PNPM_VERSION=11.21.0
 ARG BUN_VERSION=1.3.14
 ARG BRUNO_CLI_VERSION=4.0.0
 ARG PBUILDER_VERSION=0.9.0
+# MUST match the @playwright/test version in the web arms' lockfile —
+# each Playwright release pins its own browser build.
+ARG PLAYWRIGHT_VERSION=1.62.1
 ARG TARGETARCH
 
 RUN npm install -g \
@@ -16,6 +19,12 @@ RUN npm install -g \
     pnpm@${PNPM_VERSION} \
     bun@${BUN_VERSION} \
     @usebruno/cli@${BRUNO_CLI_VERSION}
+
+# Browsers for the web workbenches' e2e gate, in a shared path every user
+# can read (the default would land in root's HOME and be invisible to agent).
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN npx -y playwright@${PLAYWRIGHT_VERSION} install --with-deps chromium \
+    && chmod -R a+rX /ms-playwright
 
 # pbuilder ships the `builder` binary via GoReleaser tarballs (linux amd64/arm64)
 RUN curl -fsSL "https://github.com/Project-Builder-Schematics/homebrew-tap/releases/download/v${PBUILDER_VERSION}/pbuilder_${PBUILDER_VERSION}_linux_${TARGETARCH}.tar.gz" \
