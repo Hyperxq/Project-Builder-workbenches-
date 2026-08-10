@@ -1,0 +1,72 @@
+{
+  "date": "2026-08-10T21:50:21.851Z",
+  "arm": "without-schematics",
+  "task": "entities-benchmark full sweep",
+  "agent": {
+    "exit_code": 0,
+    "wall_seconds": 1262,
+    "api_seconds": 878,
+    "num_turns": 130,
+    "tokens": {
+      "input_tokens": 696,
+      "cache_creation_input_tokens": 252323,
+      "cache_read_input_tokens": 11234480,
+      "output_tokens": 83170,
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 252323,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 890,
+          "cache_read_input_tokens": 180211,
+          "cache_creation_input_tokens": 164,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 164
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "cost_usd": 6.134506000000002,
+    "session_id": "210dc455-c99e-49cd-ad10-0ff3bfc50a29"
+  },
+  "definition_of_done": {
+    "first_attempt_pass": true,
+    "gates": [
+      {
+        "gate": "tsc",
+        "pass": true,
+        "seconds": 4
+      },
+      {
+        "gate": "lint",
+        "pass": true,
+        "seconds": 6
+      },
+      {
+        "gate": "test",
+        "pass": true,
+        "seconds": 5
+      },
+      {
+        "gate": "e2e",
+        "pass": true,
+        "seconds": 8
+      }
+    ]
+  },
+  "output": {
+    "files_created": 230,
+    "loc_delta": 9667
+  }
+}

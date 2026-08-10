@@ -1,0 +1,23 @@
+$ jest --config ./test/jest-e2e.json
+PASS test/employees.e2e-spec.ts
+PASS test/subscriptions.e2e-spec.ts
+PASS test/invoices.e2e-spec.ts
+PASS test/reviews.e2e-spec.ts
+PASS test/tickets.e2e-spec.ts
+PASS test/shipments.e2e-spec.ts
+PASS test/suppliers.e2e-spec.ts
+PASS test/warehouses.e2e-spec.ts
+PASS test/payments.e2e-spec.ts
+PASS test/categories.e2e-spec.ts
+PASS test/app.e2e-spec.ts
+PASS test/books.e2e-spec.ts
+PASS test/vehicles.e2e-spec.ts
+PASS test/coupons.e2e-spec.ts
+PASS test/events.e2e-spec.ts
+PASS test/authors.e2e-spec.ts
+
+Test Suites: 16 passed, 16 total
+Tests:       76 passed, 76 total
+Snapshots:   0 total
+Time:        7.062 s, estimated 8 s
+Ran all test suites.

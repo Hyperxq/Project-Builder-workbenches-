@@ -1,0 +1,4 @@
+{"gate":"tsc","pass":true,"seconds":4}
+{"gate":"lint","pass":true,"seconds":6}
+{"gate":"test","pass":true,"seconds":5}
+{"gate":"e2e","pass":true,"seconds":8}

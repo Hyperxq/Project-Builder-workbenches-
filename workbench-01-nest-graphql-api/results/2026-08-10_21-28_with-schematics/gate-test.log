@@ -1,0 +1,23 @@
+$ jest
+PASS src/vehicles/vehicle.service.spec.ts
+PASS src/invoices/invoice.service.spec.ts
+PASS src/subscriptions/subscription.service.spec.ts
+PASS src/payments/payment.service.spec.ts
+PASS src/authors/author.service.spec.ts
+PASS src/events/event.service.spec.ts
+PASS src/shipments/shipment.service.spec.ts
+PASS src/tickets/ticket.service.spec.ts
+PASS src/reviews/review.service.spec.ts
+PASS src/app.resolver.spec.ts
+PASS src/books/book.service.spec.ts
+PASS src/categories/category.service.spec.ts
+PASS src/suppliers/supplier.service.spec.ts
+PASS src/coupons/coupon.service.spec.ts
+PASS src/employees/employee.service.spec.ts
+PASS src/warehouses/warehouse.service.spec.ts
+
+Test Suites: 16 passed, 16 total
+Tests:       76 passed, 76 total
+Snapshots:   0 total
+Time:        4.684 s
+Ran all test suites.
