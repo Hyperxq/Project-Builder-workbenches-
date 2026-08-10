@@ -19,14 +19,20 @@ RUN npm install -g \
 RUN curl -fsSL "https://github.com/Project-Builder-Schematics/homebrew-tap/releases/download/v${PBUILDER_VERSION}/pbuilder_${PBUILDER_VERSION}_linux_${TARGETARCH}.tar.gz" \
     | tar -xz -C /usr/local/bin builder
 
-RUN useradd --create-home agent
+# Volume mount points must pre-exist owned by agent — Docker copies image
+# ownership into fresh volumes; without this they initialize as root and
+# pnpm gets EACCES.
+RUN useradd --create-home agent \
+    && mkdir -p /workspace/node_modules \
+    && chown -R agent:agent /workspace
 USER agent
 ENV HOME=/home/agent
 
 # Skip the first-run onboarding prompt (theme picker) — auth comes from
 # CLAUDE_CODE_OAUTH_TOKEN at runtime, never baked into the image.
 RUN echo '{"hasCompletedOnboarding": true}' > /home/agent/.claude.json \
-    && pnpm config set store-dir /home/agent/.pnpm-store
+    && pnpm config set store-dir /home/agent/.pnpm-store \
+    && mkdir -p /home/agent/.pnpm-store
 
 WORKDIR /workspace
 
