@@ -4,6 +4,16 @@
 set -uo pipefail
 
 ENTITY=${1:?usage: bench.sh <entity>}
+
+# A measured run against pre-existing work measures nothing — the agent finds
+# it done, every gate passes on old code, and the numbers lie.
+if [ -d "src/${ENTITY}" ]; then
+  echo "ERROR: src/${ENTITY} already exists — the arm is dirty." >&2
+  echo "Clean it from the repo root first:" >&2
+  echo "  git checkout -- <workbench>/${ARM} && git clean -fd <workbench>/${ARM}" >&2
+  exit 1
+fi
+
 STAMP=$(date +%Y-%m-%d_%H-%M)
 RUN_DIR="/results/${STAMP}_${ARM}_${ENTITY}"
 mkdir -p "$RUN_DIR"
