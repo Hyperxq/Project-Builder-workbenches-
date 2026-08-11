@@ -12,12 +12,21 @@ import {
   YAxis,
 } from 'recharts'
 import type { Arm, Run, WorkbenchMeta } from '../lib/results'
-import { batchSeries, breakEvenBatch, latestRuns, totalTokens } from '../lib/results'
+import { batchSeries, breakEvenBatch, groupByModel, latestRuns, totalTokens } from '../lib/results'
 
 const ARM_COLOR: Record<Arm, string> = {
-  'with-schematics': '#0070f3',
-  'without-schematics': '#171717',
+  'with-schematics': '#3291ff',
+  'without-schematics': '#ededed',
 }
+
+/** Dark-surface tooltip/legend chrome — recharts defaults assume a white canvas. */
+const CHART_TOOLTIP_STYLE = {
+  backgroundColor: '#171717',
+  border: '1px solid #262626',
+  borderRadius: 8,
+  color: '#ededed',
+}
+const CHART_LEGEND_STYLE = { fontSize: 12, color: '#a1a1a1' }
 
 const ARM_LABEL: Record<Arm, string> = {
   'with-schematics': 'With schematics',
@@ -138,11 +147,28 @@ function BatchCharts({ runs }: { runs: Run[] }) {
           <p className="mb-2 text-[11px] uppercase tracking-wide text-mute">Cumulative</p>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={points} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
-              <CartesianGrid stroke="#ebebeb" vertical={false} />
-              <XAxis dataKey="batch" tick={{ fontSize: 11 }} tickFormatter={(b) => `B${b}`} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${v}`} />
-              <Tooltip formatter={(v) => usd(typeof v === 'number' ? v : null)} labelFormatter={(b) => `Batch ${b}`} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <CartesianGrid stroke="#262626" vertical={false} />
+              <XAxis
+                dataKey="batch"
+                tick={{ fontSize: 11, fill: '#a1a1a1' }}
+                axisLine={{ stroke: '#262626' }}
+                tickLine={{ stroke: '#262626' }}
+                tickFormatter={(b) => `B${b}`}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: '#a1a1a1' }}
+                axisLine={{ stroke: '#262626' }}
+                tickLine={{ stroke: '#262626' }}
+                tickFormatter={(v) => `$${v}`}
+              />
+              <Tooltip
+                formatter={(v) => usd(typeof v === 'number' ? v : null)}
+                labelFormatter={(b) => `Batch ${b}`}
+                contentStyle={CHART_TOOLTIP_STYLE}
+                labelStyle={{ color: '#ededed' }}
+                itemStyle={{ color: '#ededed' }}
+              />
+              <Legend wrapperStyle={CHART_LEGEND_STYLE} />
               {breakEven !== null && <ReferenceLine x={breakEven} stroke="#f5a623" strokeDasharray="4 4" />}
               <Line
                 name="with schematics"
@@ -165,11 +191,28 @@ function BatchCharts({ runs }: { runs: Run[] }) {
           <p className="mb-2 text-[11px] uppercase tracking-wide text-mute">Marginal (per batch)</p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={points} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
-              <CartesianGrid stroke="#ebebeb" vertical={false} />
-              <XAxis dataKey="batch" tick={{ fontSize: 11 }} tickFormatter={(b) => `B${b}`} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${v}`} />
-              <Tooltip formatter={(v) => usd(typeof v === 'number' ? v : null)} labelFormatter={(b) => `Batch ${b}`} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <CartesianGrid stroke="#262626" vertical={false} />
+              <XAxis
+                dataKey="batch"
+                tick={{ fontSize: 11, fill: '#a1a1a1' }}
+                axisLine={{ stroke: '#262626' }}
+                tickLine={{ stroke: '#262626' }}
+                tickFormatter={(b) => `B${b}`}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: '#a1a1a1' }}
+                axisLine={{ stroke: '#262626' }}
+                tickLine={{ stroke: '#262626' }}
+                tickFormatter={(v) => `$${v}`}
+              />
+              <Tooltip
+                formatter={(v) => usd(typeof v === 'number' ? v : null)}
+                labelFormatter={(b) => `Batch ${b}`}
+                contentStyle={CHART_TOOLTIP_STYLE}
+                labelStyle={{ color: '#ededed' }}
+                itemStyle={{ color: '#ededed' }}
+              />
+              <Legend wrapperStyle={CHART_LEGEND_STYLE} />
               <Bar name="with schematics" dataKey="withCost" fill={ARM_COLOR['with-schematics']} />
               <Bar name="without schematics" dataKey="withoutCost" fill={ARM_COLOR['without-schematics']} />
             </BarChart>
@@ -190,6 +233,7 @@ function RunsTable({ runs }: { runs: Run[] }) {
         <thead>
           <tr className="border-b border-hairline bg-canvas-soft text-[11px] uppercase tracking-wide text-mute">
             <th className="px-3 py-2 font-medium">Run</th>
+            <th className="px-3 py-2 font-medium">Model</th>
             <th className="px-3 py-2 font-medium">Arm</th>
             <th className="px-3 py-2 font-medium">Task</th>
             <th className="px-3 py-2 font-medium">Wall</th>
@@ -201,8 +245,12 @@ function RunsTable({ runs }: { runs: Run[] }) {
         </thead>
         <tbody>
           {ordered.map((run) => (
-            <tr key={`${run.stamp}-${run.arm}-${run.batch}`} className="border-b border-hairline last:border-0">
+            <tr
+              key={`${run.stamp}-${run.model}-${run.arm}-${run.batch}`}
+              className="border-b border-hairline last:border-0"
+            >
               <td className="px-3 py-2 font-mono text-xs text-body">{run.stamp}</td>
+              <td className="px-3 py-2 font-mono text-xs text-body">{run.model}</td>
               <td className="px-3 py-2">
                 <span style={{ color: ARM_COLOR[run.arm] }}>{ARM_LABEL[run.arm]}</span>
               </td>
@@ -222,6 +270,25 @@ function RunsTable({ runs }: { runs: Run[] }) {
   )
 }
 
+function ModelBlock({ model, runs }: { model: string; runs: Run[] }) {
+  const latest = latestRuns(runs)
+  const hasBatches = runs.some((r) => r.batch !== undefined)
+
+  return (
+    <div className="mt-8 first:mt-6">
+      <h3 className="font-mono text-xs text-mute">model · {model}</h3>
+
+      <div className="mt-3 grid gap-4 sm:grid-cols-2">
+        <ArmCard arm="with-schematics" runs={latest.filter((r) => r.arm === 'with-schematics')} />
+        <ArmCard arm="without-schematics" runs={latest.filter((r) => r.arm === 'without-schematics')} />
+      </div>
+
+      {hasBatches && <BatchCharts runs={runs} />}
+      <RunsTable runs={runs} />
+    </div>
+  )
+}
+
 export function WorkbenchSection({
   name,
   runs,
@@ -231,8 +298,8 @@ export function WorkbenchSection({
   runs: Run[]
   meta?: WorkbenchMeta
 }) {
-  const latest = latestRuns(runs)
   const hasBatches = runs.some((r) => r.batch !== undefined)
+  const byModel = [...groupByModel(runs)].sort(([a], [b]) => a.localeCompare(b))
 
   return (
     <section className="border-t border-hairline py-10 first:border-t-0">
@@ -255,13 +322,9 @@ export function WorkbenchSection({
         </div>
       )}
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <ArmCard arm="with-schematics" runs={latest.filter((r) => r.arm === 'with-schematics')} />
-        <ArmCard arm="without-schematics" runs={latest.filter((r) => r.arm === 'without-schematics')} />
-      </div>
-
-      {hasBatches && <BatchCharts runs={runs} />}
-      {runs.length > 0 && <RunsTable runs={runs} />}
+      {byModel.map(([model, modelRuns]) => (
+        <ModelBlock key={model} model={model} runs={modelRuns} />
+      ))}
     </section>
   )
 }

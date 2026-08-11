@@ -18,6 +18,7 @@ export interface Bench {
   arm: string
   task: string
   agent: {
+    model?: string
     exit_code: number
     wall_seconds: number
     api_seconds: number | null
@@ -49,6 +50,8 @@ export interface Run {
   arm: Arm
   /** undefined for single-sweep workbenches (wb-01) */
   batch?: number
+  /** from bench.agent.model; 'unknown' for scorecards recorded before model tracking */
+  model: string
   bench: Bench
 }
 
@@ -67,6 +70,7 @@ export function parseRun(path: string, bench: Bench): Run | null {
     stamp: match[1],
     arm: match[2] as Arm,
     batch: match[3] ? Number(match[3]) : undefined,
+    model: bench.agent.model ?? 'unknown',
     bench,
   }
 }
@@ -110,11 +114,11 @@ export function totalTokens(bench: Bench): number | null {
   return (t.input_tokens ?? 0) + (t.output_tokens ?? 0)
 }
 
-/** Latest run per (arm, batch) — reruns supersede older attempts. */
+/** Latest run per (model, arm, batch) — reruns supersede older attempts within the same model. */
 export function latestRuns(runs: Run[]): Run[] {
   const byKey = new Map<string, Run>()
   for (const run of runs) {
-    const key = `${run.arm}#${run.batch ?? ''}`
+    const key = `${run.model}#${run.arm}#${run.batch ?? ''}`
     const existing = byKey.get(key)
     if (!existing || run.stamp > existing.stamp) byKey.set(key, run)
   }
@@ -127,6 +131,16 @@ export function groupByWorkbench(runs: Run[]): Map<string, Run[]> {
     const list = groups.get(run.workbench) ?? []
     list.push(run)
     groups.set(run.workbench, list)
+  }
+  return groups
+}
+
+export function groupByModel(runs: Run[]): Map<string, Run[]> {
+  const groups = new Map<string, Run[]>()
+  for (const run of runs) {
+    const list = groups.get(run.model) ?? []
+    list.push(run)
+    groups.set(run.model, list)
   }
   return groups
 }

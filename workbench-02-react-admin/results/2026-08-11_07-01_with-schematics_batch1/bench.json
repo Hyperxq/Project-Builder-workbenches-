@@ -3,6 +3,7 @@
   "arm": "with-schematics",
   "task": "batch 1",
   "agent": {
+    "model": "claude-sonnet-5",
     "exit_code": 0,
     "wall_seconds": 3821,
     "api_seconds": 3647,

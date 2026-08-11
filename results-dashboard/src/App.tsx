@@ -15,7 +15,7 @@ export default function App() {
         <h1 className="text-2xl font-semibold tracking-tight">Workbench Results</h1>
         <p className="mt-1 text-sm text-body">
           Measured runs from every <span className="font-mono text-xs">workbench-*/results/</span>{' '}
-          scorecard — schematics vs by-hand, cost, time and definition of done.
+          scorecard — schematics vs by-hand, cost, time and definition of done, per model.
         </p>
       </header>
 
