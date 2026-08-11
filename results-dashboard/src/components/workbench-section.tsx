@@ -224,18 +224,22 @@ function BatchCharts({ runs }: { runs: Run[] }) {
 }
 
 function RunsTable({ runs }: { runs: Run[] }) {
-  const ordered = [...runs].sort(
-    (a, b) => b.stamp.localeCompare(a.stamp) || a.arm.localeCompare(b.arm),
+  const current = new Set(latestRuns(runs))
+  const arms = (['with-schematics', 'without-schematics'] as Arm[]).filter((arm) =>
+    runs.some((r) => r.arm === arm),
   )
+  const armRuns = (arm: Arm) =>
+    runs
+      .filter((r) => r.arm === arm)
+      .sort((a, b) => (a.batch ?? 0) - (b.batch ?? 0) || a.stamp.localeCompare(b.stamp))
+
   return (
     <div className="mt-8 overflow-x-auto rounded-lg border border-hairline">
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-hairline bg-canvas-soft text-[11px] uppercase tracking-wide text-mute">
-            <th className="px-3 py-2 font-medium">Run</th>
-            <th className="px-3 py-2 font-medium">Model</th>
-            <th className="px-3 py-2 font-medium">Arm</th>
             <th className="px-3 py-2 font-medium">Task</th>
+            <th className="px-3 py-2 font-medium">Run</th>
             <th className="px-3 py-2 font-medium">Wall</th>
             <th className="px-3 py-2 font-medium">Turns</th>
             <th className="px-3 py-2 font-medium">Tokens</th>
@@ -243,28 +247,51 @@ function RunsTable({ runs }: { runs: Run[] }) {
             <th className="px-3 py-2 font-medium">Gates</th>
           </tr>
         </thead>
-        <tbody>
-          {ordered.map((run) => (
-            <tr
-              key={`${run.stamp}-${run.model}-${run.arm}-${run.batch}`}
-              className="border-b border-hairline last:border-0"
-            >
-              <td className="px-3 py-2 font-mono text-xs text-body">{run.stamp}</td>
-              <td className="px-3 py-2 font-mono text-xs text-body">{run.model}</td>
-              <td className="px-3 py-2">
-                <span style={{ color: ARM_COLOR[run.arm] }}>{ARM_LABEL[run.arm]}</span>
-              </td>
-              <td className="px-3 py-2 font-mono text-xs text-body">{run.bench.task}</td>
-              <td className="px-3 py-2 font-mono text-xs">{secs(run.bench.agent.wall_seconds)}</td>
-              <td className="px-3 py-2 font-mono text-xs">{num(run.bench.agent.num_turns)}</td>
-              <td className="px-3 py-2 font-mono text-xs">{kTokens(totalTokens(run.bench))}</td>
-              <td className="px-3 py-2 font-mono text-xs">{usd(run.bench.agent.cost_usd)}</td>
-              <td className="px-3 py-2">
-                <GateChips run={run} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
+        {arms.map((arm) => {
+          const rows = armRuns(arm)
+          const counted = rows.filter((r) => current.has(r))
+          const cost = counted.reduce<number | null>(
+            (acc, r) =>
+              acc === null || r.bench.agent.cost_usd === null ? null : acc + r.bench.agent.cost_usd,
+            0,
+          )
+          const wall = counted.reduce((acc, r) => acc + r.bench.agent.wall_seconds, 0)
+          return (
+            <tbody key={arm}>
+              <tr className="border-b border-hairline bg-canvas-soft">
+                <td colSpan={2} className="px-3 py-2 text-xs font-medium" style={{ color: ARM_COLOR[arm] }}>
+                  {ARM_LABEL[arm]}
+                </td>
+                <td className="px-3 py-2 font-mono text-xs text-mute">{secs(wall)}</td>
+                <td colSpan={2} />
+                <td className="px-3 py-2 font-mono text-xs text-mute">{usd(cost)}</td>
+                <td />
+              </tr>
+              {rows.map((run) => {
+                const superseded = !current.has(run)
+                return (
+                  <tr
+                    key={`${run.stamp}-${run.model}-${run.arm}-${run.batch}`}
+                    className={`border-b border-hairline last:border-0 ${superseded ? 'opacity-45' : ''}`}
+                  >
+                    <td className="px-3 py-2 font-mono text-xs text-body">{run.bench.task}</td>
+                    <td className="px-3 py-2 font-mono text-xs text-body">
+                      {run.stamp}
+                      {superseded && <span className="ml-2 text-mute">superseded</span>}
+                    </td>
+                    <td className="px-3 py-2 font-mono text-xs">{secs(run.bench.agent.wall_seconds)}</td>
+                    <td className="px-3 py-2 font-mono text-xs">{num(run.bench.agent.num_turns)}</td>
+                    <td className="px-3 py-2 font-mono text-xs">{kTokens(totalTokens(run.bench))}</td>
+                    <td className="px-3 py-2 font-mono text-xs">{usd(run.bench.agent.cost_usd)}</td>
+                    <td className="px-3 py-2">
+                      <GateChips run={run} />
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          )
+        })}
       </table>
     </div>
   )
