@@ -2,9 +2,6 @@ import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 import type { MockConfig } from './core/mock.config'
 import { resetAuthors } from './domains/authors.mock'
-import { resetBooks } from './domains/books.mock'
-import { resetCategories } from './domains/categories.mock'
-import { resetReviews } from './domains/reviews.mock'
 import { createHandlers } from './handlers'
 
 /**
@@ -36,9 +33,6 @@ beforeAll(() => {
 afterEach(() => {
   server.resetHandlers()
   resetAuthors()
-  resetBooks()
-  resetCategories()
-  resetReviews()
 })
 
 afterAll(() => {

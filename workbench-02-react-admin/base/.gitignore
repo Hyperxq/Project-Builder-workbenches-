@@ -44,3 +44,5 @@ mocks/domains/*
 !mocks/domains/authors.mock.spec.ts
 mocks/fixtures/*
 !mocks/fixtures/authors.fixture.ts
+e2e/*
+!e2e/authors.spec.ts
