@@ -19,13 +19,20 @@ without the blanket-authoring tax?
   WB-02 sweeps valid as historical baselines.
 - **Both arms**: the same autonomous light harness (`HARNESS.md`):
   plan → build → verify. The orchestrator (Opus 5, pinned via `BENCH_MODEL`)
-  writes `plans/batch-N.md` before any code, delegates mechanical
-  implementation to the `mechanic` sub-agent (Sonnet 5, pinned in
-  `.claude/agents/mechanic.md` frontmatter), and closes the four gates itself.
+  writes `plans/batch-N.md` before any code — delegating the pattern
+  inventory to the read-only `scout` sub-agent, which answers per module:
+  does this already exist in the tree, or is it new? if it exists, how much
+  of the upcoming work repeats it? — then delegates mechanical
+  implementation to the `mechanic` sub-agent (both Sonnet 5, pinned in
+  `.claude/agents/*.md` frontmatter), and closes the four gates itself.
 - **The only variable**: the with-schematics arm carries
-  `plan-directives/schematics.md` — during planning, patterns repeating ≥3
-  times across the remaining schedule get a Project Builder schematic authored
-  before implementation; below the threshold, code is hand-written. Every
+  `plan-directives/schematics.md` — a crystallization lifecycle in which
+  schematics are EXTRACTED from proven code, never invented ahead of it:
+  established pattern repeating ≥3 times → extract the schematic from the
+  proven, gates-green instance before building the repeats; pattern not yet
+  established → hand-build the first instance, prove it, declare it the
+  rule, extract once green; schematic falls short → extend-vs-new is a
+  planning decision, never a silent patch of generated output. Every
   decision is recorded in the plan file (auditable separately from execution).
   The arm also carries the pbuilder toolchain (`builder init` output: skill,
   `project-builder.json`, AGENTS.md section, `@pbuilder/sdk` dependency) and

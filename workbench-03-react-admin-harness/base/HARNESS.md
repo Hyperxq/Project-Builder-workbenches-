@@ -12,9 +12,13 @@ write `plans/batch-<N>.md` containing:
 
 1. **Modules** — every entity in the batch, its tier, and the files it needs
    (per the AGENTS.md module drill).
-2. **Repetition analysis** — which patterns this batch shares internally and
-   with the REMAINING schedule (later batches in `entities-benchmark.txt`),
-   and where each entity deviates from the plain CRUD shape.
+2. **Pattern inventory** — delegate to the `scout` sub-agent, whose report
+   answers, per module: is this something that already EXISTS in the tree
+   (an established, gates-green implementation, or a shape a previous plan
+   declared the rule) or something NEW? If it exists: how much of the
+   upcoming work — this batch and the REMAINING schedule — repeats it, and
+   where each entity deviates. If it is new: it must be planned for
+   creation. Incorporate the scout's report into the plan file.
 3. **Delegation plan** — the units of work you will hand to the `mechanic`
    sub-agent and in what order (see Phase 2).
 4. **Verification plan** — what each module must pass before the batch is done.
