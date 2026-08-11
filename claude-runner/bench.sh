@@ -72,6 +72,10 @@ start=$(date +%s)
 # Pinned model: arms are only comparable across sweeps if the model is held
 # constant — the CLI default drifts with releases. Recorded in bench.json.
 BENCH_MODEL="${BENCH_MODEL:-claude-sonnet-5}"
+# Optional reasoning capture: BENCH_THINKING=summary|full makes the agent's
+# thinking visible in claude-stream.jsonl (billing is unchanged — thinking is
+# billed whether displayed or not; streams get larger). Requires CLI >= 2.1.177.
+[ -n "${BENCH_THINKING:-}" ] && export CLAUDE_CODE_THINKING_DISPLAY="$BENCH_THINKING"
 claude -p "$PROMPT" \
   --model "$BENCH_MODEL" \
   --strict-mcp-config --dangerously-skip-permissions \
