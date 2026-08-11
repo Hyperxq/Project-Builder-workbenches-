@@ -1,9 +1,13 @@
 import { WorkbenchSection } from './components/workbench-section'
-import { groupByWorkbench, loadRuns } from './lib/results'
+import { groupByWorkbench, loadRuns, loadWorkbenchMeta } from './lib/results'
 
 export default function App() {
   const runs = loadRuns()
-  const workbenches = [...groupByWorkbench(runs).entries()].sort(([a], [b]) => a.localeCompare(b))
+  const meta = loadWorkbenchMeta()
+  const runsByWorkbench = groupByWorkbench(runs)
+  // Union: a workbench with a declared workbench.json shows up (with its
+  // description and empty arm cards) even before its first measured run.
+  const workbenches = [...new Set([...meta.keys(), ...runsByWorkbench.keys()])].sort()
 
   return (
     <div className="mx-auto max-w-5xl px-6 pb-16">
@@ -25,8 +29,13 @@ export default function App() {
             </p>
           </div>
         ) : (
-          workbenches.map(([name, wbRuns]) => (
-            <WorkbenchSection key={name} name={name} runs={wbRuns} />
+          workbenches.map((name) => (
+            <WorkbenchSection
+              key={name}
+              name={name}
+              runs={runsByWorkbench.get(name) ?? []}
+              meta={meta.get(name)}
+            />
           ))
         )}
       </main>

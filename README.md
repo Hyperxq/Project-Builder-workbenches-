@@ -106,4 +106,4 @@ cd results-dashboard && pnpm install && pnpm dev   # http://localhost:3020
 
 ## Adding a workbench
 
-Future workbenches follow the same convention: `workbench-NN-<name>/` containing a `with-schematics/` and a `without-schematics/` arm sharing an identical task specification and definition of done.
+Future workbenches follow the same convention: `workbench-NN-<name>/` containing a `with-schematics/` and a `without-schematics/` arm sharing an identical task specification and definition of done. Add a `workbench.json` at the workbench root (`title`, `stack`, `about`, `proves`) — the results dashboard renders it as the experiment's description.

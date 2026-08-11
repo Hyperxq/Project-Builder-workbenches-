@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import type { Arm, Run } from '../lib/results'
+import type { Arm, Run, WorkbenchMeta } from '../lib/results'
 import { batchSeries, breakEvenBatch, latestRuns, totalTokens } from '../lib/results'
 
 const ARM_COLOR: Record<Arm, string> = {
@@ -222,17 +222,38 @@ function RunsTable({ runs }: { runs: Run[] }) {
   )
 }
 
-export function WorkbenchSection({ name, runs }: { name: string; runs: Run[] }) {
+export function WorkbenchSection({
+  name,
+  runs,
+  meta,
+}: {
+  name: string
+  runs: Run[]
+  meta?: WorkbenchMeta
+}) {
   const latest = latestRuns(runs)
   const hasBatches = runs.some((r) => r.batch !== undefined)
 
   return (
     <section className="border-t border-hairline py-10 first:border-t-0">
-      <h2 className="text-lg font-semibold tracking-tight">{name}</h2>
+      <h2 className="text-lg font-semibold tracking-tight">{meta?.title ?? name}</h2>
       <p className="mt-1 text-sm text-mute">
-        {hasBatches ? 'Batched run — amortization experiment' : 'Single full-sweep run'} ·{' '}
-        {runs.length} recorded run{runs.length === 1 ? '' : 's'}
+        <span className="font-mono text-xs">{name}</span> ·{' '}
+        {runs.length === 0
+          ? 'no recorded runs yet'
+          : `${hasBatches ? 'batched run — amortization experiment' : 'single full-sweep run'} · ${runs.length} recorded run${runs.length === 1 ? '' : 's'}`}
       </p>
+
+      {meta && (
+        <div className="mt-4 rounded-lg border border-hairline bg-canvas-soft p-4 text-sm leading-relaxed">
+          <p className="text-body">{meta.about}</p>
+          <p className="mt-3">
+            <span className="font-medium">What it tries to prove — </span>
+            <span className="text-body">{meta.proves}</span>
+          </p>
+          {meta.stack && <p className="mt-3 font-mono text-xs text-mute">{meta.stack}</p>}
+        </div>
+      )}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <ArmCard arm="with-schematics" runs={latest.filter((r) => r.arm === 'with-schematics')} />
@@ -240,7 +261,7 @@ export function WorkbenchSection({ name, runs }: { name: string; runs: Run[] }) 
       </div>
 
       {hasBatches && <BatchCharts runs={runs} />}
-      <RunsTable runs={runs} />
+      {runs.length > 0 && <RunsTable runs={runs} />}
     </section>
   )
 }

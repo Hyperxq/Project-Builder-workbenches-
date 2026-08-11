@@ -1,0 +1,6 @@
+{
+  "title": "React Admin — schematic amortization",
+  "stack": "React 19 · Vite · TypeScript · Tailwind v4 + shadcn · TanStack Router/Query · MSW v2 · Playwright + axe",
+  "about": "Frontend admin CRUD over 14 entities in three difficulty tiers (vanilla, real-world quirks, heavy workflows), built in 5 clean-room batches with no memory between sessions. NEITHER arm starts with a schematic: the with-schematics arm must AUTHOR its own Project Builder generator during batch 1 and reuse it afterwards; the without arm hand-writes every module following the same reference implementation.",
+  "proves": "Amortization — the claim workbench 01 could not test because its generator pre-existed. Batch 1 should cost the with-schematics arm MORE (it pays the authoring investment); every later batch should cost near-zero marginal, crossing the manual arm's cumulative cost at a visible break-even batch — while generated modules stay structurally identical and hand-written ones drift."
+}

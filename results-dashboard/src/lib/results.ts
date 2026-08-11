@@ -71,6 +71,27 @@ export function parseRun(path: string, bench: Bench): Run | null {
   }
 }
 
+export interface WorkbenchMeta {
+  title: string
+  stack?: string
+  about: string
+  proves: string
+}
+
+/** Optional per-workbench description, declared in `<workbench>/workbench.json`. */
+export function loadWorkbenchMeta(): Map<string, WorkbenchMeta> {
+  const modules = import.meta.glob<{ default: WorkbenchMeta }>(
+    '../../../workbench-*/workbench.json',
+    { eager: true },
+  )
+  const meta = new Map<string, WorkbenchMeta>()
+  for (const [path, mod] of Object.entries(modules)) {
+    const workbench = path.split('/').at(-2)
+    if (workbench) meta.set(workbench, mod.default)
+  }
+  return meta
+}
+
 export function loadRuns(): Run[] {
   const modules = import.meta.glob<{ default: Bench }>(
     '../../../workbench-*/results/*/bench.json',

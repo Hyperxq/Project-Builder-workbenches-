@@ -1,0 +1,6 @@
+{
+  "title": "NestJS GraphQL API — pre-built schematic",
+  "stack": "NestJS 11 · GraphQL (Apollo 5) · Mongoose 9 · Jest · Bruno",
+  "about": "Head-to-head backend build: both arms implement full GraphQL CRUD endpoints (entity, DTOs, repository, service, resolver, tests, Bruno collection) for the same 14 entities in one full sweep. The with-schematics arm ships a pre-built Project Builder generator — the AI only writes the Mongoose schema and runs it; the without arm hand-writes every layer following the same conventions.",
+  "proves": "Whether a deterministic generator that ALREADY exists makes the same task cheaper, faster and more consistent than pure AI — at equal spec compliance and with the same definition of done (tsc, lint, unit and e2e tests all green)."
+}
