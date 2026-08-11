@@ -96,6 +96,16 @@ pnpm typecheck && pnpm lint && pnpm test:run && pnpm test:e2e
 
 Full experiment design, protocol, and metrics: [`workbench-02-react-admin/README.md`](./workbench-02-react-admin/README.md).
 
+## Workbench 03 — React Admin (Plan-Time Crystallization)
+
+**Stack**: same app as workbench 02, run by a mixed-model harness — Claude Opus 5 orchestrator + Claude Sonnet 5 `mechanic` sub-agents
+
+Workbench 02 showed that schematizing everything from batch 1 never amortizes: +48% cost, zero quality gain. Workbench 03 tests whether the value lives in the **decision, not the artifact**: both arms run the exact same autonomous light harness (`HARNESS.md`: plan → build → verify, with a mandatory plan artifact before any code). The ONLY difference is a plan directive in the `with-schematics` arm — during planning, schematize patterns that will repeat ≥3 times across the remaining schedule, hand-write everything else, and record every decision in the plan file for post-hoc audit.
+
+**Task and definition of done**: identical to workbench 02 (same base app, entities, tiers, and batch schedule), so its sweeps remain valid historical baselines. Arms are never edited by hand — `derive-arms.sh` regenerates both from `base/` plus a delta overlay, making the inter-arm diff the experiment's documentation.
+
+Full experiment design, predictions, and run instructions: [`workbench-03-react-admin-harness/README.md`](./workbench-03-react-admin-harness/README.md).
+
 ## Results dashboard
 
 [`results-dashboard/`](./results-dashboard/) renders every `workbench-*/results/*/bench.json` scorecard: side-by-side arm comparisons per workbench, and for batched experiments the amortization charts (cumulative + marginal cost, break-even batch). Deployed automatically to **GitHub Pages** on every push to `main` — only the tiny `bench.json` scorecards are committed; heavy run artifacts (agent streams, gate logs) stay local.
