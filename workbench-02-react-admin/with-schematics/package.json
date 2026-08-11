@@ -61,7 +61,7 @@
     "test": "vitest",
     "test:e2e": "playwright test",
     "test:run": "vitest run",
-    "typecheck": "tsc -b"
+    "typecheck": "vite build --logLevel error && tsc -b"
   },
   "type": "module",
   "version": "0.0.0"

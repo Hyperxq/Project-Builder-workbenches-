@@ -33,7 +33,13 @@ RUN curl -fsSL "https://github.com/Project-Builder-Schematics/homebrew-tap/relea
 # Volume mount points must pre-exist owned by agent — Docker copies image
 # ownership into fresh volumes; without this they initialize as root and
 # pnpm gets EACCES.
-RUN useradd --create-home agent \
+# agent's uid must match the HOST owner of the mounted arm: native-Linux
+# Docker (WSL) passes bind-mount uids through raw, so a mismatched uid makes
+# /workspace read-only for the agent (macOS Docker Desktop maps uids and
+# masks this). The base image's `node` user already holds 1000 — remove it.
+ARG AGENT_UID=1000
+RUN userdel -r node 2>/dev/null || true \
+ && useradd --create-home --uid ${AGENT_UID} agent \
     && mkdir -p /workspace/node_modules \
     && chown -R agent:agent /workspace
 USER agent

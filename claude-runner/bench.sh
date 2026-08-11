@@ -69,7 +69,11 @@ loc_before=$(count_loc)
 start=$(date +%s)
 # stream-json + --verbose emits every event live; tee keeps the full stream as
 # evidence while bench-watch pretty-prints progress to the terminal.
+# Pinned model: arms are only comparable across sweeps if the model is held
+# constant — the CLI default drifts with releases. Recorded in bench.json.
+BENCH_MODEL="${BENCH_MODEL:-claude-sonnet-5}"
 claude -p "$PROMPT" \
+  --model "$BENCH_MODEL" \
   --strict-mcp-config --dangerously-skip-permissions \
   --output-format stream-json --verbose \
   2> "$RUN_DIR/claude-stderr.log" \
@@ -107,7 +111,7 @@ else
   } > "$RUN_DIR/gates.jsonl"
 fi
 
-RUN_DIR="$RUN_DIR" ARM="$ARM" TASK="$TASK" AGENT_EXIT="$agent_exit" WALL_S="$wall_s" \
+RUN_DIR="$RUN_DIR" ARM="$ARM" TASK="$TASK" AGENT_EXIT="$agent_exit" WALL_S="$wall_s" BENCH_MODEL="$BENCH_MODEL" \
 FILES_BEFORE="$files_before" FILES_AFTER="$files_after" LOC_BEFORE="$loc_before" LOC_AFTER="$loc_after" \
 node <<'EOF'
 const fs = require('fs');
@@ -133,6 +137,7 @@ const bench = {
   arm: process.env.ARM,
   task: process.env.TASK,
   agent: {
+    model: process.env.BENCH_MODEL,
     exit_code: Number(process.env.AGENT_EXIT),
     wall_seconds: Number(process.env.WALL_S),
     api_seconds: agent.duration_api_ms != null ? Math.round(agent.duration_api_ms / 1000) : null,

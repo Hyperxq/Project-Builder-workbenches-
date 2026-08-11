@@ -9,7 +9,7 @@
     "dev:hybrid": "cross-env VITE_ENABLE_MOCKING=true VITE_MSW_OMIT_KEYS=LIST_AUTHORS vite",
     "build": "tsc -b && vite build",
     "build:mock": "tsc -b && cross-env VITE_ENABLE_MOCKING=true vite build",
-    "typecheck": "tsc -b",
+    "typecheck": "vite build --logLevel error && tsc -b",
     "lint": "oxlint",
     "test": "vitest",
     "test:run": "vitest run",
