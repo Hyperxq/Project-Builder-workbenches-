@@ -1,7 +1,12 @@
 {
   "$schema": "./node_modules/@pbuilder/sdk/schemas/project-builder.schema.json",
-  "version": "1",
-  "collections": {},
+  "collections": {
+    "default": {
+      "entity-crud": {
+        "path": "./schematics/entity-crud"
+      }
+    }
+  },
   "dependencies": {},
   "settings": {
     "autoInstall": true,
@@ -11,5 +16,6 @@
   "skill": {
     "enabled": true,
     "path": ".claude/skills/pbuilder/SKILL.md"
-  }
+  },
+  "version": "1"
 }

@@ -96,6 +96,14 @@ pnpm typecheck && pnpm lint && pnpm test:run && pnpm test:e2e
 
 Full experiment design, protocol, and metrics: [`workbench-02-react-admin/README.md`](./workbench-02-react-admin/README.md).
 
+## Results dashboard
+
+[`results-dashboard/`](./results-dashboard/) renders every `workbench-*/results/*/bench.json` scorecard: side-by-side arm comparisons per workbench, and for batched experiments the amortization charts (cumulative + marginal cost, break-even batch). Deployed automatically to **GitHub Pages** on every push to `main` — only the tiny `bench.json` scorecards are committed; heavy run artifacts (agent streams, gate logs) stay local.
+
+```bash
+cd results-dashboard && pnpm install && pnpm dev   # http://localhost:3020
+```
+
 ## Adding a workbench
 
 Future workbenches follow the same convention: `workbench-NN-<name>/` containing a `with-schematics/` and a `without-schematics/` arm sharing an identical task specification and definition of done.

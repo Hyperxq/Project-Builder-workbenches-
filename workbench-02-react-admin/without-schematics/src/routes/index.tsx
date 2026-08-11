@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ArrowRight, Users } from 'lucide-react'
+import { ArrowRight, BookOpen, Star, Tag, Users } from 'lucide-react'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const Route = createFileRoute('/')({
@@ -30,6 +30,57 @@ function OverviewPage() {
               </div>
               <CardTitle className="text-base">Authors</CardTitle>
               <CardDescription>Reference module — list, create, edit and remove authors.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+
+        <Link to="/books" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <BookOpen className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Books</CardTitle>
+              <CardDescription>List, create, edit and remove books in the catalogue.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+
+        <Link
+          to="/categories"
+          className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Tag className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Categories</CardTitle>
+              <CardDescription>Organise books into browsable categories.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+
+        <Link to="/reviews" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Star className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Reviews</CardTitle>
+              <CardDescription>Reader reviews linked to books, with moderation status.</CardDescription>
             </CardHeader>
           </Card>
         </Link>

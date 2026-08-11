@@ -1,0 +1,55 @@
+name: Deploy results dashboard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: results-dashboard/pnpm-lock.yaml
+
+      - name: Install
+        working-directory: results-dashboard
+        run: pnpm install --frozen-lockfile
+
+      - name: Test and build
+        working-directory: results-dashboard
+        # bench.json scorecards from every workbench are inlined at build
+        # time (import.meta.glob) — the deployed page is fully static.
+        run: |
+          pnpm test:run
+          pnpm build --base=/Project-Builder-workbenches-/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: results-dashboard/dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -3,6 +3,9 @@ import { BACKEND_BASE_URL } from './core/backend'
 import type { MockConfig } from './core/mock.config'
 import { normalizeBaseUrl } from './core/url'
 import { authorHandlers } from './domains/authors.mock'
+import { bookHandlers } from './domains/books.mock'
+import { categoryHandlers } from './domains/categories.mock'
+import { reviewHandlers } from './domains/reviews.mock'
 
 /**
  * Composes every domain's handlers into a single array.
@@ -22,5 +25,10 @@ export function createHandlers(
 ): HttpHandler[] {
   const base = normalizeBaseUrl(baseUrl)
 
-  return [...authorHandlers(config, base)]
+  return [
+    ...authorHandlers(config, base),
+    ...bookHandlers(config, base),
+    ...categoryHandlers(config, base),
+    ...reviewHandlers(config, base),
+  ]
 }

@@ -1,2 +1,6 @@
-# Run scorecards and agent streams — experiment output, never committed
-results/
+# Run output: heavy artifacts (agent streams, gate logs) stay local.
+# bench.json scorecards ARE tracked — they are the dataset the results
+# dashboard (and its GitHub Pages deploy) renders.
+results/**
+!results/*/
+!results/*/bench.json
