@@ -1,0 +1,237 @@
+ADMIN CRUD BENCHMARK — ENTITY SPECIFICATIONS
+============================================
+
+Task: for EACH entity below, build a complete admin CRUD module
+following the architecture and conventions in AGENTS.md and the
+design language in DESIGN.md:
+  - mock domain (fixture ≥20 rows, handler factory, mock-infra spec)
+  - feature module (domain / application / infrastructure / presentation)
+  - routes: list (?page&q), new, detail ($key), edit ($key/edit)
+  - sidebar entry + overview card
+  - section tests (list: render/search/paginate/delete; form:
+    validation, create, server-conflict surfacing)
+  - e2e spec covering the full CRUD cycle + axe scan
+  - every TIER QUIRK listed for the entity, implemented AND tested
+
+Definition of done (per entity, all four green):
+  pnpm typecheck && pnpm lint && pnpm test:run && pnpm test:e2e
+
+Field notation: name: type, constraints
+  - "unique" fields are the lookup keys for get/update/remove and
+    must return 409 on duplicate create
+  - "default X" fields are optional on create
+  - "optional" fields are nullable; empty inputs map to undefined
+  - "embedded" objects render as a grouped form section and are
+    stored inline in the entity
+  - "enum" fields render as a Select with the given options
+  - date fields use native <input type="date"> and display as
+    YYYY-MM-DD in lists
+
+Tiers:
+  [T1] vanilla     — the Author reference pattern, nothing extra
+  [T2] quirks      — the listed quirks are REQUIRED behaviour
+  [T3] heavy       — workflow/wizard/role behaviour, specified per entity
+
+------------------------------------------------------------------
+
+1. Author (authors)  [reference — already implemented]
+   - authorId: number, required, unique
+   - fullName: string, required
+   - email: string, required, unique
+   - country: string, optional
+   - active: boolean, required, default true
+
+2. [T1] Book (books)
+   - isbn: string, required, unique
+   - title: string, required
+   - pages: number, required, min 1
+   - publishedAt: date, optional
+   - inPrint: boolean, required, default true
+
+3. [T1] Category (categories)
+   - code: string, required, unique
+   - name: string, required
+   - description: string, optional
+   - enabled: boolean, required, default true
+
+4. [T1] Supplier (suppliers)
+   - supplierId: number, required, unique
+   - name: string, required
+   - email: string, required, unique
+   - phone: string, optional
+
+5. [T1] Vehicle (vehicles)
+   - plate: string, required, unique
+   - brand: string, required
+   - model: string, required
+   - year: number, required, min 1950
+   - electric: boolean, required, default false
+
+6. [T2] Review (reviews)
+   - reviewId: number, required, unique
+   - bookIsbn: string, required            → RELATION
+   - rating: number, required, 1..5
+   - comment: string, optional
+   - verified: boolean, required, default false
+   - reviewedAt: date, required
+   QUIRKS:
+   a. RELATION: bookIsbn is chosen via an async combobox that
+      searches the books list endpoint (shows "title (isbn)");
+      free-typing an isbn that doesn't exist must fail validation.
+   b. List shows rating as ★ characters (e.g. ★★★★☆) with an
+      accessible label ("4 of 5").
+   c. List has a "Verified only" toggle wired to the URL
+      (?verified=true) and forwarded to the list endpoint.
+
+7. [T2] Coupon (coupons)
+   - code: string, required, unique
+   - discount: number, required, 1..100 (percent)
+   - expiresAt: date, required
+   - active: boolean, required, default true
+   QUIRKS:
+   a. CROSS-FIELD: on create, expiresAt must be a future date
+      (edit may keep a past date). Violation is a field error,
+      not a toast.
+   b. List shows a derived Status column: "Expired" when
+      expiresAt < today, else "Active"/"Disabled" from the flag.
+   c. List filter: All | Active | Expired (URL-driven,
+      ?status=…, applied by the list endpoint).
+
+8. [T2] Warehouse (warehouses)
+   - code: string, required, unique
+   - name: string, required
+   - capacity: number, required, min 0
+   - location: embedded, required
+       - street: string, required
+       - city: string, required
+       - latitude: number, required, -90..90
+       - longitude: number, required, -180..180
+   QUIRKS:
+   a. EMBEDDED: location renders as a grouped fieldset with its own
+      validation messages per nested field.
+   b. List shows "City" (location.city) as a column.
+
+9. [T2] Invoice (invoices)
+   - invoiceNumber: number, required, unique
+   - supplierId: number, required            → RELATION
+   - total: number, required, > 0
+   - issuedAt: date, required
+   - paid: boolean, required, default false
+   - billing: embedded, required
+       - street: string, required
+       - city: string, required
+       - zipCode: string, required
+   QUIRKS:
+   a. RELATION: supplierId via async combobox over suppliers
+      ("name (id)").
+   b. INLINE ACTION: the list's Paid column is a switch that
+      PATCHes {paid} directly from the row (optimistic or
+      invalidate — but the row must not lose its page/search
+      state) with a toast on failure.
+   c. total renders as currency (USD, 2 decimals) in list and
+      detail.
+
+10. [T2] Shipment (shipments)
+    - trackingCode: string, required, unique
+    - weight: number, required, > 0
+    - shippedAt: date, optional*
+    - delivered: boolean, required, default false
+    - destination: embedded, required
+        - street: string, required
+        - city: string, required
+        - country: string, required
+    QUIRKS:
+    a. CONDITIONAL: *shippedAt becomes REQUIRED when
+       delivered=true (cross-field rule, field error on shippedAt).
+    b. BULK ACTION: list rows have checkboxes; a "Mark delivered"
+       bar appears when ≥1 selected and PATCHes each selected
+       shipment, then reports "N shipments updated" in one toast.
+
+11. [T2] Payment (payments)
+    - paymentId: number, required, unique
+    - amount: number, required, > 0
+    - method: enum(card | transfer | cash), required
+    - processedAt: date, optional*
+    - confirmed: boolean, required, default false
+    QUIRKS:
+    a. CONDITIONAL: *processedAt REQUIRED when confirmed=true.
+    b. amount renders as currency (USD) in list and detail.
+    c. List filter by method (All | Card | Transfer | Cash),
+       URL-driven and applied by the list endpoint.
+
+12. [T2] Ticket (tickets)
+    - ticketNumber: number, required, unique
+    - subject: string, required
+    - priority: enum(1=Low | 2=Medium | 3=High), required
+    - openedAt: date, required
+    - open: boolean, required, default true
+    QUIRKS:
+    a. Priority renders as a colored badge (High uses the
+       destructive tone) with the LABEL, never the raw number.
+    b. DATE RANGE filter: list accepts ?from=YYYY-MM-DD&to=… and
+       filters by openedAt (two date inputs in the toolbar).
+    c. ROW ACTION: "Close" / "Reopen" toggles `open` from the row
+       menu (PATCH + toast).
+
+13. [T3] Event (events)
+    - slug: string, required, unique
+    - title: string, required
+    - startsAt: date, required
+    - seats: number, required, min 0
+    - published: boolean, required, default false
+    HEAVY — PUBLISH WORKFLOW:
+    a. Create/edit forms NEVER expose `published`; state changes
+       only through explicit Publish / Unpublish actions on the
+       detail page.
+    b. GUARD: publishing must be rejected (mock returns 422, UI
+       shows the reason) when startsAt is in the past OR seats = 0.
+    c. List filter All | Published | Draft (URL-driven) and a
+       status badge per row.
+
+14. [T3] Subscription (subscriptions)
+    - subscriptionId: number, required, unique
+    - plan: enum(basic | pro | enterprise), required
+    - startedAt: date, required
+    - renewals: number, required, default 0, min 0
+    - active: boolean, required, default true
+    HEAVY — CREATE WIZARD:
+    a. Create is a 3-step wizard: (1) plan selection as cards,
+       (2) details (startedAt, active), (3) read-only summary +
+       Confirm. Back/Next preserve entered values; step state is
+       NOT in the URL.
+    b. Each step validates before Next; Confirm submits the whole
+       payload once.
+    c. ROW ACTION: "Renew" increments renewals via PATCH from the
+       row menu (toast shows the new count). Edit page is a plain
+       form (no wizard) and cannot change plan.
+
+15. [T3] Employee (employees)
+    - employeeId: number, required, unique
+    - fullName: string, required
+    - email: string, required, unique
+    - hiredAt: date, required
+    - remote: boolean, required, default false
+    HEAVY — ROLE-BASED READ-ONLY:
+    a. Add a global role switch (Admin | Viewer) in the sidebar
+       footer, held in a Zustand store (default Admin, no
+       persistence).
+    b. As Viewer, the Employees module hides/disables New, Edit,
+       Delete and any row mutations — list and detail remain
+       readable. Direct navigation to /employees/new or /edit
+       redirects to the list.
+    c. Other modules are NOT affected by the role.
+
+------------------------------------------------------------------
+
+SUGGESTED BATCH SCHEDULE (5 sessions, tiers mixed so no batch is
+all-vanilla or all-heavy):
+
+  Batch 1: Book [T1], Category [T1], Review [T2]
+  Batch 2: Supplier [T1], Coupon [T2], Warehouse [T2]
+  Batch 3: Vehicle [T1], Invoice [T2], Payment [T2]
+  Batch 4: Shipment [T2], Ticket [T2], Event [T3]
+  Batch 5: Subscription [T3], Employee [T3]
+
+Relations always point at entities from the same or an earlier
+batch (Review→Book in batch 1; Invoice→Supplier: supplier ships in
+batch 2, invoice in batch 3).

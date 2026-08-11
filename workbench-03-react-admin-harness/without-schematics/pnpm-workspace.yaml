@@ -1,0 +1,8 @@
+packages:
+  - '.'
+
+allowBuilds:
+  msw: true
+
+onlyBuiltDependencies:
+  - msw
