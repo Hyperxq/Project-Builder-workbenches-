@@ -34,7 +34,12 @@ if [ "$KIND" = web ]; then
   # Minimal prompt — the spec file carries the task, AGENTS.md the rules.
   # The strategy sentence is the experiment's ONLY variable between arms.
   PROMPT="Implement Batch ${BATCH} as specified in entities-benchmark.txt."
-  if [ "${ARM}" = with-schematics ]; then
+  if [ -f HARNESS.md ]; then
+    # Harness workbench (03+): the workflow contract ships inside the arm and
+    # the experimental variable is a plan-directives file, so the prompt stays
+    # byte-identical across arms.
+    PROMPT+=" Follow the delivery protocol in HARNESS.md."
+  elif [ "${ARM}" = with-schematics ]; then
     PROMPT+=" Use Project Builder schematics: if no suitable schematic exists in schematics/ yet, author it first (the pbuilder skill in .claude/skills/pbuilder explains how), then generate every entity with it."
   fi
   COUNT_PATHS=(src mocks e2e schematics)
@@ -136,6 +141,17 @@ try {
 const gates = fs.readFileSync(`${dir}/gates.jsonl`, 'utf8')
   .trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
 
+// Mixed-model harnesses pin sub-agent models in agent frontmatter; BENCH_MODEL
+// alone would misrepresent those runs, so record the full assignment.
+let workers = null;
+try {
+  for (const f of fs.readdirSync('.claude/agents')) {
+    if (!f.endsWith('.md')) continue;
+    const m = fs.readFileSync(`.claude/agents/${f}`, 'utf8').match(/^model:\s*(\S+)/m);
+    (workers ??= {})[f.replace(/\.md$/, '')] = m ? m[1] : 'inherit';
+  }
+} catch { /* no agents dir — single-model workbench */ }
+
 const bench = {
   date: new Date().toISOString(),
   arm: process.env.ARM,
@@ -149,6 +165,7 @@ const bench = {
     tokens: agent.usage ?? null,
     cost_usd: agent.total_cost_usd ?? null,
     session_id: agent.session_id ?? null,
+    ...(workers ? { worker_models: workers } : {}),
   },
   definition_of_done: {
     first_attempt_pass: gates.every(g => g.pass),
