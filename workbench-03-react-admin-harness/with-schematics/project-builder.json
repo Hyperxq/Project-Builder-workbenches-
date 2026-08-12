@@ -1,7 +1,27 @@
 {
   "$schema": "./node_modules/@pbuilder/sdk/schemas/project-builder.schema.json",
-  "version": "1",
-  "collections": {},
+  "collections": {
+    "default": {
+      "crud-module": {
+        "path": "./schematics/crud-module"
+      },
+      "mock-handler-register": {
+        "path": "./schematics/mock-handler-register"
+      },
+      "mock-reset-register": {
+        "path": "./schematics/mock-reset-register"
+      },
+      "mock-route-keys": {
+        "path": "./schematics/mock-route-keys"
+      },
+      "overview-card": {
+        "path": "./schematics/overview-card"
+      },
+      "sidebar-nav-entry": {
+        "path": "./schematics/sidebar-nav-entry"
+      }
+    }
+  },
   "dependencies": {},
   "settings": {
     "autoInstall": true,
@@ -11,5 +31,6 @@
   "skill": {
     "enabled": true,
     "path": ".claude/skills/pbuilder/SKILL.md"
-  }
+  },
+  "version": "1"
 }

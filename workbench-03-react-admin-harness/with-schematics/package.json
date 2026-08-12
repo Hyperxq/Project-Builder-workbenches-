@@ -60,6 +60,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:e2e": "playwright test",
+    "test:schematics": "bun test schematics",
     "test:run": "vitest run",
     "typecheck": "vite build --logLevel error && tsc -b"
   },
