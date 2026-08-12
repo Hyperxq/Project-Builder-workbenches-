@@ -23,6 +23,13 @@ parameterized for everything. Small schematics are testable in isolation and
 cheap to extend; when a shape diverges beyond a few variation points, prefer
 a sibling schematic (rule 3) over piling options onto an existing one.
 
+**Crystallize bottom-up**: start with the smallest always-done mechanical
+actions — the registration edits, config updates, and wiring steps every
+module repeats — one schematic each, runnable as a single command and tested
+in isolation (`bun test schematics/`). Build composite generators only from
+pieces already proven this way, sharing the same helper functions rather
+than reimplementing the edits inline.
+
 Record every decision in the plan file under `## Schematic decisions`, one
 row per pattern: pattern → established? → action (extract | extend | new |
 defer | none) → rationale (proven instance, expected repetitions, variation
