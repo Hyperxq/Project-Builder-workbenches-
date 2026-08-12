@@ -6,6 +6,9 @@ import { authorHandlers } from './domains/authors.mock'
 import { bookHandlers } from './domains/books.mock'
 import { categoryHandlers } from './domains/categories.mock'
 import { reviewHandlers } from './domains/reviews.mock'
+import { supplierHandlers } from './domains/suppliers.mock'
+import { couponHandlers } from './domains/coupons.mock'
+import { warehouseHandlers } from './domains/warehouses.mock'
 
 /**
  * Composes every domain's handlers into a single array.
@@ -30,5 +33,8 @@ export function createHandlers(
     ...bookHandlers(config, base),
     ...categoryHandlers(config, base),
     ...reviewHandlers(config, base),
+    ...supplierHandlers(config, base),
+    ...couponHandlers(config, base),
+    ...warehouseHandlers(config, base),
   ]
 }

@@ -5,6 +5,9 @@
       "crud-routes": {
         "path": "./schematics/crud-routes"
       },
+      "entity-crud-pages": {
+        "path": "./schematics/entity-crud-pages"
+      },
       "entity-data-layer": {
         "path": "./schematics/entity-data-layer"
       },
