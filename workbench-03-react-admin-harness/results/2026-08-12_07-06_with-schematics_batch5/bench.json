@@ -1,0 +1,77 @@
+{
+  "date": "2026-08-12T07:50:36.202Z",
+  "arm": "with-schematics",
+  "task": "batch 5",
+  "agent": {
+    "model": "claude-opus-5",
+    "exit_code": 0,
+    "wall_seconds": 2520,
+    "api_seconds": 2149,
+    "num_turns": 91,
+    "tokens": {
+      "input_tokens": 1099,
+      "cache_creation_input_tokens": 187422,
+      "cache_read_input_tokens": 9988201,
+      "output_tokens": 75492,
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 187422,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 961,
+          "cache_read_input_tokens": 202938,
+          "cache_creation_input_tokens": 2895,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 2895
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "cost_usd": 13.27462709999999,
+    "session_id": "2de299fe-10f7-43f8-ba85-43b1ea90b8c5",
+    "worker_models": {
+      "mechanic": "claude-sonnet-5",
+      "scout": "claude-sonnet-5"
+    }
+  },
+  "definition_of_done": {
+    "first_attempt_pass": true,
+    "gates": [
+      {
+        "gate": "typecheck",
+        "pass": true,
+        "seconds": 10
+      },
+      {
+        "gate": "lint",
+        "pass": true,
+        "seconds": 1
+      },
+      {
+        "gate": "test",
+        "pass": true,
+        "seconds": 35
+      },
+      {
+        "gate": "e2e",
+        "pass": true,
+        "seconds": 63
+      }
+    ]
+  },
+  "output": {
+    "files_created": 49,
+    "loc_delta": 3602
+  }
+}
