@@ -18,6 +18,11 @@ this lifecycle from the plan's pattern inventory:
    existing schematic generates: decide at planning time whether to extend
    it or author a separate one. Never silently patch generated output.
 
+**Granularity**: one schematic per atomic pattern — never a master generator
+parameterized for everything. Small schematics are testable in isolation and
+cheap to extend; when a shape diverges beyond a few variation points, prefer
+a sibling schematic (rule 3) over piling options onto an existing one.
+
 Record every decision in the plan file under `## Schematic decisions`, one
 row per pattern: pattern → established? → action (extract | extend | new |
 defer | none) → rationale (proven instance, expected repetitions, variation
