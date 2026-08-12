@@ -5,6 +5,19 @@ fully autonomously — there is no human to ask. AGENTS.md remains the authority
 on architecture, patterns, and the definition of done; this file governs HOW
 you organize the work.
 
+## Runtime discipline (non-interactive session)
+
+There is no one to hand control back to: a turn that ends "waiting" ends the
+session and aborts the batch.
+
+- Run every command and delegation as a BLOCKING call. To parallelize
+  delegations, launch them together in one message and let them all return —
+  never through background execution.
+- Never end a turn announcing you will wait for a result: either you already
+  have the result and act on it, or you are still inside blocking calls.
+- The batch ends one way only: every gate green, verified by you, in the
+  foreground.
+
 ## Phase 1 — PLAN (before touching any code)
 
 Study the batch spec in `entities-benchmark.txt` and the existing tree, then

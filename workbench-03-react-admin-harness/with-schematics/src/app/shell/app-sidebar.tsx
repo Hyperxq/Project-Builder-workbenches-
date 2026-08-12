@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { BookOpen, LayoutDashboard, Star, Tags, TicketPercent, Truck, Users, Warehouse } from 'lucide-react'
+import { LayoutDashboard, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { MockIndicator } from './mock-indicator'
 
@@ -13,12 +13,6 @@ interface NavEntry {
 const NAV: NavEntry[] = [
   { to: '/', label: 'Overview', icon: LayoutDashboard },
   { to: '/authors', label: 'Authors', icon: Users },
-  { to: '/books', label: 'Books', icon: BookOpen },
-  { to: '/categories', label: 'Categories', icon: Tags },
-  { to: '/reviews', label: 'Reviews', icon: Star },
-  { to: '/suppliers', label: 'Suppliers', icon: Truck },
-  { to: '/coupons', label: 'Coupons', icon: TicketPercent },
-  { to: '/warehouses', label: 'Warehouses', icon: Warehouse },
 ]
 
 export function AppSidebar() {
