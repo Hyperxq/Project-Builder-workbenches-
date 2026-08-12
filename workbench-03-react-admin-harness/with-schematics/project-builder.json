@@ -1,7 +1,24 @@
 {
   "$schema": "./node_modules/@pbuilder/sdk/schemas/project-builder.schema.json",
-  "version": "1",
-  "collections": {},
+  "collections": {
+    "default": {
+      "crud-routes": {
+        "path": "./schematics/crud-routes"
+      },
+      "entity-data-layer": {
+        "path": "./schematics/entity-data-layer"
+      },
+      "mock-domain-register": {
+        "path": "./schematics/mock-domain-register"
+      },
+      "overview-card": {
+        "path": "./schematics/overview-card"
+      },
+      "sidebar-nav-entry": {
+        "path": "./schematics/sidebar-nav-entry"
+      }
+    }
+  },
   "dependencies": {},
   "settings": {
     "autoInstall": true,
@@ -11,5 +28,6 @@
   "skill": {
     "enabled": true,
     "path": ".claude/skills/pbuilder/SKILL.md"
-  }
+  },
+  "version": "1"
 }
