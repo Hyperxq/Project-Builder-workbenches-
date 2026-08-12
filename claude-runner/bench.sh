@@ -81,6 +81,9 @@ BENCH_MODEL="${BENCH_MODEL:-claude-sonnet-5}"
 # thinking visible in claude-stream.jsonl (billing is unchanged — thinking is
 # billed whether displayed or not; streams get larger). Requires CLI >= 2.1.177.
 [ -n "${BENCH_THINKING:-}" ] && export CLAUDE_CODE_THINKING_DISPLAY="$BENCH_THINKING"
+# Headless CLI kills the process if background tasks (sub-agents) outlive the
+# main loop by 600s — harness workbenches delegate long work, so wait forever.
+export CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0
 claude -p "$PROMPT" \
   --model "$BENCH_MODEL" \
   --strict-mcp-config --dangerously-skip-permissions \
