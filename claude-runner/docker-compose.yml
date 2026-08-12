@@ -9,6 +9,8 @@ services:
       # Overrides the localhost URI in the arm's .env — process.env wins over dotenv
       MONGODB_URI: mongodb://root:example@mongodb:27017/?authSource=admin
       ARM: ${ARM:-}
+      BENCH_MODEL: ${BENCH_MODEL:-}
+      BENCH_THINKING: ${BENCH_THINKING:-}
     depends_on:
       - mongodb
     volumes:
@@ -25,6 +27,10 @@ services:
     env_file: .env
     environment:
       ARM: ${ARM:-}
+      # compose run only forwards host vars declared here — without these the
+      # model pin silently falls back to the CLI default inside the container.
+      BENCH_MODEL: ${BENCH_MODEL:-}
+      BENCH_THINKING: ${BENCH_THINKING:-}
     volumes:
       - ../${WORKBENCH:-workbench-02-react-admin}/${ARM:?set ARM=with-schematics or ARM=without-schematics}:/workspace
       - ../${WORKBENCH:-workbench-02-react-admin}/results:/results
