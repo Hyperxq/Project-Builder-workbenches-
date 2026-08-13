@@ -6,8 +6,10 @@ apply them**, made at planning time — not in the artifact itself.
 ## Why this experiment
 
 Workbench 02 answered the amortization question: forcing an arm to schematize
-everything from batch 1 cost +48% with zero quality gain on the leveled sweep
-(opus-5), and the cost crossover only began to appear at batch 5. The open
+everything from batch 1 cost +48% for the same final quality on the leveled
+sweep (opus-5) — though it did pass the definition of done on the first
+attempt far more often (9/10 runs vs 5/10) — and the cost crossover only
+began to appear at batch 5. The open
 question it left: does a *targeted* crystallization decision — schematize only
 what will foreseeably repeat, hand-write the rest — capture the benefit
 without the blanket-authoring tax?
