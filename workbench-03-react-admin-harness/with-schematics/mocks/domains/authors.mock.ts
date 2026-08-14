@@ -1,8 +1,8 @@
 import { HttpResponse, http, passthrough } from 'msw'
 import type { HttpHandler } from 'msw'
 import type { Author, AuthorUpsert } from '@/features/authors/domain/author'
-import type { Paginated } from '@/shared/api/pagination'
 import { badRequest, conflict, notFound } from '../core/errors'
+import { paginate, parseListQuery } from '../core/list-query'
 import { shouldMock, type MockConfig } from '../core/mock.config'
 import { joinUrl } from '../core/url'
 import { AUTHORS_FIXTURE } from '../fixtures/authors.fixture'
@@ -36,14 +36,6 @@ export function resetAuthors(): void {
   authors = new Map(AUTHORS_FIXTURE.map((a) => [a.authorId, { ...a }]))
 }
 
-function parsePage(url: URL): { page: number; pageSize: number; q: string } {
-  return {
-    page: Math.max(1, Number(url.searchParams.get('page') ?? '1')),
-    pageSize: Math.min(100, Math.max(1, Number(url.searchParams.get('pageSize') ?? '10'))),
-    q: (url.searchParams.get('q') ?? '').trim().toLowerCase(),
-  }
-}
-
 function validateUpsert(body: Partial<AuthorUpsert>): string | null {
   if (typeof body.authorId !== 'number' || !Number.isInteger(body.authorId)) {
     return 'authorId is required and must be an integer'
@@ -64,7 +56,7 @@ export function authorHandlers(config: MockConfig, base: string): HttpHandler[] 
     http.get(joinUrl(base, '/authors'), ({ request }) => {
       if (!shouldMock(config, 'LIST_AUTHORS')) return passthrough()
 
-      const { page, pageSize, q } = parsePage(new URL(request.url))
+      const { page, pageSize, q } = parseListQuery(new URL(request.url))
       const all = [...authors.values()].sort((a, b) => a.authorId - b.authorId)
       const filtered = q
         ? all.filter(
@@ -75,14 +67,7 @@ export function authorHandlers(config: MockConfig, base: string): HttpHandler[] 
           )
         : all
 
-      const start = (page - 1) * pageSize
-      const body: Paginated<Author> = {
-        items: filtered.slice(start, start + pageSize),
-        total: filtered.length,
-        page,
-        pageSize,
-      }
-      return HttpResponse.json(body)
+      return HttpResponse.json(paginate(filtered, page, pageSize))
     }),
 
     http.get(joinUrl(base, '/authors/:authorId'), ({ params }) => {

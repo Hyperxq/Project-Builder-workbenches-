@@ -5,6 +5,17 @@ import { resetAuthors } from './domains/authors.mock'
 import { resetBooks } from './domains/books.mock'
 import { resetCategories } from './domains/categories.mock'
 import { resetReviews } from './domains/reviews.mock'
+import { resetSuppliers } from './domains/suppliers.mock'
+import { resetCoupons } from './domains/coupons.mock'
+import { resetWarehouses } from './domains/warehouses.mock'
+import { resetVehicles } from './domains/vehicles.mock'
+import { resetInvoices } from './domains/invoices.mock'
+import { resetPayments } from './domains/payments.mock'
+import { resetShipments } from './domains/shipments.mock'
+import { resetTickets } from './domains/tickets.mock'
+import { resetEvents } from './domains/events.mock'
+import { resetSubscriptions } from './domains/subscriptions.mock'
+import { resetEmployees } from './domains/employees.mock'
 import { createHandlers } from './handlers'
 
 /**
@@ -39,6 +50,17 @@ afterEach(() => {
   resetBooks()
   resetCategories()
   resetReviews()
+  resetSuppliers()
+  resetCoupons()
+  resetWarehouses()
+  resetVehicles()
+  resetInvoices()
+  resetPayments()
+  resetShipments()
+  resetTickets()
+  resetEvents()
+  resetSubscriptions()
+  resetEmployees()
 })
 
 afterAll(() => {

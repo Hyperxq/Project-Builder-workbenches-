@@ -6,6 +6,17 @@ import { authorHandlers } from './domains/authors.mock'
 import { bookHandlers } from './domains/books.mock'
 import { categoryHandlers } from './domains/categories.mock'
 import { reviewHandlers } from './domains/reviews.mock'
+import { supplierHandlers } from './domains/suppliers.mock'
+import { couponHandlers } from './domains/coupons.mock'
+import { warehouseHandlers } from './domains/warehouses.mock'
+import { vehicleHandlers } from './domains/vehicles.mock'
+import { invoiceHandlers } from './domains/invoices.mock'
+import { paymentHandlers } from './domains/payments.mock'
+import { shipmentHandlers } from './domains/shipments.mock'
+import { ticketHandlers } from './domains/tickets.mock'
+import { eventHandlers } from './domains/events.mock'
+import { subscriptionHandlers } from './domains/subscriptions.mock'
+import { employeeHandlers } from './domains/employees.mock'
 
 /**
  * Composes every domain's handlers into a single array.
@@ -30,5 +41,16 @@ export function createHandlers(
     ...bookHandlers(config, base),
     ...categoryHandlers(config, base),
     ...reviewHandlers(config, base),
+    ...supplierHandlers(config, base),
+    ...couponHandlers(config, base),
+    ...warehouseHandlers(config, base),
+    ...vehicleHandlers(config, base),
+    ...invoiceHandlers(config, base),
+    ...paymentHandlers(config, base),
+    ...shipmentHandlers(config, base),
+    ...ticketHandlers(config, base),
+    ...eventHandlers(config, base),
+    ...subscriptionHandlers(config, base),
+    ...employeeHandlers(config, base),
   ]
 }

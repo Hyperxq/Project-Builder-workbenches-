@@ -2,14 +2,26 @@
   "$schema": "./node_modules/@pbuilder/sdk/schemas/project-builder.schema.json",
   "collections": {
     "default": {
+      "crud-api": {
+        "path": "./schematics/crud-api"
+      },
+      "crud-create-page": {
+        "path": "./schematics/crud-create-page"
+      },
+      "crud-edit-page": {
+        "path": "./schematics/crud-edit-page"
+      },
+      "crud-hooks": {
+        "path": "./schematics/crud-hooks"
+      },
       "crud-module": {
         "path": "./schematics/crud-module"
       },
-      "mock-handler-register": {
-        "path": "./schematics/mock-handler-register"
+      "crud-routes": {
+        "path": "./schematics/crud-routes"
       },
-      "mock-reset-register": {
-        "path": "./schematics/mock-reset-register"
+      "mock-domain-register": {
+        "path": "./schematics/mock-domain-register"
       },
       "mock-route-keys": {
         "path": "./schematics/mock-route-keys"

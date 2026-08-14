@@ -23,3 +23,7 @@ export function conflict(message = 'Conflict') {
 export function serverError(message = 'Server error') {
   return HttpResponse.json({ error: message }, { status: 500 })
 }
+
+export function unprocessable(message = 'Unprocessable entity') {
+  return HttpResponse.json({ error: message }, { status: 422 })
+}

@@ -1,7 +1,8 @@
 import { Link } from '@tanstack/react-router'
-import { BookOpen, LayoutDashboard, Star, Tags, Users } from 'lucide-react'
+import { BookOpen, CalendarDays, Car, CreditCard, IdCard, LayoutDashboard, Package, ReceiptText, Repeat, Star, Tags, Ticket, TicketPercent, Truck, Users, Warehouse } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { MockIndicator } from './mock-indicator'
+import { RoleSwitch } from './role-switch'
 
 interface NavEntry {
   to: string
@@ -16,6 +17,17 @@ const NAV: NavEntry[] = [
   { to: '/books', label: 'Books', icon: BookOpen },
   { to: '/categories', label: 'Categories', icon: Tags },
   { to: '/reviews', label: 'Reviews', icon: Star },
+  { to: '/suppliers', label: 'Suppliers', icon: Truck },
+  { to: '/coupons', label: 'Coupons', icon: TicketPercent },
+  { to: '/warehouses', label: 'Warehouses', icon: Warehouse },
+  { to: '/vehicles', label: 'Vehicles', icon: Car },
+  { to: '/invoices', label: 'Invoices', icon: ReceiptText },
+  { to: '/payments', label: 'Payments', icon: CreditCard },
+  { to: '/shipments', label: 'Shipments', icon: Package },
+  { to: '/tickets', label: 'Tickets', icon: Ticket },
+  { to: '/events', label: 'Events', icon: CalendarDays },
+  { to: '/subscriptions', label: 'Subscriptions', icon: Repeat },
+  { to: '/employees', label: 'Employees', icon: IdCard },
 ]
 
 export function AppSidebar() {
@@ -42,7 +54,8 @@ export function AppSidebar() {
         ))}
       </nav>
 
-      <div className="border-t p-3">
+      <div className="border-t p-3 space-y-2">
+        <RoleSwitch />
         <MockIndicator />
       </div>
     </aside>

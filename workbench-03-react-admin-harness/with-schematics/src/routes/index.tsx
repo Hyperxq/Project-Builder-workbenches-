@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ArrowRight, BookOpen, Star, Tags, Users } from 'lucide-react'
+import { ArrowRight, BookOpen, CalendarDays, Car, CreditCard, IdCard, Package, ReceiptText, Repeat, Star, Tags, Ticket, TicketPercent, Truck, Users, Warehouse } from 'lucide-react'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const Route = createFileRoute('/')({
@@ -44,7 +44,7 @@ function OverviewPage() {
                 />
               </div>
               <CardTitle className="text-base">Books</CardTitle>
-              <CardDescription>Catalogue of books — list, create, edit and remove titles.</CardDescription>
+              <CardDescription>Catalogue titles — list, create, edit and remove books.</CardDescription>
             </CardHeader>
           </Card>
         </Link>
@@ -59,7 +59,7 @@ function OverviewPage() {
                 />
               </div>
               <CardTitle className="text-base">Categories</CardTitle>
-              <CardDescription>Taxonomy codes — list, create, edit and remove categories.</CardDescription>
+              <CardDescription>Classification codes — list, create, edit and remove categories.</CardDescription>
             </CardHeader>
           </Card>
         </Link>
@@ -74,7 +74,172 @@ function OverviewPage() {
                 />
               </div>
               <CardTitle className="text-base">Reviews</CardTitle>
-              <CardDescription>Reader feedback — rate books, moderate and verify reviews.</CardDescription>
+              <CardDescription>Reader ratings — list, create, edit and remove book reviews.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/suppliers" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Truck className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Suppliers</CardTitle>
+              <CardDescription>Vendor directory — list, create, edit and remove suppliers.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/coupons" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <TicketPercent className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Coupons</CardTitle>
+              <CardDescription>Discount codes — list, create, edit and remove coupons.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/warehouses" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Warehouse className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Warehouses</CardTitle>
+              <CardDescription>Storage sites — list, create, edit and remove warehouses.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/vehicles" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Car className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Vehicles</CardTitle>
+              <CardDescription>Fleet vehicles — list, create, edit and remove vehicles.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/invoices" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <ReceiptText className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Invoices</CardTitle>
+              <CardDescription>Supplier invoices — list, create, edit and remove invoices.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/payments" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CreditCard className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Payments</CardTitle>
+              <CardDescription>Recorded payments — list, create, edit and remove payments.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/shipments" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Package className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Shipments</CardTitle>
+              <CardDescription>Outbound shipments — list, create, edit and remove shipments.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/tickets" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Ticket className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Tickets</CardTitle>
+              <CardDescription>Support tickets — list, create, edit and remove tickets.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/events" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CalendarDays className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Events</CardTitle>
+              <CardDescription>Scheduled events — list, create, edit and remove events.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/subscriptions" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Repeat className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Subscriptions</CardTitle>
+              <CardDescription>Customer subscriptions — list, create, edit and remove subscriptions.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link to="/employees" className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Card className="h-full transition-colors group-hover:bg-popover">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <IdCard className="size-4 text-muted-foreground" aria-hidden />
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </div>
+              <CardTitle className="text-base">Employees</CardTitle>
+              <CardDescription>Company employees — list, create, edit and remove employees.</CardDescription>
             </CardHeader>
           </Card>
         </Link>

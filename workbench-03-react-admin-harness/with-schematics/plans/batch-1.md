@@ -1,344 +1,348 @@
 # Batch 1 — Book [T1], Category [T1], Review [T2]
 
-Orchestrated per `HARNESS.md`. Authority on architecture: `AGENTS.md`.
-Design language: `DESIGN.md` (already embodied by the Authors reference —
-mirroring Authors *is* the design compliance path).
+Orchestrated per `HARNESS.md`. Authority on architecture: `AGENTS.md`. Design
+language: `DESIGN.md`. Plan directives incorporated: `plan-directives/schematics.md`
+(decisions recorded under **Schematic decisions**).
+
+Baseline measured before planning (reference module only):
+`pnpm typecheck` ✅ · `pnpm lint` ✅ · `pnpm test:run` ✅ 3 files / 16 tests ·
+`pnpm test:e2e` ✅ 7 passed. Every gate is green today, so any red during this
+batch is ours.
 
 ---
 
 ## 1. Modules
 
-### 1.1 Book [T1] — `books` / `book`, key `isbn` (string)
+### 1.1 Book [T1] — `books`, key `isbn: string`
 
-| Field | Type | Rules |
-|---|---|---|
-| `isbn` | string | required, **unique** (lookup key, 409 on duplicate create) |
-| `title` | string | required |
-| `pages` | number | required, int, min 1 |
-| `publishedAt` | date | optional (`'' → undefined`), `YYYY-MM-DD` |
-| `inPrint` | boolean | required, default `true` |
+| Field | Type / rules |
+|---|---|
+| `isbn` | string, required, **unique** (lookup key) |
+| `title` | string, required |
+| `pages` | number, required, min 1 |
+| `publishedAt` | date (`YYYY-MM-DD`), optional |
+| `inPrint` | boolean, required, default `true` |
 
 Files:
 
 ```
-src/features/books/domain/book.ts
-src/features/books/infrastructure/books.api.ts
-src/features/books/application/use-books.ts
+mocks/fixtures/books.fixture.ts            24 rows (3 real pages)
+mocks/domains/books.mock.ts                bookHandlers() + resetBooks()
+mocks/domains/books.mock.spec.ts
+mocks/core/types.ts                        + LIST_BOOKS GET_BOOK CREATE_BOOK UPDATE_BOOK DELETE_BOOK
+mocks/handlers.ts                          + import/spread
+mocks/setup-test-mocking.ts                + resetBooks()
+src/features/books/domain/book.ts          bookSchema, bookUpsertSchema, bookKey()
+src/features/books/infrastructure/books.api.ts        [generated]
+src/features/books/application/use-books.ts           [generated]
 src/features/books/presentation/books-page.tsx
 src/features/books/presentation/book-form.tsx
 src/features/books/presentation/book-create-page.tsx
 src/features/books/presentation/book-edit-page.tsx
 src/features/books/presentation/book-detail-page.tsx
-src/features/books/presentation/book-status-badge.tsx
+src/features/books/presentation/in-print-badge.tsx
 src/features/books/presentation/books-page.test.tsx
 src/features/books/presentation/book-form.test.tsx
-src/routes/books/index.tsx            (validateSearch: page, q)
-src/routes/books/new.tsx
-src/routes/books/$isbn/index.tsx
-src/routes/books/$isbn/edit.tsx
-mocks/fixtures/books.fixture.ts       (24 rows)
-mocks/domains/books.mock.ts           (+ exported `findBook(isbn)`)
-mocks/domains/books.mock.spec.ts
+src/routes/books/index.tsx  new.tsx  $isbn/index.tsx  $isbn/edit.tsx   [generated]
+src/app/shell/app-sidebar.tsx              + NAV line                  [generated edit]
+src/routes/index.tsx                       + overview card             [generated edit]
 e2e/books.spec.ts
 ```
 
-Registration edits: `mocks/core/types.ts` (`LIST_BOOKS|GET_BOOK|CREATE_BOOK|
-UPDATE_BOOK|DELETE_BOOK`), `mocks/handlers.ts`, `mocks/setup-test-mocking.ts`,
-`src/app/shell/app-sidebar.tsx`, `src/routes/index.tsx`.
+List columns: ISBN · Title · Pages · Published (`YYYY-MM-DD`, `—` when unset) ·
+Status (`In print` / `Out of print`) · row actions.
 
-### 1.2 Category [T1] — `categories` / `category`, key `code` (string)
+### 1.2 Category [T1] — `categories`, key `code: string`
 
-| Field | Type | Rules |
-|---|---|---|
-| `code` | string | required, **unique** (lookup key) |
-| `name` | string | required |
-| `description` | string | optional |
-| `enabled` | boolean | required, default `true` |
+| Field | Type / rules |
+|---|---|
+| `code` | string, required, **unique** (lookup key) |
+| `name` | string, required |
+| `description` | string, optional |
+| `enabled` | boolean, required, default `true` |
 
-Same file set with `categories`/`category`/`$code`; route keys
-`LIST_CATEGORIES|GET_CATEGORY|CREATE_CATEGORY|UPDATE_CATEGORY|DELETE_CATEGORY`.
-Pure rename of the Authors shape — **zero new field types**.
+Same file set as Book with `category`/`categories`, key param `$code`,
+`enabled-badge.tsx`, `e2e/categories.spec.ts`. List columns: Code · Name ·
+Description · Status · actions.
 
-### 1.3 Review [T2] — `reviews` / `review`, key `reviewId` (number)
+### 1.3 Review [T2] — `reviews`, key `reviewId: number`
 
-| Field | Type | Rules |
-|---|---|---|
-| `reviewId` | number | required, int, **unique** (lookup key) |
-| `bookIsbn` | string | required, **RELATION → Book.isbn** |
-| `rating` | number | required, int, 1..5 |
-| `comment` | string | optional |
-| `verified` | boolean | required, default `false` |
-| `reviewedAt` | date | required |
+| Field | Type / rules |
+|---|---|
+| `reviewId` | number, required, **unique** (lookup key) |
+| `bookIsbn` | string, required — **RELATION → books** |
+| `rating` | number, required, 1..5 |
+| `comment` | string, optional |
+| `verified` | boolean, required, default `false` |
+| `reviewedAt` | date (`YYYY-MM-DD`), required |
 
-Extra files beyond the standard set:
+Same file set plus `presentation/book-combobox.tsx` (relation input) and
+`presentation/rating-stars.tsx`. List columns: ID · Book (`title (isbn)` when
+resolvable, else the raw isbn) · Rating (★) · Reviewed · Verified · actions.
 
-```
-src/features/reviews/presentation/star-rating.tsx        (quirk b)
-src/features/reviews/presentation/book-combobox.tsx      (quirk a)
-```
+Quirk decisions (mine — the mechanic implements, never decides):
 
-Quirk implementation contract (design decisions — fixed here, not by the
-mechanic):
+- **(a) RELATION.** `book-combobox.tsx` = `Popover` + `Command` (both shadcn
+  primitives already in `src/components/ui/`, never wired before). It queries
+  the **books list endpoint** through `useBooksList({ q, pageSize: 10 })` —
+  a cross-feature *presentation → application* import, which keeps the
+  inward-only dependency rule (nothing imports presentation). Options render
+  as `title (isbn)`. Free typing is allowed: the typed text becomes the field
+  value, and existence is enforced by an **async refinement** on the form
+  schema (`reviewUpsertSchema.superRefine(async …)` calling `booksApi.get`),
+  so an unknown isbn fails validation as a **field error** on `bookIsbn`
+  (`Book "<isbn>" does not exist`) and never navigates. Server side, the
+  reviews mock rejects an unknown `bookIsbn` with 400 as a second line of
+  defence; the create page surfaces it in the form's server-error slot.
+- **(b) RATING.** `rating-stars.tsx` renders `★★★★☆` with
+  `aria-label="{n} of 5"` on the wrapper and `aria-hidden` on the glyphs.
+- **(c) VERIFIED FILTER.** A `Switch` labelled "Verified only" wired to the
+  list route's `validateSearch` (`verified: z.boolean().optional()`), pushed
+  into the URL as `?verified=true`, forwarded through `ListParams` to
+  `GET /reviews?verified=true`, and applied **by the mock list endpoint**
+  (not client-side). Toggling resets `page` to 1 and preserves `q`.
 
-- **a. RELATION.** `book-combobox.tsx` = `Popover` + `Command`
-  (`src/components/ui/{popover,command}.tsx`, already present, first use).
-  It searches the **books list endpoint** through Books' application hook
-  `useBooksList({ q, pageSize: 10 })` (cross-feature import of another
-  feature's *application* layer is allowed for relations; the relation
-  always points at a same/earlier-batch entity). Options render as
-  `title (isbn)`. The trigger is a `combobox`-role button labelled
-  `Book`; the popover's search box is labelled `Search books`.
-  Free typing is supported through a "Use “<typed>”" command item that
-  commits the raw string. Existence validation on submit:
-  `book-form.tsx` calls `booksApi.get(isbn)` before mutating; a rejection
-  ⇒ `setError('bookIsbn', { message: 'No book with that ISBN' })` — a
-  **field error**, no navigation. The reviews mock is the server-side
-  backstop: unknown `bookIsbn` ⇒ 400 `bookIsbn <x> does not exist`.
-- **b. STARS.** `star-rating.tsx` renders
-  `<span role="img" aria-label="{n} of 5">★★★★☆</span>` (n filled `★`,
-  `5-n` hollow `☆`). Used in the list *and* the detail page.
-- **c. VERIFIED FILTER.** Route search schema gains
-  `verified: z.boolean().optional().catch(undefined)`; toolbar `Switch`
-  labelled `Verified only` writes `?verified=true` (ON) / removes the param
-  (OFF) and resets `page` to 1. The value is forwarded to
-  `GET /reviews?verified=true`, and the **mock endpoint** does the filtering.
+### 1.4 Shared changes (mine, cross-cutting — decided here, built once)
 
-Shared-layer change this requires (design decision, done by the
-orchestrator, not the mechanic):
-
-`src/shared/api/pagination.ts` — `ListParams` becomes a type alias and
-`toQueryString` accepts `ListParams & Record<string, string | number |
-boolean | undefined>`, serialising any extra scalar key. Behaviour for
-`page`/`pageSize`/`q` is unchanged (page omitted when ≤ 1, `q` trimmed and
-omitted when blank, empty/undefined values skipped). This is the mechanism
-the remaining schedule needs 4 more times (Coupon `?status`, Payment
-`?method`, Ticket `?from&to`, Event `?published`).
+1. **`src/shared/api/pagination.ts`** — `ListParams` gains an optional
+   `filters?: Record<string, string | number | boolean | undefined>` bag and
+   `toQueryString` serialises each defined, non-empty entry after
+   `page/pageSize/q`. Rationale: five scheduled entities need a list filter
+   beyond `page/pageSize/q` (Review `verified` now; Coupon `status`, Payment
+   `method`, Ticket `from`/`to`, Event `status` later). Widening the shared
+   contract once keeps `<plural>.api.ts` and `use-<plural>.ts` **byte-identical
+   across all 15 entities**, which is what makes them safely generatable
+   (§ Schematic decisions). Authors is unaffected (no filters passed).
+2. **`src/shared/domain/iso-date.ts`** — `isoDateSchema` (`YYYY-MM-DD` regex,
+   message `Use the YYYY-MM-DD format`) and `optionalIsoDateSchema`
+   (`'' → undefined`). Dates are stored and transported as `YYYY-MM-DD`
+   strings, rendered verbatim in lists and bound directly to
+   `<input type="date">`. Rationale: 10 of the 14 remaining entities carry a
+   date field; the first two land in this batch.
+3. **`package.json`** — `"test:schematics": "bun test schematics"`. Schematic
+   tests are `*.test.ts` under `schematics/`, outside vitest's `include`
+   (`src/**`, `mocks/**`), so the app gates stay unpolluted.
 
 ---
 
 ## 2. Pattern inventory (scout report, incorporated)
 
-### 2.1 Established, proven, gates-green
+Verified read-only sweep of the tree. Authors is the **only** established
+instance of anything; `plans/` was empty (no earlier plan declared a rule) and
+`project-builder.json` has `"collections": {}` — no schematic has ever been
+extracted here.
 
-The **Authors module** is the single proven instance and covers the whole
-vanilla CRUD shape: unique key + required strings + optional string +
-boolean-with-default, list (search/paginate/row-menu/delete+AlertDialog),
-RHF+zodResolver form with server-conflict surfacing, TanStack Query key
-factory + 5 hooks, MSW in-memory `Map` domain with 200/201/204/400/404/409
-semantics, 4 thin routes, section tests, e2e + axe.
+### 2.1 Per module — exists vs new
 
-Reference files: `src/features/authors/**`, `src/routes/authors/**`,
-`mocks/domains/authors.mock.ts(.spec.ts)`, `mocks/fixtures/authors.fixture.ts`,
-`e2e/authors.spec.ts`.
+Every artefact type in the AGENTS.md module drill (19 atomic shapes: fixture,
+mock factory + reset, mock spec, route-key registration, `handlers.ts` spread,
+`setup-test-mocking` reset, domain schema, api object, query hooks, list page,
+form, create/edit/detail pages, 4 route files, sidebar NAV line, overview card,
+section tests, e2e spec) is **established** by Authors and green. No batch-1
+artefact type lacks a precedent; deviations are field-level:
 
-**Repetition ahead:** 14 entities total (2–15). Batch 1 uses it 3×; the full
-remaining schedule uses it 14×. Far past the 3× extraction threshold.
+**Book** — established shapes, three deviations: (i) **string** lookup key
+(`isbn`) where Authors has a number — route params stay strings, no `Number()`
+cast in the route wrapper, the key `<Input>` is `type="text"`; (ii) `pages` is
+the first non-key numeric field with a `min` bound; (iii) `publishedAt` is the
+first **date** field in the tree (no `type="date"` input and no date schema
+exist anywhere — grep: 0 hits). `inPrint` maps 1:1 onto Authors' `active`.
 
-The five mechanical registration edits, each firing exactly once per entity —
-**3× this batch, 14× across the schedule**:
+**Category** — the closest possible repeat of Authors in the entire schedule:
+`code`→string key (same deviation as Book), `name`→`fullName`,
+`description`→`country` (optional trimmed string, `'' → undefined`),
+`enabled`→`active`. Nothing else new.
 
-| File | Edit shape |
-|---|---|
-| `mocks/core/types.ts` | append 5 literals to the `MockRouteKey` union |
-| `mocks/handlers.ts` | one import + one `...xHandlers(config, base)` spread |
-| `mocks/setup-test-mocking.ts` | one import + one `resetX()` in `afterEach` |
-| `src/app/shell/app-sidebar.tsx` | one lucide import + one `NAV` entry |
-| `src/routes/index.tsx` | one lucide import + one `<Link><Card>` block |
+**Review** — established shapes plus four genuinely new mechanisms: relation
+field + cross-feature query (none exists), async combobox wiring
+(`command.tsx`/`popover.tsx` exist but have **zero imports** outside
+`components/ui/`), star renderer (none exists), and a list filter param beyond
+`page/pageSize/q` plus the first boolean `validateSearch` entry (none exists).
+`reviewId` matches `authorId` exactly; `comment` matches `country`;
+`verified` is the first `default false` boolean; `reviewedAt` the first
+*required* date.
 
-### 2.2 New — no instance in the tree
+### 2.2 Repetition — this batch and the remaining schedule
 
-| Pattern | First needed | Repeats across schedule |
-|---|---|---|
-| native `<input type="date">` + `YYYY-MM-DD` list rendering | Book, Review | 10 / 14 entities |
-| number field with min/range beyond a positive-int key | Book `pages`, Review `rating` | 10 / 14 |
-| extra URL search param beyond `page`/`q`, applied by the list endpoint | Review `?verified` | 5 / 14 (boolean flavour 1×) |
-| relation via async combobox over another entity's list endpoint | Review → Book | **2 / 14** (Invoice → Supplier, batch 3) |
-| star rating display | Review | **1 / 14** — unique to Review |
+14 entities remain overall (Book, Category, Review + Supplier, Coupon,
+Warehouse, Vehicle, Invoice, Payment, Shipment, Ticket, Event, Subscription,
+Employee).
 
-Primitives: everything needed already exists in `src/components/ui`
-(`popover`, `command` for the combobox — generated, never yet consumed).
-Nothing new to generate from shadcn. Star rating has no primitive and is a
-small hand-written presentation component.
+| Atomic shape | Batch 1 | Batches 2–5 | Total ahead |
+|---|---|---|---|
+| mock fixture (≥20 rows) | 3 | 11 | 14 |
+| mock domain factory + `reset<X>()` | 3 | 11 | 14 |
+| mock-infra spec | 3 | 11 | 14 |
+| route-key registration (5 literals each) | 3 | 11 | 14 |
+| `handlers.ts` import + spread | 3 | 11 | 14 |
+| `setup-test-mocking.ts` import + reset call | 3 | 11 | 14 |
+| domain schema file | 3 | 11 | 14 |
+| infrastructure api object | 3 | 11 | 14 |
+| application keys + 5 hooks | 3 | 11 | 14 |
+| list page | 3 | 11 | 14 |
+| form | 3 | 11 | 14 |
+| create/edit/detail pages | 9 | 33 | 42 |
+| route files | 12 | 44 | 56 |
+| sidebar NAV line | 3 | 11 | 14 |
+| overview card | 3 | 11 | 14 |
+| section test files (≥2 each) | 6 | 22 | 28 |
+| e2e spec | 3 | 11 | 14 |
 
-### 2.3 Deviations of each Batch-1 entity from the reference
+`MockRouteKey` grows 5 → 20 after this batch → 75 at the end of the schedule.
 
-- **Category** — none. Straight rename of Authors.
-- **Book** — new *field types only* (number-with-min, optional date) inside
-  otherwise identical layers.
-- **Review** — structural: cross-feature relation (infrastructure + presentation
-  + mock cross-domain lookup), first route `validateSearch` beyond `{page,q}`,
-  first mock domain that reads another domain's store, first fixture with a
-  referential-integrity constraint (`bookIsbn` must exist in the books fixture).
+Variation points beyond the pure Authors shape, by entity count:
+date field **10** · boolean defaulting false **7** · extra URL list filter **5** ·
+enum Select **3** · embedded object **3** · cross-field/conditional rule **3** ·
+row-level PATCH action **3** · derived status badge **3** · currency **2** ·
+relation combobox **2** · bulk action **1** · publish workflow **1** ·
+create wizard **1** · role gating + global store **1** · star rating **1**.
+
+### 2.3 Infrastructure facts respected by this plan
+
+- `ListParams`/`toQueryString` (`src/shared/api/pagination.ts:9`) has no
+  extension point today → widened once, here (§1.4.1).
+- `MockRouteKey` (`mocks/core/types.ts:14`) is a flat literal union; growth is
+  purely additive (5 literals per entity).
+- `mocks/setup-test-mocking.ts` has one shared `afterEach`; each entity adds
+  one import + one call to that same file.
+- `src/routeTree.gen.ts` is generated by `@tanstack/router-plugin/vite`
+  (`vite.config.ts:18`), gitignored, and regenerated automatically by
+  `vite build` — which `pnpm typecheck` runs first. No manual step; new route
+  files are picked up by the typecheck gate itself.
+- `package.json:generate:types` runs `pbuilder-codegen` over `schematics/*/schema.json`
+  — a no-op today because `schematics/` is empty. It becomes live in this batch.
+- `builder` CLI v0.9.0 is on PATH; `builder info` reports zero collections.
+- `tsconfig.app.json` includes `src`, `mocks`, `e2e` only — schematic factories
+  are bun-run and outside the typecheck gate; oxlint still lints them.
 
 ---
 
 ## 3. Schematic decisions
 
-Per `plan-directives/schematics.md`. Crystallised **bottom-up**: the five
-always-done registration edits first, one schematic each, tested in isolation;
-the composite module generator built **only** from those proven helpers,
-importing the same functions (`schematics/_lib/registration.ts`) rather than
-re-implementing the edits inline.
+Directive: extract from proven code, bottom-up, one schematic per atomic
+pattern, composites only from proven pieces.
 
-| # | Pattern | Established? | Action | Rationale |
-|---|---|---|---|---|
-| 1 | route-key union entry (`mocks/core/types.ts`) | yes — Authors | **extract** → `default:mock-route-keys` | 14 repeats; single atomic edit; variation: entity SCREAMING name |
-| 2 | handler registration (`mocks/handlers.ts`) | yes — Authors | **extract** → `default:mock-handler-register` | 14 repeats; variation: plural + factory name |
-| 3 | test-reset registration (`mocks/setup-test-mocking.ts`) | yes — Authors | **extract** → `default:mock-reset-register` | 14 repeats; variation: plural + reset fn name |
-| 4 | sidebar NAV entry (`app-sidebar.tsx`) | yes — Authors | **extract** → `default:sidebar-nav-entry` | 14 repeats; variation: path, label, lucide icon |
-| 5 | overview card (`src/routes/index.tsx`) | yes — Authors | **extract** → `default:overview-card` | 14 repeats; variation: path, title, description, icon |
-| 6 | full vanilla CRUD module (4 layers + 4 routes + mock domain + fixture + tests + e2e + all 5 registrations) | yes — Authors | **extract** → `default:crud-module`, composing #1–#5 | 14 repeats of the skeleton, 4 of them pure-vanilla (Book, Category, Supplier, Vehicle); variation points: singular/plural/labels/icon/key field/field list (DSL)/descriptions |
-| 7 | relation async combobox | **no** — no instance | **defer** (build by hand) | rule 2: build the first instance by hand; only 2 occurrences in the whole schedule (Review→Book now, Invoice→Supplier in batch 3) — below the 3× threshold. Declared the rule for Invoice. |
-| 8 | extra URL-driven list filter | **no** — no instance | **defer** (build by hand, declare the rule) | 5 occurrences ahead, but zero proven instances today. Review proves it this batch; extractable at the batch-2 plan (Coupon `?status`). The shared enabler (`toQueryString` extras) lands now. |
-| 9 | star rating | **no** | **none** | 1 occurrence, ever. Bespoke by definition. |
-| 10 | conditional/cross-field validation, bulk/inline row actions, wizards, role gating | **no** | **none this batch** | not in batch 1; revisit at their batch plans |
+| Pattern | Established? | Action | Rationale (proven instance · repetitions · variation points) |
+|---|---|---|---|
+| Route-key registration (`mocks/core/types.ts`) | ✅ Authors | **extract** → `default:mock-route-keys` | `mocks/core/types.ts:14-19` · 14 ahead · vars: `singular`, `plural`. Pure additive union edit, idempotent. |
+| Mock domain registration (`handlers.ts` spread + `setup-test-mocking.ts` reset) | ✅ Authors | **extract** → `default:mock-domain-register` | `mocks/handlers.ts:5,25` + `mocks/setup-test-mocking.ts:4,35` · 14 ahead · vars: `singular`, `plural`. One atomic action — AGENTS.md's drill states both edits as the single "register the domain" step; two files, one intent. |
+| Sidebar NAV entry | ✅ Authors | **extract** → `default:sidebar-nav-entry` | `src/app/shell/app-sidebar.tsx:13-16` · 14 ahead · vars: `plural`, `label`, `icon`. |
+| Overview card | ✅ Authors | **extract** → `default:overview-card` | `src/routes/index.tsx:21-35` · 14 ahead · vars: `plural`, `title`, `description`, `icon`. |
+| Infrastructure api object | ✅ Authors | **extract** → `default:crud-api` | `src/features/authors/infrastructure/authors.api.ts` · 14 ahead · vars: `singular`, `plural`, `keyField`, `keyType`. Invariant once `ListParams` carries filters (§1.4.1). |
+| Application keys + hooks | ✅ Authors | **extract** → `default:crud-hooks` | `src/features/authors/application/use-authors.ts` · 14 ahead · same 4 vars, otherwise byte-identical across entities. |
+| Route files (list/new/detail/edit) | ✅ Authors | **extract** → `default:crud-routes` | `src/routes/authors/**` · 56 files ahead · vars: `singular`, `plural`, `keyParam`, `keyType`, plus **one** variation point `extraSearch` (raw Zod entries appended to `validateSearch`) covering the 5 entities with extra URL filters — Review is the first, so the variation point is exercised in this batch rather than speculated. |
+| Whole-module composite | — (built from the seven above) | **new** → `default:crud-module` | Authored only **after** the seven atomics are proven — each unit-tested with `bun test schematics` **and** executed for real on Book. The composite imports the same helper modules the atomics wrap (`schematics/<name>/helper.ts`), never re-implementing an edit inline, and is then used for Category and Review. |
+| Mock domain factory + fixture | ✅ Authors | **defer** (re-evaluate at batch 2) | The handler skeleton is invariant, but its body carries per-entity `validateUpsert`, the `q` search predicate, entity construction, uniqueness set, and (from Review on) extra query params and relation checks — more variation than a few points, and 5 of the 14 upcoming entities deviate further (embedded objects, enums, conditional rules). Crystallising it now would produce the master generator the directive forbids; three more instances land in this batch and make the true invariants visible. |
+| List page / form / create-edit-detail pages | ✅ Authors | **defer** (re-evaluate at batch 3) | Column renderers, badges, filters, embedded fieldsets, enums, wizards and role gating vary per entity and per tier; only the page *chrome* is stable. Wait until the T2 shapes (batch 2–3) show which chrome is genuinely invariant. |
+| Section tests / e2e spec | ✅ Authors | **defer** | Assertions are field- and quirk-specific; generating them would generate tests that assert nothing entity-true. |
+| Domain Zod schema | ✅ Authors | **none** | Field-by-field bespoke by definition — it *is* the per-entity specification. |
 
-**Granularity guard.** `crud-module` is deliberately *not* a master generator:
-it emits the vanilla T1 shape only. Every T2/T3 quirk (relation, filters,
-conditional rules, wizards, role gating) is out of scope for it. When a later
-entity deviates, the choice is a **sibling** schematic, never more options on
-this one (directive rule 3).
-
-**Review is NOT generated then patched.** Its quirks touch the very files the
-generator emits (list page, form, domain, mock, route), so generating and then
-editing would be "silently patching generated output". Decision: Review is
-hand-built by the mechanic against Authors + the freshly generated Books
-module, and it *does* use atomic schematics #1–#5 for its registration edits.
-That gives the atomic schematics 3 uses in this batch alone.
-
-**Fixture data.** `crud-module` emits a 24-row fixture with deterministic
-values, and every generated test is **fixture-driven** (imports the fixture and
-asserts against `X_FIXTURE[i].field` / `X_FIXTURE.length`, never a hardcoded
-literal). Consequence: curating fixture *values* afterwards cannot break the
-generated tests. Curating values is data ownership, not shape patching, and is
-an explicit planned step for Book and Category.
-
-**`findX(key)` in generated mocks.** The generator emits an exported
-`find<Singular>(key)` accessor in every mock domain (Authors has none). This is
-uniform across all generated domains and is what a relation's server-side
-validation reads (Review → `findBook`), so no generated file ever needs a
-hand-added export.
-
-**Testing the schematics.** `bun test schematics` via a new
-`pnpm test:schematics` script, using `runFactoryForTest` from
-`@pbuilder/sdk/testing` with `packageDir: import.meta.dir`. Each atomic
-schematic is asserted for correct insertion **and idempotence** (re-running
-against an already-registered tree writes nothing). `schematics/` is
-gitignored, outside `tsconfig` includes and outside the vitest `include`
-globs, so schematic sources never enter the app's four gates.
+Granularity rule applied: nothing above bundles two unrelated patterns, and no
+schematic takes a "kind of entity" switch. Where an upcoming entity deviates
+from what a schematic generates (Review's list route), the deviation is a
+declared input (`extraSearch`), not a post-generation patch.
 
 ---
 
 ## 4. Delegation plan
 
-Every delegation is a blocking `mechanic` call; parallel units go out in one
-message. The orchestrator scaffolds all schematics itself first, because
-`builder new schematic` mutates the shared `project-builder.json` and
-concurrent scaffolds would race.
+Every delegation is a blocking `mechanic` call carrying: exact files, the
+reference pattern to mirror, the entity's spec lines, and the tests required.
+I review each delivery against this plan before the next step.
 
-| Wave | Unit | Owner | Depends on |
+| # | Unit | Depends on | Delegate |
 |---|---|---|---|
-| 0 | `builder new collection`/`new schematic` scaffolds ×6; `pnpm test:schematics` script | orchestrator | — |
-| A1 | `schematics/_lib/registration.ts` (shared helpers) + the 5 atomic schematic factories/schemas + `*.test.ts` | mechanic #1 | wave 0 |
-| A2 | `crud-module` factory (emitters for all ~20 files, field DSL parser) + `*.test.ts` | mechanic #2 | wave 0 + the frozen helper signatures below |
-| B | orchestrator runs `bun test schematics`, fixes, then `builder execute default:crud-module` for **books**, then for **categories** (standalone, one per shell call); reviews every written file against the plan | orchestrator | A1, A2 |
-| C1 | curate `books.fixture.ts` + `categories.fixture.ts` to realistic domain data (values only, referential shape untouched) | mechanic #3 | B |
-| C2 | `src/shared/api/pagination.ts` extras support | orchestrator | — |
-| D | Review module (all files in §1.3, incl. star rating + combobox + verified filter + tests + e2e) | mechanic #4 | B, C2 |
-| E | four gates + fixes | orchestrator (mechanical fixes → mechanic) | all |
+| **W1** | Shared prep: `ListParams.filters` + `toQueryString` serialisation, `src/shared/domain/iso-date.ts`, `test:schematics` script. Authors stays green. | — | mechanic |
+| **S1** | Wiring schematics: `mock-route-keys`, `mock-domain-register`, `sidebar-nav-entry`, `overview-card` — scaffold with `builder new schematic`, real `schema.json` (+ `pbuilder-codegen`), factory delegating to a co-located `helper.ts`, `*.test.ts` via `runFactoryForTest`, idempotence asserted. | W1 | mechanic |
+| **S2** | Skeleton schematics: `crud-api`, `crud-hooks`, `crud-routes` (with `extraSearch`), same authoring loop + tests, output byte-compared to the Authors originals. | W1 | mechanic |
+| **X1** | I run `builder execute` standalone (one per shell call) for **Book**: 7 schematics → generated api/hooks/routes + 4 wiring edits. Read what each run wrote. | S1,S2 | me |
+| **S3** | Composite `crud-module` importing the seven proven helpers; unit-tested. | X1 green | mechanic |
+| **X2** | I run `crud-module` once for **Category** and once for **Review** (`extraSearch` = `verified`). | S3 | me |
+| **M1** | Book module: fixture, mock domain + spec, domain schema, 6 presentation files, 2 section tests, e2e spec. | X1 | mechanic |
+| **M2** | Category module: same set. | X2 | mechanic |
+| **M3** | Review module + all three quirks: relation combobox, ★ renderer, verified URL filter; mock with relation validation + `verified` filter; tests covering each quirk. | X2, M1 (books endpoint must exist) | mechanic |
+| **V** | Gates, diagnosis, fixes. | all | me |
 
-**Frozen helper signatures** (`schematics/_lib/registration.ts`) — A1 and A2
-are written against these in parallel; all are idempotent, all are
-read → transform → `replaceContent` string surgery (one mechanism per file; no
-AST dialect, so a file is never touched twice by two mechanisms in one run):
-
-```ts
-addRouteKeys(singular: string, plural: string): Promise<void>
-registerHandlers(singular: string, plural: string): Promise<void>
-registerReset(plural: string): Promise<void>
-addNavEntry(plural: string, label: string, icon: string): Promise<void>
-addOverviewCard(plural: string, label: string, description: string, icon: string): Promise<void>
-registerAll(input: RegistrationInput): Promise<void>  // all five, used by crud-module
-```
-
-Naming rules the helpers encode (derived from Authors): route keys are
-`LIST_<PLURAL_UPPER>`, `GET_<SINGULAR_UPPER>`, `CREATE_<SINGULAR_UPPER>`,
-`UPDATE_<SINGULAR_UPPER>`, `DELETE_<SINGULAR_UPPER>`; handler factory is
-`<singular>Handlers`; reset is `reset<PluralPascal>`.
+M1 and M2 run in parallel (one message, both blocking). M3 follows M1 because
+its combobox and its mock's relation check both need the books module.
 
 ---
 
 ## 5. Verification plan
 
-Per module, before it is considered delivered:
+Per module, before the batch is called done:
 
-1. **Mock-infra spec** (`mocks/domains/<plural>.mock.spec.ts`) — default page
-   size 10 over a 24-row fixture, page-3 remainder, `q` across string fields,
-   `GET` 200 + 404, `POST` 201 with boolean default applied, 400 invalid,
-   409 duplicate unique key, `PATCH` partial merge, `DELETE` 204 then 404,
-   reseed-between-tests. Review adds: `?verified=true` filtering and 400 on an
-   unknown `bookIsbn`.
-2. **Section tests** — list: renders page 1 from the API, searches, paginates,
-   deletes via row menu + confirm; form: validation errors on empty submit
-   (no navigation), successful create returns to the list, server 409 surfaced
-   in the form. Review adds: stars rendered with the `N of 5` label, the
-   Verified-only toggle driving the URL + list, combobox selection, and the
-   unknown-ISBN field error.
-3. **E2E** (`e2e/<plural>.spec.ts`) — list+paginate, search, create, detail,
-   edit, delete, duplicate-key server error, and an axe scan (no serious /
-   critical violations) on the list and form pages. Review's e2e additionally
-   exercises the combobox, the verified filter and the star labels.
-4. **Schematic tests** — `pnpm test:schematics` green, including idempotence
-   for each of the five registration helpers.
-5. **Gates** — `pnpm typecheck && pnpm lint && pnpm test:run && pnpm test:e2e`,
-   run by the orchestrator in the foreground, all four green.
+**Book / Category (T1)**
+- mock spec: default page of 10 + `total` 24; page 3 remainder; `q` across the
+  string fields; `GET` 200 + 404; `POST` 201 with the boolean defaulted, 400 on
+  invalid, 409 on duplicate key; `PATCH` partial merge; `DELETE` 204 then 404.
+- section (list): renders page 1 from the API · search narrows · Next paginates ·
+  row-menu delete removes the row and updates the count.
+- section (form): empty submit shows field errors and does not navigate ·
+  create succeeds and returns to the list · duplicate key surfaces the server
+  409 text without navigating.
+- Book-specific: `publishedAt` renders `YYYY-MM-DD` (and `—` when unset);
+  `pages` below 1 is a field error.
+- e2e: list + pagination, search, create, detail → edit, delete, duplicate-key
+  conflict, axe scan (no serious/critical) on list and form.
+
+**Review (T2)** — everything above, plus one test per quirk:
+- (a) selecting a book from the combobox fills `bookIsbn`; a free-typed unknown
+  isbn produces a **field error** on `bookIsbn` and no navigation; the mock
+  independently rejects an unknown isbn with 400 (mock spec).
+- (b) a 4-star row exposes `★★★★☆` with the accessible label `4 of 5`.
+- (c) toggling "Verified only" writes `?verified=true` to the URL, and the mock
+  spec asserts `GET /reviews?verified=true` returns only verified rows;
+  the toggle resets `page` to 1 and keeps `q`.
+- e2e: full CRUD cycle including combobox selection, the verified filter, and
+  an axe scan.
+
+**Schematics** — `pnpm test:schematics` green (each schematic's factory tested
+in isolation, including a second run proving idempotence for the four wiring
+edits), and every generated file byte-checked against the Authors reference
+shape by me during X1/X2.
+
+**Batch gates** — run by me, in the foreground, until all green:
+
+```bash
+pnpm typecheck && pnpm lint && pnpm test:run && pnpm test:e2e
+```
+
+Expected end state: 4 sidebar entries + 4 overview cards, `MockRouteKey` at 20
+literals, 3 new mock domains reset in `afterEach`, 4 e2e specs, and the Authors
+module untouched and still green.
 
 ---
 
-## 6. Outcome (as built)
+## 6. Outcome (batch closed)
 
-All four gates green in one foreground chain: **69 vitest tests / 12 files**,
-**30 Playwright tests** (incl. an axe scan per module), typecheck and lint
-clean. Schematic suite: **21 bun tests / 6 files**.
+All four gates green in one chain, run in the foreground by the orchestrator:
 
-- **Book** and **Category** were GENERATED by `default:crud-module`
-  (24 files written per run, including all five registration edits). Neither
-  generated module was hand-patched; only their fixture VALUES were curated
-  afterwards, as planned.
-- **Review** was hand-built per §3 rule 2, and consumed the five atomic
-  schematics for its registration edits — which is what proved them on a
-  module the composite generator never touched.
-- Fixture curation held the two load-bearing invariants the generated tests
-  depend on: 24 rows, sorted ascending by the lookup key.
+| Gate | Result |
+|---|---|
+| `pnpm typecheck` | ✅ exit 0 |
+| `pnpm lint` | ✅ exit 0 |
+| `pnpm test:run` | ✅ 14 files / 88 tests (was 3 / 16) |
+| `pnpm test:e2e` | ✅ 29 passed (was 7) |
+| `pnpm test:schematics` | ✅ 28 tests / 8 files |
 
-### Deviations and fixes during the build
+End state matches the expectation above: 4 sidebar entries, 4 overview cards,
+`MockRouteKey` at 20 literals, 3 new mock domains reset in the shared
+`afterEach`, 4 e2e specs; Authors untouched and still green.
 
-1. `registerHandlers` split the handler array on *every* comma, so
-   `...authorHandlers(config, base)` reflowed across two lines. Fixed in
-   `schematics/_lib/registration.ts` with a paren-depth-aware
-   `splitTopLevel`, the mangled `mocks/handlers.ts` was repaired, and
-   `mock-handler-register.test.ts` now asserts the exact rendered array.
-2. cmdk's `CommandInput` sets `aria-labelledby` to its own hidden hint label,
-   which beat the `aria-label` and left the combobox search box with an empty
-   accessible name. Fixed inside `book-combobox.tsx` by passing
-   `<Command label="Search books">` — the shadcn primitive was NOT hand-edited.
-3. One curated category description had to be reworded: it collided with the
-   search term a generated section test derives from the fixture.
+Deviations from the plan, and fixes applied during VERIFY:
 
-### Note for the next batch
+- `e2e/categories.spec.ts` failed twice on Playwright strict mode
+  (`getByText('FANTASY')` substring-matches the `Fantasy` heading and the
+  title-case name cell). Fixed in place: `{ exact: true }` for the code cell and
+  `getByRole('heading', …)` for the post-edit assertion.
+- `mocks/domains/books.mock.ts` gained one export beyond its module —
+  `bookExists(isbn)` — so the reviews domain can validate the relation
+  server-side. Authorised at delegation time; nothing else in that file changed.
+- Reviews' list ID column links to `/reviews/$reviewId` (the Book column already
+  links to `/books/$isbn`), and `RatingStars` carries `role="img"` so the
+  `4 of 5` label is exposed as an accessible name.
 
-`pnpm lint` (oxlint) honours `.gitignore`, and this harness gitignores every
-non-Authors feature/mock/e2e path — so the lint gate does not actually scan
-generated or newly built modules. Their type safety and style are enforced by
-`tsc -b` (which does include them) and by mirroring the reference module, not
-by oxlint. Worth knowing before trusting a green lint gate as coverage.
-
-### Carried forward
-
-- Rule declared for batch 2+: the **extra URL-driven list filter** now has a
-  proven instance (Review `?verified`), so it is extractable at the batch-2
-  plan (Coupon `?status`) — pattern #8 in §3.
-- The **relation combobox** remains at 2 total occurrences; still `defer`,
-  revisit when Invoice → Supplier lands in batch 3.
-- `crud-module` stays vanilla-only. Every T2/T3 quirk gets a sibling
-  schematic or hand-built code — never another option on it.
+Carried forward to the next plan: the three **deferred** rows in § 3 (mock domain
+factory + fixture → re-evaluate at batch 2, now that three more proven instances
+exist; pages/forms → batch 3; section/e2e tests → still bespoke).

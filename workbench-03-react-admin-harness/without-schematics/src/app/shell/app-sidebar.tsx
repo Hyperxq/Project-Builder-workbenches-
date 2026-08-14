@@ -1,7 +1,25 @@
 import { Link } from '@tanstack/react-router'
-import { LayoutDashboard, Users } from 'lucide-react'
+import {
+  BadgePercent,
+  BookOpen,
+  CalendarDays,
+  Car,
+  CreditCard,
+  FileText,
+  IdCard,
+  LayoutDashboard,
+  Package,
+  Repeat,
+  Star,
+  Tags,
+  Ticket,
+  Truck,
+  Users,
+  Warehouse,
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { MockIndicator } from './mock-indicator'
+import { RoleSwitch } from './role-switch'
 
 interface NavEntry {
   to: string
@@ -13,6 +31,20 @@ interface NavEntry {
 const NAV: NavEntry[] = [
   { to: '/', label: 'Overview', icon: LayoutDashboard },
   { to: '/authors', label: 'Authors', icon: Users },
+  { to: '/books', label: 'Books', icon: BookOpen },
+  { to: '/categories', label: 'Categories', icon: Tags },
+  { to: '/reviews', label: 'Reviews', icon: Star },
+  { to: '/suppliers', label: 'Suppliers', icon: Truck },
+  { to: '/coupons', label: 'Coupons', icon: BadgePercent },
+  { to: '/warehouses', label: 'Warehouses', icon: Warehouse },
+  { to: '/vehicles', label: 'Vehicles', icon: Car },
+  { to: '/invoices', label: 'Invoices', icon: FileText },
+  { to: '/payments', label: 'Payments', icon: CreditCard },
+  { to: '/shipments', label: 'Shipments', icon: Package },
+  { to: '/tickets', label: 'Tickets', icon: Ticket },
+  { to: '/events', label: 'Events', icon: CalendarDays },
+  { to: '/subscriptions', label: 'Subscriptions', icon: Repeat },
+  { to: '/employees', label: 'Employees', icon: IdCard },
 ]
 
 export function AppSidebar() {
@@ -40,6 +72,7 @@ export function AppSidebar() {
       </nav>
 
       <div className="border-t p-3">
+        <RoleSwitch />
         <MockIndicator />
       </div>
     </aside>
