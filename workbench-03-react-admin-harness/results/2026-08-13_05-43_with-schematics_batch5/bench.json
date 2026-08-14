@@ -2,6 +2,17 @@
   "date": "2026-08-13T06:16:25.219Z",
   "arm": "with-schematics",
   "task": "batch 5",
+  "run": {
+    "sweep_id": "wb03-v2-2026-08-13",
+    "protocol_version": "bench.sh per-batch clean-room · HARNESS.md plan-build-verify",
+    "attempt": 1,
+    "context": {
+      "host_os": "macOS (Darwin 25.6.0) · Apple Silicon",
+      "docker": "Docker Engine 29.5.2",
+      "container": "node:22-bookworm · Claude Code CLI 2.1.226 · pnpm 11.21.0 · bun 1.3.14 · Playwright 1.62.1 · pbuilder CLI 0.9.0",
+      "harness": "Opus 5 orchestrator + Sonnet 5 scout/mechanic sub-agents (HARNESS.md: plan → build → verify)"
+    }
+  },
   "agent": {
     "model": "claude-opus-5",
     "exit_code": 0,

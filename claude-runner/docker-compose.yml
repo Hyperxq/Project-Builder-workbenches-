@@ -11,6 +11,15 @@ services:
       ARM: ${ARM:-}
       BENCH_MODEL: ${BENCH_MODEL:-}
       BENCH_THINKING: ${BENCH_THINKING:-}
+      # Run provenance (dashboard "Run setup" panel). Host facts are invisible
+      # inside the container, so they ride in from the invoking shell, e.g.:
+      #   SWEEP_ID=wb01-v3 HOST_OS="$(sw_vers -productName) $(sw_vers -productVersion)" \
+      #   DOCKER_VERSION="$(docker info --format 'Docker Engine {{.ServerVersion}}')" ...
+      SWEEP_ID: ${SWEEP_ID:-}
+      BENCH_PROTOCOL: ${BENCH_PROTOCOL:-}
+      BENCH_ATTEMPT: ${BENCH_ATTEMPT:-}
+      HOST_OS: ${HOST_OS:-}
+      DOCKER_VERSION: ${DOCKER_VERSION:-}
     depends_on:
       - mongodb
     volumes:
@@ -31,6 +40,11 @@ services:
       # model pin silently falls back to the CLI default inside the container.
       BENCH_MODEL: ${BENCH_MODEL:-}
       BENCH_THINKING: ${BENCH_THINKING:-}
+      SWEEP_ID: ${SWEEP_ID:-}
+      BENCH_PROTOCOL: ${BENCH_PROTOCOL:-}
+      BENCH_ATTEMPT: ${BENCH_ATTEMPT:-}
+      HOST_OS: ${HOST_OS:-}
+      DOCKER_VERSION: ${DOCKER_VERSION:-}
     volumes:
       - ../${WORKBENCH:-workbench-02-react-admin}/${ARM:?set ARM=with-schematics or ARM=without-schematics}:/workspace
       - ../${WORKBENCH:-workbench-02-react-admin}/results:/results

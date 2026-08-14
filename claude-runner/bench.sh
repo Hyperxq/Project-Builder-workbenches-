@@ -123,8 +123,17 @@ else
   } > "$RUN_DIR/gates.jsonl"
 fi
 
+# Environment provenance for the dashboard's "Run setup" panel. Host facts
+# (OS, Docker version) aren't visible from inside the container — the compose
+# file forwards them when set; container facts are captured right here.
+CONTAINER_INFO="node $(node -v 2>/dev/null | sed 's/^v//') · Claude Code CLI $(claude --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo '?') · pnpm $(pnpm -v 2>/dev/null || echo '?') · bun $(bun --version 2>/dev/null || echo '?')"
+HARNESS_INFO=""
+[ -f HARNESS.md ] && HARNESS_INFO="HARNESS.md: plan → build → verify"
+
 RUN_DIR="$RUN_DIR" ARM="$ARM" TASK="$TASK" AGENT_EXIT="$agent_exit" WALL_S="$wall_s" BENCH_MODEL="$BENCH_MODEL" \
 FILES_BEFORE="$files_before" FILES_AFTER="$files_after" LOC_BEFORE="$loc_before" LOC_AFTER="$loc_after" \
+SWEEP_ID="${SWEEP_ID:-}" BENCH_PROTOCOL="${BENCH_PROTOCOL:-}" BENCH_ATTEMPT="${BENCH_ATTEMPT:-}" \
+HOST_OS="${HOST_OS:-}" DOCKER_VERSION="${DOCKER_VERSION:-}" CONTAINER_INFO="$CONTAINER_INFO" HARNESS_INFO="$HARNESS_INFO" \
 node <<'EOF'
 const fs = require('fs');
 const dir = process.env.RUN_DIR;
@@ -155,10 +164,30 @@ try {
   }
 } catch { /* no agents dir — single-model workbench */ }
 
+// Provenance block consumed by the dashboard's Run-setup/environment panel.
+// Only truthy fields are emitted so legacy tooling sees no schema churn.
+const prune = (obj) => {
+  const out = Object.fromEntries(Object.entries(obj).filter(([, v]) => v));
+  return Object.keys(out).length ? out : null;
+};
+const runContext = prune({
+  host_os: process.env.HOST_OS,
+  docker: process.env.DOCKER_VERSION,
+  container: process.env.CONTAINER_INFO,
+  harness: process.env.HARNESS_INFO,
+});
+const runMeta = prune({
+  sweep_id: process.env.SWEEP_ID,
+  protocol_version: process.env.BENCH_PROTOCOL,
+  attempt: process.env.BENCH_ATTEMPT ? Number(process.env.BENCH_ATTEMPT) : null,
+  context: runContext,
+});
+
 const bench = {
   date: new Date().toISOString(),
   arm: process.env.ARM,
   task: process.env.TASK,
+  ...(runMeta ? { run: runMeta } : {}),
   agent: {
     model: process.env.BENCH_MODEL,
     exit_code: Number(process.env.AGENT_EXIT),
