@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import type { Bench, Run } from './results'
-import { batchSeries, breakEvenBatch, groupByModel, latestRuns, parseRun } from './results'
+import {
+  agentNote,
+  batchSeries,
+  breakEvenBatch,
+  evaluateRunSet,
+  extractFinalReport,
+  groupByModel,
+  groupBySweep,
+  latestRuns,
+  parseRun,
+} from './results'
 
 function bench(cost: number, model?: string): Bench {
   return {
@@ -149,5 +159,88 @@ describe('batchSeries + breakEvenBatch', () => {
     expect(points[1].withCum).toBeNull()
     expect(points[1].withoutCum).toBe(8)
     expect(breakEvenBatch(points)).toBeNull()
+  })
+})
+
+describe('groupBySweep', () => {
+  it('keeps explicitly identified executions separate', () => {
+    const first = run('with-schematics', 1, 5)
+    first.bench.run = { sweep_id: 'sweep-a', protocol_version: 'v2' }
+    const second = run('without-schematics', 1, 4)
+    second.bench.run = { sweep_id: 'sweep-b', protocol_version: 'v2' }
+
+    const sweeps = groupBySweep([first, second])
+
+    expect([...sweeps.keys()]).toEqual(['sweep-a', 'sweep-b'])
+  })
+
+  it('groups legacy results by model without inventing cross-model sweeps', () => {
+    const runs = [
+      run('with-schematics', 1, 5, '2026-08-11_10-00', 'claude-sonnet-5'),
+      run('without-schematics', 1, 4, '2026-08-11_11-00', 'claude-sonnet-5'),
+      run('with-schematics', 1, 6, '2026-08-12_09-00', 'claude-opus-5'),
+    ]
+
+    expect([...groupBySweep(runs).keys()].sort()).toEqual([
+      'legacy:claude-opus-5',
+      'legacy:claude-sonnet-5',
+    ])
+  })
+})
+
+describe('evaluateRunSet', () => {
+  it('computes the measured outcome without an agent interpretation step', () => {
+    const evaluation = evaluateRunSet([
+      run('with-schematics', 1, 10),
+      run('without-schematics', 1, 5),
+      run('with-schematics', 2, 8),
+      run('without-schematics', 2, 6),
+    ])
+
+    expect(evaluation).toMatchObject({
+      winner: 'without-schematics',
+      headline: 'Without schematics costs less overall',
+      validRuns: 4,
+      totalRuns: 4,
+      quality: 'both-pass',
+    })
+    expect(evaluation.costs).toEqual({ withSchematics: 18, withoutSchematics: 11 })
+  })
+
+  it('is inconclusive when a quality gate fails', () => {
+    const failed = run('with-schematics', 1, 4)
+    failed.bench.definition_of_done.first_attempt_pass = false
+
+    expect(evaluateRunSet([failed, run('without-schematics', 1, 5)]).winner).toBe('inconclusive')
+  })
+})
+
+describe('agent reports', () => {
+  it('extracts the final self-report from a Claude JSONL stream', () => {
+    const stream = [
+      JSON.stringify({ type: 'assistant', message: 'working' }),
+      JSON.stringify({ type: 'result', result: 'All gates passed. Verification required two fixes.' }),
+    ].join('\n')
+
+    expect(extractFinalReport(stream)).toBe('All gates passed. Verification required two fixes.')
+  })
+
+  it('selects a verification paragraph for the visible run note', () => {
+    const note = agentNote(
+      'The batch shipped successfully.\n\nVerification took the most follow-up because two E2E assertions failed and were fixed.\n\nEverything is green.',
+    )
+
+    expect(note?.headline).toBe('Verification took the most follow-up because two E2E assertions failed and were fixed.')
+    expect(note?.source).toBe('Agent final report')
+  })
+
+  it('prefers a concrete failure explanation over a mention of a verification plan', () => {
+    const note = agentNote(
+      'Phase 1 — PLAN: delegation plan and verification plan recorded.\n\nPhase 3 — VERIFY: five E2E failures were diagnosed and fixed; none required a source change.',
+    )
+
+    expect(note?.headline).toBe(
+      'Phase 3 — VERIFY: five E2E failures were diagnosed and fixed; none required a source change.',
+    )
   })
 })

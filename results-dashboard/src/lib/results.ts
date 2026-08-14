@@ -31,6 +31,18 @@ export interface Bench {
     } | null
     cost_usd: number | null
     session_id: string | null
+    worker_models?: Record<string, string>
+  }
+  run?: {
+    sweep_id?: string
+    protocol_version?: string
+    attempt?: number
+    context?: {
+      host_os?: string
+      docker?: string
+      container?: string
+      harness?: string
+    }
   }
   definition_of_done: {
     first_attempt_pass: boolean
@@ -52,13 +64,15 @@ export interface Run {
   batch?: number
   /** from bench.agent.model; 'unknown' for scorecards recorded before model tracking */
   model: string
+  /** Verbatim self-report captured from the terminal result event. Never used for scoring. */
+  agentReport?: string
   bench: Bench
 }
 
 const RUN_DIR = /^(\d{4}-\d{2}-\d{2}_\d{2}-\d{2})_(with-schematics|without-schematics)(?:_batch(\d+))?$/
 
 /** Parse one glob path + module into a Run. Returns null for non-run files. */
-export function parseRun(path: string, bench: Bench): Run | null {
+export function parseRun(path: string, bench: Bench, agentReport?: string): Run | null {
   // ../../<workbench>/results/<run-dir>/bench.json
   const parts = path.split('/')
   const runDir = parts[parts.length - 2]
@@ -71,6 +85,7 @@ export function parseRun(path: string, bench: Bench): Run | null {
     arm: match[2] as Arm,
     batch: match[3] ? Number(match[3]) : undefined,
     model: bench.agent.model ?? 'unknown',
+    agentReport,
     bench,
   }
 }
@@ -101,10 +116,35 @@ export function loadRuns(): Run[] {
     '../../../workbench-*/results/*/bench.json',
     { eager: true },
   )
+  const streams = import.meta.glob<string>(
+    '../../../workbench-*/results/*/claude-stream.jsonl',
+    { eager: true, query: '?raw', import: 'default' },
+  )
+  const reports = new Map(
+    Object.entries(streams).map(([path, stream]) => [
+      path.replace('/claude-stream.jsonl', '/bench.json'),
+      extractFinalReport(stream),
+    ]),
+  )
   return Object.entries(modules)
-    .map(([path, mod]) => parseRun(path, mod.default))
+    .map(([path, mod]) => parseRun(path, mod.default, reports.get(path)))
     .filter((run): run is Run => run !== null)
     .sort((a, b) => a.stamp.localeCompare(b.stamp))
+}
+
+/** Pull the final self-report from a JSONL stream without interpreting it. */
+export function extractFinalReport(stream: string): string | undefined {
+  let report: string | undefined
+  for (const line of stream.split('\n')) {
+    if (!line.trim()) continue
+    try {
+      const event = JSON.parse(line) as { type?: string; result?: unknown }
+      if (event.type === 'result' && typeof event.result === 'string') report = event.result
+    } catch {
+      // A truncated telemetry line must not hide the rest of the measured scorecards.
+    }
+  }
+  return report
 }
 
 /** Total tokens the agent consumed (input + output, cache reads excluded). */
@@ -143,6 +183,129 @@ export function groupByModel(runs: Run[]): Map<string, Run[]> {
     groups.set(run.model, list)
   }
   return groups
+}
+
+/**
+ * Explicit sweep IDs keep independent workbench executions separate. Older
+ * scorecards did not record one, so they remain a clearly labelled legacy
+ * cohort and are never combined across models.
+ */
+export function groupBySweep(runs: Run[]): Map<string, Run[]> {
+  const groups = new Map<string, Run[]>()
+  for (const run of runs) {
+    const key = run.bench.run?.sweep_id ?? `legacy:${run.model}`
+    const list = groups.get(key) ?? []
+    list.push(run)
+    groups.set(key, list)
+  }
+  return groups
+}
+
+export type MeasuredWinner = Arm | 'tie' | 'inconclusive'
+
+export interface RunSetEvaluation {
+  winner: MeasuredWinner
+  headline: string
+  validRuns: number
+  totalRuns: number
+  quality: 'both-pass' | 'failed' | 'incomplete'
+  costs: {
+    withSchematics: number | null
+    withoutSchematics: number | null
+  }
+  wallSeconds: {
+    withSchematics: number
+    withoutSchematics: number
+  }
+}
+
+const armTotalCost = (runs: Run[]): number | null =>
+  runs.reduce<number | null>(
+    (total, run) =>
+      total === null || run.bench.agent.cost_usd === null
+        ? null
+        : total + run.bench.agent.cost_usd,
+    0,
+  )
+
+/** Apply the declared scorecard rule directly; agent prose never enters this result. */
+export function evaluateRunSet(runs: Run[]): RunSetEvaluation {
+  const counted = latestRuns(runs)
+  const withRuns = counted.filter((run) => run.arm === 'with-schematics')
+  const withoutRuns = counted.filter((run) => run.arm === 'without-schematics')
+  const valid = counted.filter(
+    (run) => run.bench.agent.exit_code === 0 && run.bench.definition_of_done.first_attempt_pass,
+  )
+  const bothPresent = withRuns.length > 0 && withoutRuns.length > 0
+  const allPass = bothPresent && valid.length === counted.length
+  const costs = {
+    withSchematics: armTotalCost(withRuns),
+    withoutSchematics: armTotalCost(withoutRuns),
+  }
+
+  let winner: MeasuredWinner = 'inconclusive'
+  if (allPass && costs.withSchematics !== null && costs.withoutSchematics !== null) {
+    if (costs.withSchematics < costs.withoutSchematics) winner = 'with-schematics'
+    else if (costs.withSchematics > costs.withoutSchematics) winner = 'without-schematics'
+    else winner = 'tie'
+  }
+
+  const headline =
+    winner === 'with-schematics'
+      ? 'With schematics costs less overall'
+      : winner === 'without-schematics'
+        ? 'Without schematics costs less overall'
+        : winner === 'tie'
+          ? 'Both approaches cost the same overall'
+          : 'The measured result is inconclusive'
+
+  return {
+    winner,
+    headline,
+    validRuns: valid.length,
+    totalRuns: counted.length,
+    quality: !bothPresent ? 'incomplete' : allPass ? 'both-pass' : 'failed',
+    costs,
+    wallSeconds: {
+      withSchematics: withRuns.reduce((total, run) => total + run.bench.agent.wall_seconds, 0),
+      withoutSchematics: withoutRuns.reduce((total, run) => total + run.bench.agent.wall_seconds, 0),
+    },
+  }
+}
+
+export interface AgentNote {
+  headline: string
+  body?: string
+  source: 'Agent final report'
+}
+
+/** Select one useful paragraph from the captured report; keep its wording intact. */
+export function agentNote(report: string | undefined): AgentNote | undefined {
+  if (!report) return undefined
+  const paragraphs = report
+    .split(/\n\s*\n/)
+    .map((paragraph) =>
+      paragraph
+        .replace(/^#{1,6}\s+/g, '')
+        .replace(/[*`]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim(),
+    )
+    .filter((paragraph) => paragraph.length > 0 && !paragraph.startsWith('|'))
+  const score = (paragraph: string) =>
+    (/\b(failures?|failed|fixed|follow-up|extra|took|slow|blocked)\b/i.test(paragraph) ? 4 : 0) +
+    (/\b(verify|verification)\b/i.test(paragraph) ? 1 : 0) -
+    (/verification plan/i.test(paragraph) ? 2 : 0)
+  const selected = [...paragraphs].sort((first, second) => score(second) - score(first))[0]
+  if (!selected) return undefined
+
+  const sentence = selected.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() ?? selected
+  const body = selected.slice(sentence.length).trim()
+  return {
+    headline: sentence,
+    body: body || undefined,
+    source: 'Agent final report',
+  }
 }
 
 export interface BatchPoint {
