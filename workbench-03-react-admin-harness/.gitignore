@@ -4,3 +4,6 @@
 results/**
 !results/*/
 !results/*/bench.json
+# The agent's final self-report (few KB) — feeds the dashboard's Agent notes
+# on deployed builds, where the full stream is absent.
+!results/*/agent-report.md

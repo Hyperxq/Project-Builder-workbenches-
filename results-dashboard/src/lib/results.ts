@@ -126,6 +126,17 @@ export function loadRuns(): Run[] {
       extractFinalReport(stream),
     ]),
   )
+  // Streams stay local (gitignored), so deployed builds would lose every agent
+  // note. A run may commit its final self-report as agent-report.md — same
+  // verbatim text, used only when the full stream is absent.
+  const committedReports = import.meta.glob<string>(
+    '../../../workbench-*/results/*/agent-report.md',
+    { eager: true, query: '?raw', import: 'default' },
+  )
+  for (const [path, report] of Object.entries(committedReports)) {
+    const key = path.replace('/agent-report.md', '/bench.json')
+    if (!reports.get(key)) reports.set(key, report.trim())
+  }
   return Object.entries(modules)
     .map(([path, mod]) => parseRun(path, mod.default, reports.get(path)))
     .filter((run): run is Run => run !== null)

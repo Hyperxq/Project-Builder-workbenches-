@@ -211,6 +211,12 @@ const bench = {
 
 fs.writeFileSync(`${dir}/bench.json`, JSON.stringify(bench, null, 2) + '\n');
 
+// The agent's final self-report, committed alongside the scorecard so the
+// dashboard's Agent notes survive deploys (full streams stay local).
+if (typeof agent.result === 'string' && agent.result.trim()) {
+  fs.writeFileSync(`${dir}/agent-report.md`, agent.result.trim() + '\n');
+}
+
 const t = bench.agent.tokens || {};
 console.log(`\n=== ${bench.arm} — ${bench.task} ===`);
 console.log(`wall: ${bench.agent.wall_seconds}s  turns: ${bench.agent.num_turns}  cost: $${bench.agent.cost_usd ?? '?'}`);
