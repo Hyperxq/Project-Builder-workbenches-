@@ -7,3 +7,5 @@ results/**
 # The agent's final self-report (few KB) — feeds the dashboard's Agent notes
 # on deployed builds, where the full stream is absent.
 !results/*/agent-report.md
+# Forensic breakdown of where the run's time and cost went (from stream mining).
+!results/*/time-analysis.md
