@@ -72,10 +72,10 @@ workbench-04-storefront-microfrontends/
 │   ├── bin/               # run.sh, batch-phase3.sh, e2e_run.py, analyze.py
 │   ├── tasks/             # task prompts for phases 1 and 3
 │   └── EXPERIMENT.md      # protocol, decision rule, results, verdicts
-└── results/               # one bench.json per phase 3 run
+└── results/               # one bench.json and agent-report.md per phase 3 run
 ```
 
-In `results/`, features map to batches (reviews 1, wishlist 2, promotions 3) and each repetition is its own `sweep_id` (`wb04-rep1` to `wb04-rep3`). Schematic v1 runs are kept as `wb04-schematic-v1-rep<n>`. The end-to-end probe is recorded as an extra gate; `first_attempt_pass` covers the four root checks the task asks for. Gate timings were not captured.
+In `results/`, features map to batches (reviews 1, wishlist 2, promotions 3) and each repetition is its own `sweep_id` (`wb04-rep1` to `wb04-rep3`). Schematic v1 runs are kept as `wb04-schematic-v1-rep<n>`. The end-to-end probe is recorded as an extra gate; `first_attempt_pass` covers the four root checks the task asks for. Gate timings were not captured. Each `agent-report.md` is the agent's final message from that run's `result` event, unedited; the dashboard shows it as a run note and never scores it.
 
 ## Run it yourself
 
