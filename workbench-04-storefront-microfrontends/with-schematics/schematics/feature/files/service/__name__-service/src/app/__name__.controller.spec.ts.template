@@ -1,0 +1,16 @@
+import { Test } from '@nestjs/testing';
+import { {= .className =}Controller } from './{= .name =}.controller';
+import { {= .className =}Service } from './{= .name =}.service';
+
+describe('{= .className =}Controller', () => {
+  it('is created with its service', async () => {
+    const moduleRef = await Test.createTestingModule({
+      controllers: [{= .className =}Controller],
+      providers: [{= .className =}Service],
+    }).compile();
+
+    expect(moduleRef.get({= .className =}Controller)).toBeInstanceOf(
+      {= .className =}Controller,
+    );
+  });
+});

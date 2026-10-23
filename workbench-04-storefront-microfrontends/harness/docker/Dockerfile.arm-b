@@ -1,0 +1,20 @@
+FROM pb-runner:2.1.308
+
+ARG PBUILDER_VERSION=0.9.11
+ARG PBUILDER_SHA256=6d6574fbb44474f4ad7820e448d956b0b331d8acf53a218e19d561fab5f25b89
+ARG SDK_VERSION=0.3.1
+
+USER root
+RUN curl -fsSL -o /tmp/pbuilder.tar.gz \
+    "https://github.com/Project-Builder-Schematics/homebrew-tap/releases/download/v${PBUILDER_VERSION}/pbuilder_${PBUILDER_VERSION}_linux_arm64.tar.gz" \
+  && echo "${PBUILDER_SHA256}  /tmp/pbuilder.tar.gz" | sha256sum -c - \
+  && mkdir /tmp/pbuilder && tar -xzf /tmp/pbuilder.tar.gz -C /tmp/pbuilder \
+  && install -m 0755 "$(find /tmp/pbuilder -type f -name builder | head -1)" /usr/local/bin/builder \
+  && rm -rf /tmp/pbuilder /tmp/pbuilder.tar.gz \
+  && npm install -g bun
+
+USER node
+RUN bun add -g @pbuilder/sdk@${SDK_VERSION}
+
+ENV BUILDER_SDK_ROOT=/home/node/.bun/install/global/node_modules/@pbuilder/sdk \
+    BUILDER_MANIFEST=/home/node/schematics

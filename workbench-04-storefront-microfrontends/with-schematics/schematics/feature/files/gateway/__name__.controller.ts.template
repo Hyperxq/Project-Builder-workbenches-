@@ -1,0 +1,8 @@
+import { Controller } from '@nestjs/common';
+
+// Inject the client with `@Inject({= .constName =}_SERVICE) private readonly client: ClientProxy`
+// from `@storefront/{= .name =}-contract`. Routes forward with
+// `firstValueFrom(this.client.send(<pattern>, <payload>))` and answer 404 when
+// the service replies `null`.
+@Controller('{= .name =}')
+export class {= .className =}Controller {}

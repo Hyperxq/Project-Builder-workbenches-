@@ -1,0 +1,14 @@
+import { Test } from '@nestjs/testing';
+import { {= .className =}Controller } from './{= .name =}.controller';
+
+describe('{= .className =}Controller (gateway)', () => {
+  it('is created', async () => {
+    const moduleRef = await Test.createTestingModule({
+      controllers: [{= .className =}Controller],
+    }).compile();
+
+    expect(moduleRef.get({= .className =}Controller)).toBeInstanceOf(
+      {= .className =}Controller,
+    );
+  });
+});

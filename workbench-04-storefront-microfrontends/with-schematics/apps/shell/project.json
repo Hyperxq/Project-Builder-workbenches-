@@ -1,0 +1,38 @@
+{
+  "name": "shell",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/shell/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "command": "rsbuild dev",
+        "cwd": "apps/shell"
+      },
+      "readyWhen": {
+        "signal": true
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rsbuild build",
+        "cwd": "apps/shell"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["^typecheck"],
+      "options": {
+        "command": "tsc --noEmit -p tsconfig.json",
+        "cwd": "apps/shell"
+      }
+    }
+  },
+  "tags": [
+    "type:app",
+    "scope:web"
+  ]
+}

@@ -1,0 +1,8 @@
+/** NestJS microservice message patterns served by the {= .name =} service. */
+export const {= .constName =}_PATTERNS = {} as const;
+
+/** Injection token of the {= .name =} `ClientProxy` in the gateway. */
+export const {= .constName =}_SERVICE = '{= .constName =}_SERVICE';
+
+/** TCP port of the {= .name =} service unless `{= .constName =}_SERVICE_PORT` overrides it. */
+export const {= .constName =}_SERVICE_DEFAULT_PORT = {= .servicePort =};

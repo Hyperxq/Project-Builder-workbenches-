@@ -1,0 +1,20 @@
+{
+  "description": "Use when adding a storefront feature as a full-stack slice: it generates the provider microfrontend apps/<name>, the TCP microservice apps/<name>-service, the contract library packages/<name>-contract and an empty gateway controller, and wires them into the shell, the gateway module, the root workspaces and the TypeScript references. Ports default to the next free provider port (310N) and its service twin (410N). Run `npm install` afterwards, then write only the domain: contract types and patterns, service handlers, gateway routes, UI, tests, and the README rows and conventions for the feature.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "label": "Feature name in kebab-case, e.g. reviews or product-reviews",
+      "required": true
+    },
+    "webPort": {
+      "type": "number",
+      "label": "Provider dev-server port; defaults to the next free port after the shell's providers",
+      "required": false
+    },
+    "servicePort": {
+      "type": "number",
+      "label": "Microservice TCP port; defaults to the provider port plus 1000",
+      "required": false
+    }
+  }
+}

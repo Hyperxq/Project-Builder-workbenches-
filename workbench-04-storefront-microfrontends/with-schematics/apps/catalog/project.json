@@ -1,0 +1,43 @@
+{
+  "name": "catalog",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/catalog/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "command": "rsbuild dev",
+        "cwd": "apps/catalog"
+      },
+      "readyWhen": {
+        "signal": true
+      },
+      "dependsOn": [
+        "shell:serve"
+      ]
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rsbuild build",
+        "cwd": "apps/catalog"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "^typecheck"
+      ],
+      "options": {
+        "command": "tsc --noEmit -p tsconfig.json",
+        "cwd": "apps/catalog"
+      }
+    }
+  },
+  "tags": [
+    "type:app",
+    "scope:web"
+  ]
+}
