@@ -1,0 +1,13 @@
+import './styles.css';
+
+// Exposed by the federation plugin as '{= .name =}/App'.
+// Consumers render it lazily via `lazyProvider('{= .name =}', 'App')`.
+export function App() {
+  return (
+    <section data-testid="{= .name =}" className="mx-auto max-w-5xl p-6">
+      <h2 className="text-lg font-medium">{= .title =}</h2>
+    </section>
+  );
+}
+
+export default App;

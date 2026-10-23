@@ -1,0 +1,25 @@
+{
+  "name": "shell",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "rsbuild dev --port 4200",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview --port 4200"
+  },
+  "dependencies": {
+    "@module-federation/runtime": "^2.4.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@storefront/ui": "*"
+  },
+  "devDependencies": {
+    "@module-federation/rsbuild-plugin": "^2.5.0",
+    "@nx/rsbuild": "24.0.0",
+    "@rsbuild/core": "^1.4.0",
+    "@rsbuild/plugin-react": "^1.3.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "~6.0.3"
+  }
+}

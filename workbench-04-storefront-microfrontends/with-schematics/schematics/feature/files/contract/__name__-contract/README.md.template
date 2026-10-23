@@ -1,0 +1,6 @@
+# {= .name =}-contract
+
+The typed contract of the {= .name =} feature, shared by the `{= .name =}`
+microfrontend, the `gateway` and the `{= .name =}-service`: its types and the
+microservice message patterns. Types and constants only; no runtime
+dependencies.

@@ -1,0 +1,7 @@
+import { Controller } from '@nestjs/common';
+
+// Inject `{= .className =}Service` and add `@MessagePattern({= .constName =}_PATTERNS.<key>)`
+// handlers. Reject bad input with `RpcException({ statusCode: 400, message })`,
+// never an HTTP exception: HTTP exceptions do not cross the TCP transport.
+@Controller()
+export class {= .className =}Controller {}

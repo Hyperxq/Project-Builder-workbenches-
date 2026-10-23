@@ -1,0 +1,36 @@
+{
+  "name": "cart",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/cart/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "command": "rsbuild dev",
+        "cwd": "apps/cart"
+      },
+      "readyWhen": {
+        "signal": true
+      },
+      "dependsOn": ["shell:serve"]
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rsbuild build",
+        "cwd": "apps/cart"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["^typecheck"],
+      "options": {
+        "command": "tsc --noEmit -p tsconfig.json",
+        "cwd": "apps/cart"
+      }
+    }
+  },
+  "tags": ["type:app", "scope:web"]
+}

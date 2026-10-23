@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./apps/gateway"
+    },
+    {
+      "path": "./apps/catalog-service"
+    },
+    {
+      "path": "./packages/catalog-contract"
+    },
+    {
+      "path": "./packages/cart-contract"
+    },
+    {
+      "path": "./apps/cart-service"
+    },
+    {
+      "path": "./packages/orders-contract"
+    },
+    {
+      "path": "./apps/orders-service"
+    }
+  ],
+  "compilerOptions": {}
+}

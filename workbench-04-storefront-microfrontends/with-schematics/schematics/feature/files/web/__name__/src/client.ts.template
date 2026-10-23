@@ -1,0 +1,27 @@
+// The gateway serves every feature under /api; override per environment.
+const GATEWAY_URL: string =
+  (import.meta.env?.PUBLIC_GATEWAY_URL as string | undefined) ??
+  'http://localhost:3000/api';
+
+// Errors carry the gateway's `message` (for example a service's 400 reason) so
+// the microfrontend can show it to the shopper.
+export async function requestJson<T>(
+  path: string,
+  init?: RequestInit,
+): Promise<T> {
+  const response = await fetch(`${GATEWAY_URL}${path}`, {
+    ...init,
+    headers: { 'content-type': 'application/json', ...init?.headers },
+  });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => undefined)) as
+      { message?: string | string[] } | undefined;
+    const message = Array.isArray(body?.message)
+      ? body.message.join(', ')
+      : body?.message;
+    throw new Error(
+      message ?? `{= .className =} request failed (${response.status})`,
+    );
+  }
+  return (await response.json()) as T;
+}

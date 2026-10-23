@@ -103,6 +103,22 @@ Workbench 02 showed that schematizing everything from batch 1 never amortizes: +
 
 Full experiment design, predictions, and run instructions: [`workbench-03-react-admin-harness/README.md`](./workbench-03-react-admin-harness/README.md).
 
+## Workbench 04 — Storefront microfrontends
+
+**Stack**: Nx 24 · React 19 with rsbuild Module Federation · Tailwind v4 + shadcn · NestJS 11 microservices over TCP · NestJS gateway · Claude Sonnet 5.5, one headless agent per run in a fresh container
+
+Workbenches 01 to 03 compare against an agent writing each layer by hand. Workbench 04 compares against an agent that can read and copy three working examples of the same full-stack slice (provider microfrontend, TCP microservice, contract library, gateway routes, tests). The schematic was extracted from those examples after they had been reviewed and run end to end. Three new features ran 3 times per arm.
+
+**Result**: the first schematic failed the decision rule on review: its arm needed four review rounds against one, and five of its nine blocking findings came from the schematic itself. After those defects were fixed, the with-schematics arm used 72% fewer tokens and 34% less agent time than the copying arm, with equal structural deviations and equal review rounds. The agents without the schematic did not use the Nx generators; they copied an existing feature, which matched the schematic's structure.
+
+**Definition of done** (per feature, all green, plus an end-to-end probe after `npm ci`):
+
+```bash
+npm run lint && npm run typecheck && npm run test && npx nx sync:check
+```
+
+Full design, results and caveats: [`workbench-04-storefront-microfrontends/README.md`](./workbench-04-storefront-microfrontends/README.md).
+
 ## Results dashboard
 
 [`results-dashboard/`](./results-dashboard/) renders every `workbench-*/results/*/bench.json` scorecard: side-by-side arm comparisons per workbench, and for batched experiments the amortization charts (cumulative + marginal cost, break-even batch). Deployed automatically to **GitHub Pages** on every push to `main` — only the tiny `bench.json` scorecards are committed; heavy run artifacts (agent streams, gate logs) stay local.

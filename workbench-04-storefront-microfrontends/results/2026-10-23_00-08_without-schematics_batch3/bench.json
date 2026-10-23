@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-23T00:08:07.079030Z",
+  "arm": "without-schematics",
+  "task": "batch 3 (promotions)",
+  "run": {
+    "sweep_id": "wb04-rep2",
+    "protocol_version": "harness/run.sh per-run container \u00b7 task tasks/phase3-promotions.md",
+    "attempt": 1,
+    "context": {
+      "host_os": "macOS (Darwin 25.6.0) \u00b7 Apple Silicon",
+      "docker": "Docker Engine 29.5.2 (Colima, Ubuntu 24.04 VM)",
+      "harness": "single headless agent: claude -p --bare --dangerously-skip-permissions inside a fresh container per run",
+      "container": "node:26-bookworm \u00b7 Claude Code CLI 2.1.308"
+    }
+  },
+  "agent": {
+    "model": "claude-sonnet-5-5",
+    "exit_code": 0,
+    "wall_seconds": 114,
+    "api_seconds": 82,
+    "num_turns": 13,
+    "tokens": {
+      "input_tokens": 26,
+      "cache_creation_input_tokens": 46942,
+      "cache_read_input_tokens": 334081,
+      "output_tokens": 13134,
+      "output_tokens_details": {
+        "thinking_tokens": 585
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 46942
+      },
+      "inference_geo": "global",
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "cost_usd": 0.2821551,
+    "session_id": "8856c4d9-7372-4caa-8d1c-815493886e53"
+  },
+  "definition_of_done": {
+    "first_attempt_pass": true,
+    "gates": [
+      {
+        "gate": "lint",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "typecheck",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "test",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "sync",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "e2e (npm ci, serve, HTTP probes)",
+        "pass": false,
+        "seconds": null
+      }
+    ]
+  },
+  "output": {
+    "files_created": 39,
+    "loc_delta": 1138
+  }
+}

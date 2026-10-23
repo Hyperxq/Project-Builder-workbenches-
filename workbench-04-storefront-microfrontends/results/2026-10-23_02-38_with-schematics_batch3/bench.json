@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-23T02:38:43.826538Z",
+  "arm": "with-schematics",
+  "task": "batch 3 (promotions)",
+  "run": {
+    "sweep_id": "wb04-rep3",
+    "protocol_version": "harness/run.sh per-run container \u00b7 task tasks/phase3-promotions.md \u00b7 feature schematic v2",
+    "attempt": 1,
+    "context": {
+      "host_os": "macOS (Darwin 25.6.0) \u00b7 Apple Silicon",
+      "docker": "Docker Engine 29.5.2 (Colima, Ubuntu 24.04 VM)",
+      "harness": "single headless agent: claude -p --bare --dangerously-skip-permissions inside a fresh container per run",
+      "container": "node:26-bookworm \u00b7 Claude Code CLI 2.1.308 \u00b7 bun 1.4.4 \u00b7 pbuilder CLI 0.9.11 \u00b7 @pbuilder/sdk 0.3.1"
+    }
+  },
+  "agent": {
+    "model": "claude-sonnet-5-5",
+    "exit_code": 0,
+    "wall_seconds": 93,
+    "api_seconds": 57,
+    "num_turns": 9,
+    "tokens": {
+      "input_tokens": 18,
+      "cache_creation_input_tokens": 22827,
+      "cache_read_input_tokens": 90890,
+      "output_tokens": 9095,
+      "output_tokens_details": {
+        "thinking_tokens": 86
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 22827
+      },
+      "inference_geo": "global",
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "cost_usd": 0.1571425,
+    "session_id": "550fdc16-c19f-4469-936e-1f873c626947"
+  },
+  "definition_of_done": {
+    "first_attempt_pass": true,
+    "gates": [
+      {
+        "gate": "lint",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "typecheck",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "test",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "sync",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "e2e (npm ci, serve, HTTP probes)",
+        "pass": true,
+        "seconds": null
+      }
+    ]
+  },
+  "output": {
+    "files_created": 38,
+    "loc_delta": 1103
+  }
+}
