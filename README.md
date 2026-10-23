@@ -6,14 +6,11 @@ This repo is built to be **run by you**. Each workbench ships two arms of the sa
 
 ## Why this exists
 
-AI is inherently variant: running the same prompt twice never guarantees the same output. You can invest hours defining best practices, patterns, and reference implementations — and the next time the AI implements a feature against that same standard, it still starts the whole process from zero and takes just as long. Having a reference does not make the outcome faster, and nothing guarantees the result will even work.
+AI output varies between runs: the same prompt does not guarantee the same code. Teams write best practices, patterns and reference implementations, and every new feature still depends on how well the agent reads and follows them.
 
-Schematics attack exactly that gap. A schematic is a deterministic tool: given input A, it produces output B — always, in seconds, with zero drift from the established patterns. The point is not to replace the AI but to **complement** it:
+A schematic is deterministic: given the same inputs, it produces the same output, in seconds, following the patterns it encodes. The idea under test is to **complement** the AI, not replace it: the schematic generates the repeatable part of a task (scaffolding, layers, wiring, tests), and the AI writes the part a template cannot express (the inputs, the business logic, the relations).
 
-- **Schematics** own the repeatable 80%: scaffolding, CRUD layers, tests, wiring — everything that must follow the standard identically every time.
-- **AI** owns the judgment 20%: writing the schema that drives the generator, custom business logic, relations, and everything a template cannot express.
-
-These workbenches exist so anyone can test that claim on their own machine instead of taking it on faith.
+How large the repeatable part is differs per project, and so does whether handing it to a schematic pays off. Each workbench measures it instead of assuming it, so anyone can check the claim on their own machine.
 
 ## Structure
 
@@ -84,7 +81,7 @@ Each arm's own `README.md` documents its stack, architecture, and workflow in de
 
 **Stack**: React 19 · Vite 8 · TypeScript strict · Tailwind v4 + shadcn/ui · TanStack Router/Query · Zustand · react-hook-form + Zod v4 · MSW v2 · Playwright + axe
 
-Workbench 01 measured running a pre-built schematic. Workbench 02 measures the claim behind it: **the schematic doesn't exist yet** — the `with-schematics` arm starts from a bare `builder init` (workspace wired, zero templates) and must AUTHOR its own generator during batch 1, while `without-schematics` implements everything by hand. 14 entities in three tiers (vanilla CRUD, real-world quirks, heavy workflows) across 5 clean-room batches expose the amortization curve: heavy first iteration, near-free rest — and the break-even point where authoring pays for itself.
+Workbench 01 measured running a pre-built schematic. Workbench 02 measures the claim behind it: **the schematic doesn't exist yet** — the `with-schematics` arm starts from a bare `builder init` (workspace wired, zero templates) and must AUTHOR its own generator during batch 1, while `without-schematics` implements everything by hand. 14 entities in three tiers (vanilla CRUD, real-world quirks, heavy workflows) across 5 clean-room batches measure the amortization curve: the cost of the first iteration, the cost of the ones after it, and whether authoring ever pays for itself.
 
 **Task**: build the admin CRUD modules specified in `entities-benchmark.txt` over an identical base app (Linear design language via `DESIGN.md`, clean architecture per `AGENTS.md`, Authors reference module included, all gates green at the starting commit).
 
