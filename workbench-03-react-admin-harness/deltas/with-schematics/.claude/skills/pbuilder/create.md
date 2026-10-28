@@ -25,7 +25,16 @@ You're about to hand-write the third REST endpoint that follows the exact same h
 
 ### Regenerate schema.generated.ts — and check that it did
 
-**Regenerate after every schema edit.** Run `pbuilder-codegen schematics/<name>` through the project's package manager (`pnpm exec` / `npx` / `bunx`) every time `schema.json` changes. If `@pbuilder/sdk` is missing, this manual invocation **hard-fails** — your package manager cannot find the `pbuilder-codegen` binary to run it — it does not skip silently. (The AUTOMATIC regeneration `builder new schematic` triggers internally behaves differently: SDK-missing there emits a warning and leaves `schema.generated.ts` stale rather than failing the scaffold outright — that leniency is specific to the scaffolding step, not this manual one.) Confirm regeneration actually happened the same way use.md does: check the `@schema-digest` comment inside `schema.generated.ts` changed — not that the file merely exists.
+**Regenerate after every schema edit.** By default, run `pbuilder-codegen` through the project's package manager (`pnpm exec` / `npx` / `bunx`) every time `schema.json` changes. `pbuilder-codegen` accepts a project directory, a single schematic directory, or no argument at all — the three forms are interchangeable calls into the same binary; pick the narrowest one for the job: a schematic directory (`schematics/<name>`) regenerates just that one, `--project <dir>` names a project explicitly, and — SDK ≥ 0.3.0 only — with no arguments it discovers the nearest `project-builder.json` upward and regenerates every registered collection. `dist/bin/pbuilder-codegen.js` ships in every normal `@pbuilder/sdk` install, but it is NOT one of the files execute's `sdk.root` validation requires — its absence there never fails validation, only the invocation forms below.
+
+Two conditions make the default command above fail differently:
+
+- **`@pbuilder/sdk` is missing entirely** — the invocation **hard-fails**: your package manager cannot find the `pbuilder-codegen` binary to run it. It does not skip silently.
+- **The workspace resolves its SDK through `sdk.root`** — `node_modules/@pbuilder/sdk` is a symlink, so your package manager creates no `node_modules/.bin/pbuilder-codegen` shim either; `pnpm exec` / `npx` / `bunx` reports the binary missing even though the SDK is present and working.
+
+For the second condition, invoke the script directly instead: `node node_modules/@pbuilder/sdk/dist/bin/pbuilder-codegen.js` — the same project-directory / schematic-directory / no-argument forms apply. Or let `builder new schematic` regenerate automatically — it resolves the configured root itself and needs none of this. (Its own SDK-missing leniency differs: it emits a warning and leaves `schema.generated.ts` stale rather than failing the scaffold outright — that leniency is specific to the scaffolding step, not this manual one.)
+
+Confirm regeneration actually happened the same way use.md does: check the `@schema-digest` comment inside `schema.generated.ts` changed — not that the file merely exists.
 
 ## Anatomy
 
@@ -40,7 +49,7 @@ schematics/<name>/
 
 - Top-level shape: `{"properties": {"name": {"type": "string", "label": "Resource name", "required": true}}, "description": ""}`.
 - Types: `string` | `number` | `boolean` | `enum`. **`label` is REQUIRED on every property** — codegen fails without it.
-- An `enum` property needs BOTH keys carrying the same values: `choices` (codegen reads it) and `enum` (the CLI reads it).
+- An `enum` property lists its values under `choices` — the one key codegen, the SDK runner and the CLI all read. Never declare `enum` alone: the CLI rejects it.
 - Avoid `list` in typed schematics — the CLI accepts it but codegen rejects it.
 - `required` omitted ⇒ the generated field is NON-optional; only `required: false` makes it optional. Fields with `default` should also set `required: false`.
 - `sensitive: true` masks the value in CLI output and the JSON envelope.
@@ -69,16 +78,25 @@ Collisions fail closed: `create`/`rename`/`move`/`copy`/`copyIn` reject an exist
 
 ## Reading and mutating existing files
 
-`find(path).read()` returns `undefined` (absent), `''` (empty), or the content. Branch with strict `=== undefined` / `=== ''` — never `if (!content)`. There is no glob and no exists check — `read()` IS the existence check. To mutate: for TS/TSX prefer a dialect (below); on other file types use `find().read()` + string surgery + `replaceContent(path, next)`, and make it idempotent by checking before inserting.
+`find(path).read()` returns `undefined` (absent), `''` (empty), or the content. Branch with strict `=== undefined` / `=== ''` — never `if (!content)`. There is no glob and no exists check — `read()` IS the existence check. To mutate: for TS/TSX, JSON, YAML and CSS prefer a dialect (below); on other file types use `find().read()` + string surgery + `replaceContent(path, next)`, and make it idempotent by checking before inserting.
 
 ## Dialects
 
-AST-aware edits for TS/TSX — prefer these over string surgery for "add an import", "register a module", "set a JSX prop". Each dialect's `find()` opens a coalescing handle: chained operations mutate one live AST and flush as a SINGLE write.
+AST-aware edits — prefer these over string surgery for "add an import", "register a handler or a route", "append to an array", "set a JSX prop", "set a JSON key". Each dialect's `find()` opens a coalescing handle: chained operations mutate one live AST and flush as a SINGLE write. Seven ship: `typescript`, `react`, `json`, `yaml`, `css`, `nestjs`, `angular` (the last two are for those frameworks only).
 
-- `@pbuilder/sdk/typescript` → `ts.find("src/x.ts")`: `.addImport(name, from)` (idempotent — never duplicates, merges into an existing clause), `.removeImport`, `.addFunction(name, "(): void {}")` (source INCLUDES braces), `.addVariable`, `.addClass(name, src)` (source EXCLUDES braces), `.modify(ast => …)` — full ts-morph escape hatch.
-- `@pbuilder/sdk/react` → `.tsx` paths only (extension required): `.addImport`, `.setJsxProp(element, prop, value?)` — exactly one matching element or it rejects; `value` forms: `'"str"'` | `'{expr}'` | omitted.
+- `@pbuilder/sdk/typescript` → `ts.find("src/x.ts")`:
+  - Imports: `.addImport(name, from)` (idempotent, merges into an existing clause), `.addDefaultImport`, `.addNamespaceImport`, `.addTypeImport` (own `import type` statement; no-op when already imported), `.addSideEffectImport(from)`, `.removeImport(name, from)`.
+  - Exports: `.addReExport(name, from)` (merges into an existing re-export of that module), `.addExportAll(from, { as? })`, `.removeExport`, `.removeExportAll`.
+  - `.addArrayElement(locator, element)` — appends to the array literal `locator` points at, keeping its layout; creates missing keys; no-op when the element is already listed. `locator` is `{ variable, path }`, `{ call, argument, path }` or `{ decorator, path }`; `path` is REQUIRED (`[]` for the array itself, otherwise keys and `{ key: "value" }` matches), e.g. `{ variable: "items", path: [] }`. `element` is an identifier, or `{ expression }` for code. Use it for registration lists (handlers, routes, nav items).
+  - Declarations: `.addFunction(name, "(): void {}")` (source INCLUDES braces), `.addVariable(name, initializer)`, `.addClass(name, src)` (source EXCLUDES braces), `.addClassProperty(className, name, initializer)`.
+  - `add*` ops fail loud on a name collision with an existing value declaration or import binding.
+  - `.modify(ast => …)` — full ts-morph escape hatch.
+- `@pbuilder/sdk/react` → `.tsx` paths only (extension required): `.addImport`, `.setJsxProp(element, prop, value?)` — exactly one matching element or it rejects; `value` forms: `'"str"'` | `'{expr}'` | omitted. Everything else through `.modify()`.
+- `@pbuilder/sdk/json` → `.json`/`.jsonc`, edits only the bytes it changes (comments, indentation, key order survive). Paths are arrays (`["scripts", "build"]`, `["items", 0]`). Ops: `setValue`, `addKey`, `removeKey`, `renameKey`, `insertItem`, `appendItem(path, value, { unique: true })`, `removeItem`, `removeValue`, `replaceItem`, `moveItem`, `merge`, `updateValue`, `moveValue`, `copyValue`, `sortKeys`.
+- `@pbuilder/sdk/yaml` → `.yaml`/`.yml`, the JSON ops plus comments, anchors, aliases, merge keys, styles, tags and multi-document files.
+- `@pbuilder/sdk/css` → `.css`: `setDeclaration(target, property, value)`, `removeDeclaration`, `getDeclaration` (ends the chain). A target names one block (`{ selector }`, `{ atRule }`, or both); a missing block is created at the end of the file.
 - Await the chain: `await ts.find(path).addImport(...).modify(...)`.
-- In `.modify()`, operate ONLY on the `ast` the callback hands you — never pass in nodes from your own ts-morph import. Inserted `source` strings are verbatim, never validated: you own their syntax.
+- In `.modify()`, operate ONLY on the `ast` the callback hands you — never nodes from another `ts-morph` copy. Since `@pbuilder/sdk` ≥ 0.3.0, `@pbuilder/sdk/typescript` and `@pbuilder/sdk/react` each export their complete AST library as `astLibrary` — `import { astLibrary } from '@pbuilder/sdk/typescript'` (or `'@pbuilder/sdk/react'`), runtime helpers plus upstream types. Reach for `SyntaxKind`, node guards, and other helpers from the SAME dialect entrypoint's `astLibrary`, and never mix `astLibrary` imports across dialects or installations (no cross-import identity is guaranteed). Below 0.3.0, `astLibrary` does not exist — upgrade the SDK; never install `ts-morph` into the host project yourself, with any package manager. Inserted `source` strings are verbatim, never validated: you own their syntax.
 
 ## Templates
 
@@ -88,7 +106,17 @@ Go-template with `{= .field | pipe =}` delimiters (dotted field refs required). 
 
 `runFactoryForTest(factory, input, {seed?, packageDir?})` from `@pbuilder/sdk/testing` — in-memory, no engine:
 
-- `result.tree` = COMMITTED writes only; an untouched `seed` entry is absent from the tree — that is exactly how you assert idempotence.
+- `result.tree` is a `Map` (typed `ReadonlyMap<string, string>`), mapping paths to string content: COMMITTED writes only; an untouched `seed` entry is absent from the tree — that is exactly how you assert idempotence.
+- Read content with `result.tree.get(path)` (`undefined` when absent; `''` for an empty file), check a committed path with `result.tree.has(path)`, and list paths with `[...result.tree.keys()]`. Do not use object-style indexing (`result.tree[path]`) or `Object.keys(result.tree)` to inspect committed files.
 - `result.error` = authoring rejection or the factory's own throw; `undefined` on success. Templates are stored verbatim, never rendered.
 - Pass `packageDir: import.meta.dir` (never `import.meta.url`) to enable schema validation and anchor `scaffold`/`copyIn`/`templateFile`.
 - Tests run under `bun test` (Bun is always installed — it is the schematic runtime). Wire it as a package script (e.g. `"test:schematics": "bun test schematics"`) and invoke that through the project's package manager. Name files `*.test.ts` so the app's own test runner ignores them.
+
+For a factory that writes only `src/greeting.ts` with content `hello` and leaves seeded `existing.txt` unchanged, assert with `expect` from `bun:test`:
+
+```typescript
+expect(result.error).toBeUndefined();
+expect(result.tree.get("src/greeting.ts")).toBe("hello");
+expect(result.tree.has("existing.txt")).toBe(false);
+expect([...result.tree.keys()]).toEqual(["src/greeting.ts"]);
+```

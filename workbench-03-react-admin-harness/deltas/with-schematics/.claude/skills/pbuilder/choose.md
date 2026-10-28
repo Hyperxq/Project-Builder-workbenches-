@@ -4,6 +4,10 @@
 
 `project-builder.json`'s `collections` map is the source of truth for what schematics exist in this workspace, but `builder info` is how you read it — prefer it over opening the file yourself.
 
+## Reaching a collection outside this working directory
+
+Every command below also accepts `--manifest <path>` (or the `BUILDER_MANIFEST` environment variable, which the flag always wins over) to read `project-builder.json`/`collection.json`/`schema.json` from a directory outside the current working directory, instead of failing here — useful in a worktree or sibling checkout of a project that is already initialised elsewhere. Naming one requires THIS working directory's `@pbuilder/sdk` at version 0.3.1 or later in a real (non-symlinked) `node_modules`, and NO `@pbuilder/sdk` in the named directory or any directory above it — a factory there loads that copy instead and fails the SDK's single-instance check, so keep external collections in a directory without `node_modules`. This is worth knowing BEFORE a "no manifest here" failure, not only as its recovery (see use.md).
+
 ## Primary: `builder info` (use `--output=json` for machine-parseable output)
 
 A three-level ladder — bare, collection, schematic — each level's output teaching you the next command to run:
@@ -24,7 +28,7 @@ A schematic reaches you through one of **three registration shapes**:
 
 Every schematic is referenced as `<collection>:<name>` — for example `default:<name>` for anything registered under the `default` container.
 
-`project-builder.json` may carry unknown top-level keys beyond `collections`, `dependencies`, and `settings`. These are legal and preserved untouched by `builder init --force` — never treat one as an error.
+`project-builder.json`'s known top-level keys are `collections`, `dependencies`, `settings`, and `sdk` (`sdk.version` selects the SDK version floor; `sdk.root` names an external SDK root outside the workspace). Any other top-level key is unknown; unknown top-level keys are legal and preserved untouched by `builder init --force` — never treat one as an error.
 
 ## Fallback: reading files directly (pre-`info` binary, or absent from PATH)
 

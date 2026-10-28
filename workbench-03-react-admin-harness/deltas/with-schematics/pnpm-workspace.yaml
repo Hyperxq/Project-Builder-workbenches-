@@ -1,0 +1,11 @@
+packages:
+  - '.'
+
+allowBuilds:
+  msw: true
+
+minimumReleaseAgeExclude:
+  - '@pbuilder/sdk@0.10.0'
+
+onlyBuiltDependencies:
+  - msw

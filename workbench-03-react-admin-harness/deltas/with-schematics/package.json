@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
-    "@pbuilder/sdk": "^0.2.4",
+    "@pbuilder/sdk": "^0.10.0",
     "@playwright/test": "^1.62.1",
     "@tanstack/router-plugin": "^1.168.29",
     "@testing-library/jest-dom": "^7.0.0",
