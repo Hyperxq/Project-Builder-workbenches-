@@ -4,11 +4,11 @@
 ARG NODE_VERSION=22-bookworm
 FROM node:${NODE_VERSION}
 
-ARG CLAUDE_CODE_VERSION=2.1.226
+ARG CLAUDE_CODE_VERSION=2.1.308
 ARG PNPM_VERSION=11.21.0
 ARG BUN_VERSION=1.3.14
 ARG BRUNO_CLI_VERSION=4.0.0
-ARG PBUILDER_VERSION=0.9.0
+ARG PBUILDER_VERSION=0.9.11
 # MUST match the @playwright/test version in the web arms' lockfile —
 # each Playwright release pins its own browser build.
 ARG PLAYWRIGHT_VERSION=1.62.1

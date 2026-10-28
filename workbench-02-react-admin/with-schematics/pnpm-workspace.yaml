@@ -4,5 +4,8 @@ packages:
 allowBuilds:
   msw: true
 
+minimumReleaseAgeExclude:
+  - '@pbuilder/sdk'
+
 onlyBuiltDependencies:
   - msw
