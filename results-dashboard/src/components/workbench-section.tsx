@@ -18,6 +18,7 @@ import {
   latestRuns,
   totalTokens,
 } from '../lib/results'
+import { LabNotebook } from './lab-notebook'
 
 const ARM_LABEL: Record<Arm, string> = {
   'with-schematics': 'WITH SCHEMATICS',
@@ -477,9 +478,20 @@ export function WorkbenchSection({
   }
 
   return (
-    <article className="decision-view" aria-labelledby="decision-title">
+    <article className="decision-view" aria-labelledby={meta?.experiments?.length ? 'lab-title' : 'workbench-title'}>
+      {meta?.experiments?.length ? (
+        <LabNotebook experiments={meta.experiments} runs={runs} />
+      ) : (
+        <section className="lab-notebook lab-notebook--empty">
+          <p className="eyebrow">{name}</p>
+          <h1 id="workbench-title">{meta?.title ?? name}</h1>
+          <p>No hypothesis has been declared for this workbench. The sweep detail below uses the default rule.</p>
+        </section>
+      )}
+
       <header className="decision-header">
-        <h1 id="decision-title">{evaluation.headline}</h1>
+        <p className="eyebrow">Sweep detail</p>
+        <h2 id="decision-title">{evaluation.headline}</h2>
         <p className="decision-header__summary">{subtitle}</p>
         <div className="evaluation-status" role="status">
           <strong>{evaluation.quality === 'both-pass' ? 'Evaluation complete' : 'Evaluation needs review'}</strong>

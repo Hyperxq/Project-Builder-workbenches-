@@ -7,6 +7,8 @@
  * every run still appears in the runs table.
  */
 
+import type { Experiment } from './experiments'
+
 export interface GateResult {
   gate: string
   pass: boolean
@@ -95,6 +97,7 @@ export interface WorkbenchMeta {
   stack?: string
   about: string
   proves: string
+  experiments?: Experiment[]
 }
 
 /** Optional per-workbench description, declared in `<workbench>/workbench.json`. */
@@ -165,11 +168,11 @@ export function totalTokens(bench: Bench): number | null {
   return (t.input_tokens ?? 0) + (t.output_tokens ?? 0)
 }
 
-/** Latest run per (model, arm, batch) — reruns supersede older attempts within the same model. */
+/** Latest run per (sweep, model, arm, batch) — reruns supersede older attempts; repetitions in other sweeps never do. */
 export function latestRuns(runs: Run[]): Run[] {
   const byKey = new Map<string, Run>()
   for (const run of runs) {
-    const key = `${run.model}#${run.arm}#${run.batch ?? ''}`
+    const key = `${sweepKey(run)}#${run.model}#${run.arm}#${run.batch ?? ''}`
     const existing = byKey.get(key)
     if (!existing || run.stamp > existing.stamp) byKey.set(key, run)
   }
@@ -201,10 +204,12 @@ export function groupByModel(runs: Run[]): Map<string, Run[]> {
  * scorecards did not record one, so they remain a clearly labelled legacy
  * cohort and are never combined across models.
  */
+export const sweepKey = (run: Run) => run.bench.run?.sweep_id ?? `legacy:${run.model}`
+
 export function groupBySweep(runs: Run[]): Map<string, Run[]> {
   const groups = new Map<string, Run[]>()
   for (const run of runs) {
-    const key = run.bench.run?.sweep_id ?? `legacy:${run.model}`
+    const key = sweepKey(run)
     const list = groups.get(key) ?? []
     list.push(run)
     groups.set(key, list)
