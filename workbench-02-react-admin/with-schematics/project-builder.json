@@ -6,7 +6,10 @@
   "settings": {
     "autoInstall": true,
     "conflictPolicy": "child-wins",
-    "depValidation": "dev"
+    "depValidation": "dev",
+    "schematicCollections": [
+      "default"
+    ]
   },
   "skill": {
     "enabled": true,
