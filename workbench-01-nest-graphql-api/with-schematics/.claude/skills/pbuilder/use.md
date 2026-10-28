@@ -40,6 +40,8 @@ Three states let an inputless, or under-specified, `execute` skip straight past 
 
 There is **no working `--dry-run`** that can reveal any of this in advance — `--dry-run` is accepted but does not currently stop the write. None of the three states above is discoverable by a harmless trial run; the only way to know beforehand is to have already read schema.json.
 
+Not every execute diagnostic is fatal: `warn_schemaless` (above) and `warn_sdk_root_group_writable` — a directory above the configured `sdk.root` that only its group can write to — are both Warning-kind. Execution proceeds either way; the message states its own remedy, since a warning renders no separate `Fix:` line.
+
 ## When a run fails
 
 ### Read the error block bottom-up
@@ -52,11 +54,14 @@ The rendered error block carries up to three lines. Read them in this order:
 
 A lone `Fix:` line does not imply no Did-you-mean candidates exist: a `Fix:` line only suppresses note-kind suggestions — a Did-you-mean line co-renders alongside it whenever alternatives are present.
 
-**Exception** — for three codes, the `Fix:` line IS the correct remedy and should be applied verbatim, ahead of L2/Did-you-mean:
+**Exception** — for `execute_project_not_initialized`, the `Fix:` line IS the correct remedy, ahead of L2/Did-you-mean, and it now names two options rather than one: run `builder init` here, or re-run with `--manifest` (or the `BUILDER_MANIFEST` environment variable) naming a directory that already has a `project-builder.json` and has no `@pbuilder/sdk` of its own, nor any directory above it (every precondition is in choose.md) — the right choice when this workspace is a worktree or sibling checkout of a project that is already initialised elsewhere, not a project that genuinely has none yet.
 
-- `execute_project_not_initialized` — run `builder init` first.
-- `execute_sdk_not_installed` — install the SDK per the `Fix:` line.
-- `execute_sdk_version_mismatch` — upgrade the SDK per the `Fix:` line.
+**Family 4 (SDK)** — two different shapes:
+
+- `execute_sdk_not_installed` / `execute_sdk_version_mismatch` — prefer installing the SDK locally: the output lists one `Note:` per package manager, run the one matching this project's package manager (this also covers an external `sdk.root` whose own version is below the floor — same code as a local install, never `execute_sdk_root_invalid`). Declare `"sdk": {"root": "<dir>"}` in `project-builder.json` ONLY when the adopter already told you where an external SDK lives, or named a global install path themselves — never invent a path yourself, since this key edits the adopter's own config. Never point it at a package-manager cache directory (for example `~/.bun/install/cache/...`, `~/.npm/_cacache/...`) — the SDK there cannot reach its own dependencies and `execute` rejects it.
+- `execute_sdk_root_invalid` — the configured root itself is unusable: an invalid `sdk.root` value, missing or unreadable, not `@pbuilder/sdk`, an incomplete distribution, its own dependencies do not resolve, or unsafe permissions/ownership on the root or an ancestor directory. The `Fix:` line names which. For the permission/ownership reasons only, the offending location rides in `SafeDetail` by depth, never by path: `"the configured root itself"` at depth 0, or `"1 level above sdk.root"` at depth 1, or `"N levels above sdk.root"` beyond (for example `"2 levels above sdk.root"`) — resolve the path yourself from `sdk.root`'s own value. The other two SDK-root codes never carry a depth.
+- `execute_sdk_link_path_conflict` — something already occupies `node_modules/@pbuilder/sdk`: a real install, an occupied file, a dangling link, or an invalid package. The `Fix:` line names which.
+- `execute_sdk_link_failed` — the link itself could not be written; check permissions on `node_modules` and `node_modules/@pbuilder`.
 
 The "Schematic options" table shown alongside a failure lists what values **you passed**, never the schematic's available options — an empty `(none)` there means you passed nothing, not that the schematic takes no options.
 
@@ -64,7 +69,7 @@ The "Schematic options" table shown alongside a failure lists what values **you 
 
 - **Family 2** (yours) — a missing-inputs failure names ALL missing inputs at once; do not fix one and re-run repeatedly. An invalid-value failure means re-read schema.json, do not guess-iterate.
 - **Family 3** (config) — a workspace-fixable configuration problem, not specific to `execute`: for a resolution failure here, Did you mean enumerates the registry (the collections and schematics actually registered); other Family 3 codes (e.g. `init_marker_corrupt`, from a corrupted AGENTS.md/CLAUDE.md marker block after `builder init --force`) name the specific workspace file state to fix by hand instead — read the `Fix:` line, repair or remove the offending block, then re-run.
-- **Family 4** (SDK) — apply the `Fix:` line verbatim; this family only ever surfaces AFTER your inputs have already validated.
+- **Family 4** (SDK) — apply the `Fix:` line when one is rendered; when only `Note:` lines appear, pick the one for this project's package manager. Some `sdk.root` failures ask you to edit `project-builder.json` or remove a filesystem entry rather than run a command. This family only ever surfaces AFTER your inputs have already validated.
 - **Family 5** (engine) — re-run once, first checking the invocation was not inside a compound shell command (see "Run it standalone" above).
 - **Family 130** (cancelled) — you pressed Ctrl-C; no remedy needed.
 - **Family 1** (`FamilyInternal`) — **not your input** — stop and report it; retrying will not help.
