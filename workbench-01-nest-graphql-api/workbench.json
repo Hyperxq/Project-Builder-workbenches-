@@ -2,5 +2,102 @@
   "title": "NestJS GraphQL API — pre-built schematic",
   "stack": "NestJS 11 · GraphQL (Apollo 5) · Mongoose 9 · Jest · Bruno",
   "about": "Head-to-head backend build: both arms implement full GraphQL CRUD endpoints (entity, DTOs, repository, service, resolver, tests, Bruno collection) for the same 14 entities in one full sweep. The with-schematics arm ships a pre-built Project Builder generator — the AI only writes the Mongoose schema and runs it; the without arm hand-writes every layer following the same conventions.",
-  "proves": "Whether a deterministic generator that ALREADY exists makes the same task cheaper, faster and more consistent than pure AI — at equal spec compliance and with the same definition of done (tsc, lint, unit and e2e tests all green)."
+  "proves": "Whether a deterministic generator that ALREADY exists makes the same task cheaper, faster and more consistent than pure AI — at equal spec compliance and with the same definition of done (tsc, lint, unit and e2e tests all green).",
+  "experiments": [
+    {
+      "id": "wb01-prebuilt-generator",
+      "title": "A generator that already exists",
+      "registered": "after-runs",
+      "hypothesis": "Running a Project Builder generator that already exists makes the same 14-entity GraphQL build cheaper and faster than hand-writing every layer, at the same definition of done.",
+      "variable": "The with-schematics arm ships the pre-built resource and schema schematics; the agent writes only each Mongoose schema and runs them.",
+      "constants": [
+        "Same 14 entities and conventions",
+        "Same definition of done: tsc, lint, unit and e2e tests",
+        "One full sweep per arm in a clean-room container"
+      ],
+      "treatment": {
+        "label": "With schematics",
+        "sweeps": [
+          "legacy:unknown"
+        ],
+        "arms": [
+          "with-schematics"
+        ],
+        "expected_runs": 1
+      },
+      "baseline": {
+        "label": "Without schematics",
+        "sweeps": [
+          "legacy:unknown"
+        ],
+        "arms": [
+          "without-schematics"
+        ],
+        "expected_runs": 1
+      },
+      "prediction": {
+        "combine": "all",
+        "criteria": [
+          {
+            "metric": "cost_usd",
+            "aggregate": "sum",
+            "max_change_pct": 0
+          },
+          {
+            "metric": "wall_seconds",
+            "aggregate": "sum",
+            "max_change_pct": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "wb01-sdk010",
+      "title": "The same generator on SDK 0.10 and Opus 5.5",
+      "registered": "before-runs",
+      "hypothesis": "With @pbuilder/sdk 0.10.0 and Opus 5.5, running the pre-built generator is still cheaper and faster than hand-writing every layer, at the same definition of done.",
+      "variable": "The pre-built schematics, as in the first sweep. @pbuilder/sdk 0.10.0 and builder CLI 0.9.11; the pbuilder skill documents the 0.10.0 dialect operations",
+      "constants": [
+        "Same 14 entities, conventions and definition of done",
+        "claude-opus-5-5 for every agent in both arms",
+        "Claude Code 2.1.308 runner image",
+        "Both arms run in parallel, in the same time window"
+      ],
+      "treatment": {
+        "label": "With schematics",
+        "sweeps": [
+          "wb01-v3-sdk010"
+        ],
+        "arms": [
+          "with-schematics"
+        ],
+        "expected_runs": 1
+      },
+      "baseline": {
+        "label": "Without schematics",
+        "sweeps": [
+          "wb01-v3-sdk010"
+        ],
+        "arms": [
+          "without-schematics"
+        ],
+        "expected_runs": 1
+      },
+      "prediction": {
+        "combine": "all",
+        "criteria": [
+          {
+            "metric": "cost_usd",
+            "aggregate": "sum",
+            "max_change_pct": 0
+          },
+          {
+            "metric": "wall_seconds",
+            "aggregate": "sum",
+            "max_change_pct": 0
+          }
+        ]
+      }
+    }
+  ]
 }
