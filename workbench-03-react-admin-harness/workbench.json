@@ -2,5 +2,167 @@
   "title": "React Admin — plan-time crystallization",
   "stack": "React 19 · Vite · TypeScript · Tailwind v4 + shadcn · TanStack Router/Query · MSW v2 · Playwright + axe · Opus 5 orchestrator + Sonnet 5 mechanic sub-agents",
   "about": "Same task as workbench 02 — identical base app, entities, tiers, and batch schedule — so its sweeps serve as historical baselines. Both arms run the SAME autonomous light harness (plan → build → verify, HARNESS.md): an Opus orchestrator writes a plan artifact before any code, delegates mechanical implementation to Sonnet mechanic sub-agents, and closes the four gates itself. The only experimental variable is a plan directive present in the with-schematics arm — a crystallization lifecycle: schematics are EXTRACTED from proven, gates-green implementations, never invented ahead of them. Established pattern repeating ≥3 times → extract the schematic from the proven instance before building the repeats; pattern not yet established → hand-build the first instance, prove it, declare it the rule, extract once green; schematic falls short → extend-vs-new is decided at the next plan. Every decision is persisted in the plan file for post-hoc audit.",
-  "proves": "That the win is the CRITERION, not the artifact. Workbench 02 showed blanket batch-1 schematization never amortizes (+48% cost, zero quality gain on the leveled sweep). If deciding WHERE to schematize at plan time beats it — a cheaper batch 1 than blanket schematics, an earlier cost crossover against the manual arm, and lower inter-batch variance — then the value of schematics lives in planning-time judgment over foreseeable repetition, and standardization is something you decide, not something you default to."
+  "proves": "That the win is the CRITERION, not the artifact. Workbench 02 showed blanket batch-1 schematization never amortizes (+48% cost, zero quality gain on the leveled sweep). If deciding WHERE to schematize at plan time beats it — a cheaper batch 1 than blanket schematics, an earlier cost crossover against the manual arm, and lower inter-batch variance — then the value of schematics lives in planning-time judgment over foreseeable repetition, and standardization is something you decide, not something you default to.",
+  "experiments": [
+    {
+      "id": "wb03-v2-criterion",
+      "title": "Plan-time crystallization",
+      "registered": "after-runs",
+      "hypothesis": "Deciding at plan time where to extract a schematic ends batch 5 below the manual arm's cumulative cost, at the same quality.",
+      "variable": "A plan directive in the with-schematics arm: extract a schematic from proven code once a pattern repeats three or more times; both arms run the same plan → build → verify harness.",
+      "constants": [
+        "Same base app, entities and batch schedule as workbench 02",
+        "Same harness: orchestrator plus scout and mechanic sub-agents",
+        "One fresh clean-room session per batch and arm",
+        "Opus 5 orchestrator, Sonnet 5 sub-agents in both arms"
+      ],
+      "treatment": {
+        "label": "With schematics",
+        "sweeps": [
+          "wb03-v2-2026-08-13"
+        ],
+        "arms": [
+          "with-schematics"
+        ],
+        "expected_runs": 5
+      },
+      "baseline": {
+        "label": "Without schematics",
+        "sweeps": [
+          "wb03-v2-2026-08-13"
+        ],
+        "arms": [
+          "without-schematics"
+        ],
+        "expected_runs": 5
+      },
+      "prediction": {
+        "combine": "all",
+        "criteria": [
+          {
+            "metric": "cost_usd",
+            "aggregate": "sum",
+            "max_change_pct": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "wb03-sdk010",
+      "title": "Plan-time crystallization · SDK 0.10 dialects",
+      "registered": "before-runs",
+      "hypothesis": "With the SDK 0.10.0 dialects documented in the skill, plan-time crystallization ends batch 5 below the manual arm's cumulative cost, at the same quality.",
+      "variable": "A plan directive in the with-schematics arm: extract a schematic from proven code once a pattern repeats three or more times; both arms run the same plan → build → verify harness. @pbuilder/sdk 0.10.0 and builder CLI 0.9.11; the pbuilder skill documents the 0.10.0 dialect operations",
+      "constants": [
+        "Same base app, entities and batch schedule as workbench 02",
+        "Same harness: orchestrator plus scout and mechanic sub-agents",
+        "One fresh clean-room session per batch and arm",
+        "claude-opus-5-5 for every agent in both arms",
+        "Claude Code 2.1.308 runner image",
+        "Both arms run in parallel, in the same time window"
+      ],
+      "treatment": {
+        "label": "With schematics",
+        "sweeps": [
+          "wb03-v3-sdk010"
+        ],
+        "arms": [
+          "with-schematics"
+        ],
+        "expected_runs": 5
+      },
+      "baseline": {
+        "label": "Without schematics",
+        "sweeps": [
+          "wb03-v3-sdk010"
+        ],
+        "arms": [
+          "without-schematics"
+        ],
+        "expected_runs": 5
+      },
+      "prediction": {
+        "combine": "all",
+        "criteria": [
+          {
+            "metric": "cost_usd",
+            "aggregate": "sum",
+            "max_change_pct": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "wb03-route-sonnet",
+      "title": "Sub-agents on Sonnet 5.5 instead of Opus 5.5",
+      "registered": "before-runs",
+      "hypothesis": "Pinning the scout and mechanic sub-agents to Sonnet 5.5 costs at least 30% less than running them on Opus 5.5, at no worse quality.",
+      "variable": "The scout and mechanic sub-agents' model: claude-sonnet-5-5 against claude-opus-5-5.",
+      "constants": [
+        "Orchestrator on claude-opus-5-5",
+        "SDK 0.10.0, same base and harness",
+        "Both arms of each sweep pooled; sweeps run about 10 hours apart"
+      ],
+      "treatment": {
+        "label": "Sonnet sub-agents",
+        "sweeps": [
+          "wb03-v3-route-sonnet"
+        ],
+        "expected_runs": 10
+      },
+      "baseline": {
+        "label": "Opus sub-agents",
+        "sweeps": [
+          "wb03-v3-sdk010"
+        ],
+        "expected_runs": 10
+      },
+      "prediction": {
+        "combine": "all",
+        "criteria": [
+          {
+            "metric": "cost_usd",
+            "aggregate": "sum",
+            "max_change_pct": -30
+          }
+        ]
+      }
+    },
+    {
+      "id": "wb03-route-auto",
+      "title": "The orchestrator chooses each sub-agent's model",
+      "registered": "before-runs",
+      "hypothesis": "Letting the orchestrator choose haiku, sonnet or opus for every delegation costs no more than pinning the sub-agents to Sonnet 5.5, at no worse quality.",
+      "variable": "Sub-agent model: chosen per delegation by the orchestrator (cheapest model expected to deliver right the first time) against pinned to claude-sonnet-5-5.",
+      "constants": [
+        "Orchestrator on claude-opus-5-5",
+        "SDK 0.10.0, same base and harness",
+        "Both arms of each sweep pooled; sweeps run back to back"
+      ],
+      "treatment": {
+        "label": "Orchestrator chooses",
+        "sweeps": [
+          "wb03-v3-route-auto"
+        ],
+        "expected_runs": 10
+      },
+      "baseline": {
+        "label": "Sonnet sub-agents",
+        "sweeps": [
+          "wb03-v3-route-sonnet"
+        ],
+        "expected_runs": 10
+      },
+      "prediction": {
+        "combine": "all",
+        "criteria": [
+          {
+            "metric": "cost_usd",
+            "aggregate": "sum",
+            "max_change_pct": 0
+          }
+        ]
+      }
+    }
+  ]
 }
