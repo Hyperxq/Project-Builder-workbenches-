@@ -2,4 +2,4 @@ allowBuilds:
   '@apollo/protobufjs': true
   unrs-resolver: true
 minimumReleaseAgeExclude:
-  - '@pbuilder/sdk@0.10.0'
+  - '@pbuilder/sdk'

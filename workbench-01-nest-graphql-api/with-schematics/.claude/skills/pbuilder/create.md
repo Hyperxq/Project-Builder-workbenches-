@@ -82,7 +82,7 @@ Collisions fail closed: `create`/`rename`/`move`/`copy`/`copyIn` reject an exist
 
 ## Dialects
 
-AST-aware edits — prefer these over string surgery for "add an import", "register a handler or a route", "append to an array", "set a JSX prop", "set a JSON key". Each dialect's `find()` opens a coalescing handle: chained operations mutate one live AST and flush as a SINGLE write. Seven ship: `typescript`, `react`, `json`, `yaml`, `css`, `nestjs`, `angular` (the last two are for those frameworks only).
+AST-aware edits — prefer these over string surgery for "add an import", "register a handler or a route", "append to an array", "set a JSX prop", "set a JSON key". Each dialect's `find()` opens a coalescing handle: chained operations mutate one live AST and flush as a SINGLE write. Since `@pbuilder/sdk` 0.10.1, inserted TS/TSX code follows the edited file's own quote and semicolon style, so it matches the codebase's formatting. Seven ship: `typescript`, `react`, `json`, `yaml`, `css`, `nestjs`, `angular` (the last two are for those frameworks only).
 
 - `@pbuilder/sdk/typescript` → `ts.find("src/x.ts")`:
   - Imports: `.addImport(name, from)` (idempotent, merges into an existing clause), `.addDefaultImport`, `.addNamespaceImport`, `.addTypeImport` (own `import type` statement; no-op when already imported), `.addSideEffectImport(from)`, `.removeImport(name, from)`.

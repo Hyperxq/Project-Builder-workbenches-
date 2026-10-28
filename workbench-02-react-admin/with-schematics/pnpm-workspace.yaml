@@ -5,7 +5,7 @@ allowBuilds:
   msw: true
 
 minimumReleaseAgeExclude:
-  - '@pbuilder/sdk@0.10.0'
+  - '@pbuilder/sdk'
 
 onlyBuiltDependencies:
   - msw
