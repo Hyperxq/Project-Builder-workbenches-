@@ -119,6 +119,22 @@ npm run lint && npm run typecheck && npm run test && npx nx sync:check
 
 Full design, results and caveats: [`workbench-04-storefront-microfrontends/README.md`](./workbench-04-storefront-microfrontends/README.md).
 
+## Workbench 05 — Schematic authoring: dialects against string surgery
+
+**Stack**: workbench 03 base · `@pbuilder/sdk` 0.12.0 · Claude Opus 5.5, one headless agent per run in a fresh container
+
+The earlier workbenches measure agents using schematics. Workbench 05 measures agents writing them: four registration schematics, authored either with `@pbuilder/sdk/commons` string surgery only or with the dialects and an intent table of their ops. A checker outside the agent applies the schematics to clean copies for two new entities, runs them twice, builds the app, and repeats the edits on reformatted targets. Configured, not run.
+
+Full design: [`workbench-05-dialect-authoring/README.md`](./workbench-05-dialect-authoring/README.md).
+
+## Workbench 06 — Pattern recognition and a schematic catalog
+
+**Stack**: workbench 03 base · Project Builder CLI 0.9.11 · `@pbuilder/sdk` 0.12.0 · Claude Opus 5.5, one headless session per task
+
+Ten small product changes on the same admin, one session each, with two patterns that repeat (an optional Author field four times, a static page three times) and three one-off changes. Experiment 2 gives the agent the option to author schematics and observes whether, and at which repetition, it automates a pattern. Experiment 3 compares the sequence by hand against a catalog of reviewed schematics that includes three distractors. A hidden checker scores every change. Configured, not run.
+
+Full design: [`workbench-06-pattern-recognition/README.md`](./workbench-06-pattern-recognition/README.md).
+
 ## Results dashboard
 
 [`results-dashboard/`](./results-dashboard/) renders every `workbench-*/results/*/bench.json` scorecard: side-by-side arm comparisons per workbench, and for batched experiments the amortization charts (cumulative + marginal cost, break-even batch). Deployed automatically to **GitHub Pages** on every push to `main` — only the tiny `bench.json` scorecards are committed; heavy run artifacts (agent streams, gate logs) stay local. Agents can read the same results as plain markdown at [`llms.txt`](https://hyperxq.github.io/Project-Builder-workbenches-/llms.txt): the latest experiment of each workbench first, the rest under History, regenerated on every deploy.
