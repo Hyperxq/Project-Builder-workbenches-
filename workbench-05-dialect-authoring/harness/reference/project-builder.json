@@ -1,0 +1,25 @@
+{
+  "version": "1",
+  "collections": {
+    "default": {
+      "sidebar-entry": {
+        "path": "./schematics/sidebar-entry"
+      },
+      "overview-card": {
+        "path": "./schematics/overview-card"
+      },
+      "handlers-registration": {
+        "path": "./schematics/handlers-registration"
+      },
+      "route-keys": {
+        "path": "./schematics/route-keys"
+      }
+    }
+  },
+  "dependencies": {},
+  "settings": {
+    "schematicCollections": [
+      "default"
+    ]
+  }
+}

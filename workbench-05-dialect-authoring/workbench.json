@@ -1,0 +1,62 @@
+{
+  "title": "Schematic authoring — dialects against string surgery",
+  "stack": "React 19 admin (workbench 03 base) · Project Builder schematics on @pbuilder/sdk 0.12.0 · Bun factory tests · Claude Opus 5.5 headless in Docker",
+  "about": "An agent authors four Project Builder schematics for the registration edits every new entity repeats: a sidebar entry, an overview card, the mock handlers and test reset, and the mock route keys. One arm edits files with @pbuilder/sdk/commons only (read, change the text, write back); the other uses the dialects and an intent table that says which op covers which edit. The dialects cover two of the edits fully, one partly and one not at all. A checker outside the agent applies the authored schematics to clean copies for two new entities, runs them twice, builds the app, repeats the edits on reformatted copies of the target files, and checks that each schematic refuses when the code it edits around is missing.",
+  "proves": "Whether the dialects make authoring a schematic faster or cheaper than string surgery, at no worse correctness, measured on schematics written from scratch rather than on schematics being used.",
+  "experiments": [
+    {
+      "id": "wb05-dialects",
+      "title": "Dialects against string surgery",
+      "registered": "before-runs",
+      "hypothesis": "Authoring the four registration schematics with the @pbuilder/sdk 0.12.0 dialects and the intent table cuts median total tokens or agent time by at least 30% against string surgery with @pbuilder/sdk/commons only, at no worse correctness.",
+      "variable": "How the factories edit existing files: dialect ops chosen from dialects.md, or commons string surgery only. The task, the base, the pbuilder skill (minus its Dialects section in the commons arm) and the model are the same.",
+      "constants": [
+        "Workbench 03 base with the pbuilder toolchain; task prompt harness/tasks/author-registration-schematics.md",
+        "One headless agent per run in a fresh container, claude -p --bare",
+        "claude-opus-5-5 in both arms",
+        "Runs sequential, never in parallel; arm order alternates per repetition",
+        "3 runs per arm",
+        "Correctness scored by harness/checker/check.sh, outside the agent"
+      ],
+      "treatment": {
+        "label": "With dialects",
+        "sweeps": [
+          "wb05-rep1",
+          "wb05-rep2",
+          "wb05-rep3"
+        ],
+        "arms": [
+          "with-schematics"
+        ],
+        "expected_runs": 3
+      },
+      "baseline": {
+        "label": "Commons only",
+        "sweeps": [
+          "wb05-rep1",
+          "wb05-rep2",
+          "wb05-rep3"
+        ],
+        "arms": [
+          "without-schematics"
+        ],
+        "expected_runs": 3
+      },
+      "prediction": {
+        "combine": "any",
+        "criteria": [
+          {
+            "metric": "tokens_all",
+            "aggregate": "median",
+            "max_change_pct": -30
+          },
+          {
+            "metric": "wall_seconds",
+            "aggregate": "median",
+            "max_change_pct": -30
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "description": "Adds an entity's entry to the sidebar NAV.",
+  "properties": {
+    "plural": {
+      "type": "string",
+      "label": "Plural name (kebab-case)"
+    },
+    "title": {
+      "type": "string",
+      "label": "Display name"
+    },
+    "icon": {
+      "type": "string",
+      "label": "lucide-react icon name"
+    }
+  }
+}

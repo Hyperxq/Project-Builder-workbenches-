@@ -1,0 +1,4 @@
+[
+  { "singular": "book", "plural": "books", "title": "Books", "icon": "BookOpen", "description": "Catalogue of books." },
+  { "singular": "coupon", "plural": "coupons", "title": "Coupons", "icon": "Ticket", "description": "Discount codes and their status." }
+]

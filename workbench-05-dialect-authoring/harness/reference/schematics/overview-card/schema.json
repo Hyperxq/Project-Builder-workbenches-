@@ -1,0 +1,21 @@
+{
+  "description": "Adds an entity's card to the overview page.",
+  "properties": {
+    "plural": {
+      "type": "string",
+      "label": "Plural name (kebab-case)"
+    },
+    "title": {
+      "type": "string",
+      "label": "Display name"
+    },
+    "icon": {
+      "type": "string",
+      "label": "lucide-react icon name"
+    },
+    "description": {
+      "type": "string",
+      "label": "Overview card description"
+    }
+  }
+}

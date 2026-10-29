@@ -1,0 +1,13 @@
+{
+  "description": "Registers an entity's mock handlers and test reset.",
+  "properties": {
+    "singular": {
+      "type": "string",
+      "label": "Singular name (kebab-case)"
+    },
+    "plural": {
+      "type": "string",
+      "label": "Plural name (kebab-case)"
+    }
+  }
+}
