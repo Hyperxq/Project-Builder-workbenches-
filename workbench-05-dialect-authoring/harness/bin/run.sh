@@ -48,7 +48,8 @@ ANTHROPIC_API_KEY="$(security find-generic-password -s anthropic-api-key -w)" \
 echo $(( $(date +%s) - start )) > "$logs/wall_seconds"
 tail -n 1 "$logs/stream.jsonl" > "$logs/result.json"
 
-docker exec -w "$repo" "$name" git add -A
+# The base .gitignore hides schematics/, so stage them explicitly.
+docker exec -w "$repo" "$name" sh -c 'git add -A && git add -f schematics'
 docker exec -w "$repo" "$name" git diff --cached --stat base > "$logs/diffstat.txt"
 docker exec -w "$repo" "$name" git diff --cached base > "$logs/diff.patch"
 # Protocol compliance: which SDK entry points the authored factories import.
