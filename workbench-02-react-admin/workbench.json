@@ -89,51 +89,6 @@
           }
         ]
       }
-    },
-    {
-      "id": "wb02-sdk010",
-      "title": "Schematic amortization · SDK 0.10 and Opus 5.5",
-      "registered": "before-runs",
-      "hypothesis": "With the SDK 0.10.0 dialects documented in the skill, authoring and reusing a schematic ends batch 5 below the manual arm's cumulative cost, at the same quality.",
-      "variable": "The with-schematics arm must author its own Project Builder schematic in batch 1 and reuse it afterwards; the other arm hand-writes every module. @pbuilder/sdk 0.10.0 and builder CLI 0.9.11; the pbuilder skill documents the 0.10.0 dialect operations",
-      "constants": [
-        "Same base app, 14 entities, tiers and batch schedule",
-        "One fresh clean-room session per batch and arm",
-        "Same definition of done per batch",
-        "claude-opus-5-5 for every agent in both arms",
-        "Claude Code 2.1.308 runner image",
-        "Both arms run in parallel, in the same time window"
-      ],
-      "treatment": {
-        "label": "With schematics",
-        "sweeps": [
-          "wb02-v3-sdk010"
-        ],
-        "arms": [
-          "with-schematics"
-        ],
-        "expected_runs": 5
-      },
-      "baseline": {
-        "label": "Without schematics",
-        "sweeps": [
-          "wb02-v3-sdk010"
-        ],
-        "arms": [
-          "without-schematics"
-        ],
-        "expected_runs": 5
-      },
-      "prediction": {
-        "combine": "all",
-        "criteria": [
-          {
-            "metric": "cost_usd",
-            "aggregate": "sum",
-            "max_change_pct": 0
-          }
-        ]
-      }
     }
   ]
 }

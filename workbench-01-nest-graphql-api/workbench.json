@@ -50,54 +50,6 @@
           }
         ]
       }
-    },
-    {
-      "id": "wb01-sdk010",
-      "title": "The same generator on SDK 0.10 and Opus 5.5",
-      "registered": "before-runs",
-      "hypothesis": "With @pbuilder/sdk 0.10.0 and Opus 5.5, running the pre-built generator is still cheaper and faster than hand-writing every layer, at the same definition of done.",
-      "variable": "The pre-built schematics, as in the first sweep. @pbuilder/sdk 0.10.0 and builder CLI 0.9.11; the pbuilder skill documents the 0.10.0 dialect operations",
-      "constants": [
-        "Same 14 entities, conventions and definition of done",
-        "claude-opus-5-5 for every agent in both arms",
-        "Claude Code 2.1.308 runner image",
-        "Both arms run in parallel, in the same time window"
-      ],
-      "treatment": {
-        "label": "With schematics",
-        "sweeps": [
-          "wb01-v3-sdk010"
-        ],
-        "arms": [
-          "with-schematics"
-        ],
-        "expected_runs": 1
-      },
-      "baseline": {
-        "label": "Without schematics",
-        "sweeps": [
-          "wb01-v3-sdk010"
-        ],
-        "arms": [
-          "without-schematics"
-        ],
-        "expected_runs": 1
-      },
-      "prediction": {
-        "combine": "all",
-        "criteria": [
-          {
-            "metric": "cost_usd",
-            "aggregate": "sum",
-            "max_change_pct": 0
-          },
-          {
-            "metric": "wall_seconds",
-            "aggregate": "sum",
-            "max_change_pct": 0
-          }
-        ]
-      }
     }
   ]
 }
