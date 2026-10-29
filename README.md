@@ -121,7 +121,7 @@ Full design, results and caveats: [`workbench-04-storefront-microfrontends/READM
 
 ## Results dashboard
 
-[`results-dashboard/`](./results-dashboard/) renders every `workbench-*/results/*/bench.json` scorecard: side-by-side arm comparisons per workbench, and for batched experiments the amortization charts (cumulative + marginal cost, break-even batch). Deployed automatically to **GitHub Pages** on every push to `main` — only the tiny `bench.json` scorecards are committed; heavy run artifacts (agent streams, gate logs) stay local.
+[`results-dashboard/`](./results-dashboard/) renders every `workbench-*/results/*/bench.json` scorecard: side-by-side arm comparisons per workbench, and for batched experiments the amortization charts (cumulative + marginal cost, break-even batch). Deployed automatically to **GitHub Pages** on every push to `main` — only the tiny `bench.json` scorecards are committed; heavy run artifacts (agent streams, gate logs) stay local. Agents can read the same results as plain markdown at [`llms.txt`](https://hyperxq.github.io/Project-Builder-workbenches-/llms.txt): the latest experiment of each workbench first, the rest under History, regenerated on every deploy.
 
 ```bash
 cd results-dashboard && pnpm install && pnpm dev   # http://localhost:3020

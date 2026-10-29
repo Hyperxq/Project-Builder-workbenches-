@@ -70,6 +70,18 @@ Only `bench.json` scorecards are committed (the heavy run artifacts — agent
 streams, gate logs — stay local), so the published page is always as fresh as
 the last pushed scorecard.
 
+## For agents: `llms.txt`
+
+Every build also emits `llms.txt` at the site root
+(https://hyperxq.github.io/Project-Builder-workbenches-/llms.txt): plain
+markdown with the latest experiment of each workbench under `## Latest` and
+every earlier one under `## History`, each with its hypothesis, the status
+`evaluateExperiment` computes, every predicted metric and the pass rates. It is
+generated from the same `workbench.json` and `bench.json` files on each deploy,
+so it is never edited by hand. `pnpm dev` serves it at `/llms.txt`. The latest
+experiment of a workbench is the last one declared in its `workbench.json`
+that has runs.
+
 ## Checks
 
 ```bash
