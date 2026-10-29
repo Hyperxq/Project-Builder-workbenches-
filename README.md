@@ -123,7 +123,9 @@ Full design, results and caveats: [`workbench-04-storefront-microfrontends/READM
 
 **Stack**: workbench 03 base · `@pbuilder/sdk` 0.12.0 · Claude Opus 5.5, one headless agent per run in a fresh container
 
-The earlier workbenches measure agents using schematics. Workbench 05 measures agents writing them: four registration schematics, authored either with `@pbuilder/sdk/commons` string surgery only or with the dialects and an intent table of their ops. A checker outside the agent applies the schematics to clean copies for two new entities, runs them twice, builds the app, and repeats the edits on reformatted targets. Configured, not run.
+The earlier workbenches measure agents using schematics. Workbench 05 measures agents writing them: four registration schematics, authored either with `@pbuilder/sdk/commons` string surgery only or with the dialects and an intent table of their ops. A checker outside the agent applies the schematics to clean copies for two new entities, runs them twice, builds the app, and repeats the edits on reformatted targets.
+
+**Result**: not supported. Both arms were correct in 3 of 3 runs, but the dialects did not save tokens (+5% median) or time (+1%). They shortened the edits an op covers and lengthened the ones it does not, where the agent wrote raw AST code, and they took more test and lookup cycles.
 
 Full design: [`workbench-05-dialect-authoring/README.md`](./workbench-05-dialect-authoring/README.md).
 

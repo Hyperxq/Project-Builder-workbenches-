@@ -56,7 +56,15 @@
             "max_change_pct": -30
           }
         ]
-      }
+      },
+      "recorded_checks": [
+        {
+          "criterion": "No worse correctness",
+          "outcome": "pass",
+          "source": "harness/checker/check.sh (6/6 runs correct, every semantic and reformatted-target check passed in both arms)"
+        }
+      ],
+      "interpretation": "Not supported: median tokens rose 5% with the dialects (1.62M against 1.55M) and median wall time stayed flat (386 s against 382 s); median cost fell 2%. The dialect arm wrote shorter factories where an op covers the edit, but its .modify() factories for the uncovered edits were longer than string surgery, and it ran more test and lookup cycles to confirm what the ops do. Two of the three commons runs wrote one shared text-editing helper and reused it in all four schematics. Run b-1's wall time includes about 13 minutes of a stalled API request (session time 296 s)."
     }
   ]
 }

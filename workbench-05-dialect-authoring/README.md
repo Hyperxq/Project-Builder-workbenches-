@@ -1,6 +1,6 @@
 # Workbench 05 — Schematic authoring: dialects against string surgery
 
-**Status**: configured, not run. No scorecards yet.
+**Status**: run, 3 per arm on 2026-10-29. Hypothesis not supported.
 
 **Question**: when an agent writes a Project Builder schematic, does editing files through the `@pbuilder/sdk` dialects make it faster or cheaper than reading the file and rewriting it as a string, at the same correctness?
 
@@ -44,6 +44,30 @@ Two SDK behaviours the reference ran into, both written into `dialects.md` or th
 ## Protocol
 
 One headless agent per run (`claude -p --bare`, `claude-opus-5-5`, `--max-budget-usd 20`) in a fresh container from the `claude-runner` image; dependencies install before the clock starts. Runs are sequential, never in parallel, and the arm order alternates per repetition; 3 runs per arm. The hypothesis is registered in `workbench.json` before any run.
+
+## Results
+
+| Run | Arm | Wall | Session | Cost | Turns | Tokens | Correct |
+|---|---|---|---|---|---|---|---|
+| a-1 | commons | 388 s | 385 s | $1.48 | 39 | 1.63M | yes |
+| a-2 | commons | 338 s | 337 s | $1.32 | 43 | 1.55M | yes |
+| a-3 | commons | 382 s | 381 s | $1.47 | 39 | 1.51M | yes |
+| b-1 | dialects | 1086 s | 296 s | $1.44 | 37 | 1.34M | yes |
+| b-2 | dialects | 335 s | 333 s | $1.35 | 33 | 1.62M | yes |
+| b-3 | dialects | 386 s | 387 s | $1.53 | 53 | 2.15M | yes |
+| **median** | commons | 382 s | 381 s | $1.47 | 39 | 1.55M | 3/3 |
+| **median** | dialects | 386 s | 333 s | $1.44 | 37 | 1.62M | 3/3 |
+
+The hypothesis (at least 30% fewer median tokens or less wall time) is not supported: tokens +5%, wall time +1%, cost −2%. Correctness is equal: every run passed the semantic edits for two new entities, the second run, the app's gates and the reformatted targets; no run matched the reference byte for byte. Run b-1's wall time includes about 13 minutes of a stalled API request (an `api_retry` event in its stream); its session time is 296 s.
+
+What the runs show:
+
+- **Where an op covers the edit, the dialects are shorter.** `sidebar-entry` took 32 to 52 lines with `addImport` and `addArrayElement`, against 44 to 159 by text.
+- **Where none does, the AST costs more than the text.** `handlers-registration` and `route-keys` need `.modify()` with raw ts-morph: 119 to 200 and 59 to 93 lines, against 82 to 190 and 33 to 69 by text.
+- **Two of the three commons runs reused one helper.** a-1 and a-2 wrote a shared text editor (in a-2, 208 lines: regex for imports, a scan that skips comments and strings, brace matching, indentation detection) and used it in all four schematics; a-3 wrote each factory on its own. Every commons run held up on the reformatted targets.
+- **The dialect arm verifies more.** 7 to 10 `bun test` runs and 6 to 7 lookups in the docs or the SDK's types per run, against 3 to 6 and 2 to 4, to confirm how each op indents and whether it is idempotent.
+
+The task mixes full, partial and no dialect coverage, so the saving on the covered edits is spent on the uncovered ones. This experiment measures writing the schematics, not maintaining them: the commons arm's hand-written parser stays in the project, while the dialects' parsing is maintained in the SDK.
 
 ## Run it
 
