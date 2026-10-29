@@ -468,11 +468,21 @@ export function WorkbenchSection({
     : 'No execution selected'
 
   if (runs.length === 0) {
-    return (
+    const banner = (
+      <p className="no-data-banner" role="status">
+        <strong>No data processed yet.</strong> No scorecards have been recorded for this workbench.
+      </p>
+    )
+    return meta?.experiments?.length ? (
+      <article className="decision-view" aria-labelledby="lab-title">
+        {banner}
+        <LabNotebook experiments={meta.experiments} runs={runs} />
+      </article>
+    ) : (
       <section className="empty-workbench">
+        {banner}
         <p className="eyebrow">{name}</p>
         <h1>{meta?.title ?? name}</h1>
-        <p>No scorecards have been recorded for this workbench yet.</p>
       </section>
     )
   }

@@ -558,6 +558,21 @@ select {
   color: var(--color-warning);
 }
 
+.no-data-banner {
+  margin: 0 0 20px;
+  border: 1px solid #806318;
+  border-radius: 8px;
+  background: var(--color-warning-soft);
+  padding: 12px 16px;
+  color: var(--color-body);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.no-data-banner strong {
+  color: var(--color-warning);
+}
+
 .chart-legend {
   display: flex;
   flex-wrap: wrap;
