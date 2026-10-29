@@ -1,0 +1,52 @@
+[
+  {
+    "id": "T01",
+    "prompt": "T01-website.md",
+    "pattern": "P1"
+  },
+  {
+    "id": "T02",
+    "prompt": "T02-help-page.md",
+    "pattern": "P2"
+  },
+  {
+    "id": "T03",
+    "prompt": "T03-authors-card-count.md",
+    "pattern": "one-off"
+  },
+  {
+    "id": "T04",
+    "prompt": "T04-birth-year.md",
+    "pattern": "P1"
+  },
+  {
+    "id": "T05",
+    "prompt": "T05-about-page.md",
+    "pattern": "P2"
+  },
+  {
+    "id": "T06",
+    "prompt": "T06-bio.md",
+    "pattern": "P1"
+  },
+  {
+    "id": "T07",
+    "prompt": "T07-app-version.md",
+    "pattern": "one-off"
+  },
+  {
+    "id": "T08",
+    "prompt": "T08-changelog-page.md",
+    "pattern": "P2"
+  },
+  {
+    "id": "T09",
+    "prompt": "T09-pen-name.md",
+    "pattern": "P1"
+  },
+  {
+    "id": "T10",
+    "prompt": "T10-copy-email.md",
+    "pattern": "one-off"
+  }
+]

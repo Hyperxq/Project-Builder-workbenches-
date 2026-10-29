@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/@pbuilder/sdk/schemas/project-builder.schema.json",
+  "version": "1",
+  "collections": {},
+  "dependencies": {},
+  "settings": {
+    "autoInstall": true,
+    "conflictPolicy": "child-wins",
+    "depValidation": "dev",
+    "schematicCollections": [
+      "default"
+    ]
+  },
+  "skill": {
+    "enabled": true,
+    "path": ".claude/skills/pbuilder/SKILL.md"
+  }
+}
