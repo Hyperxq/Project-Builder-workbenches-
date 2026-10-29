@@ -20,6 +20,9 @@ for batch in "$@"; do
   echo "[$(date +%H:%M:%S)] $WB $ARM_NAME batch $batch start"
   docker compose -p "$project" run --rm -T "$SERVICE" bench.sh ${args[@]+"${args[@]}"} \
     > "$LOG_DIR/${WB:0:12}_${ARM_NAME}_batch${batch}.log" 2>&1
-  echo "[$(date +%H:%M:%S)] $WB $ARM_NAME batch $batch exit $?"
+  rc=$?
+  echo "[$(date +%H:%M:%S)] $WB $ARM_NAME batch $batch exit $rc"
+  # Each batch builds on the previous one, so a failed batch ends the sweep.
+  [ "$rc" -eq 0 ] || break
 done
 docker compose -p "$project" down -v > /dev/null 2>&1
