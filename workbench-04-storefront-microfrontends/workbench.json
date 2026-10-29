@@ -1,7 +1,7 @@
 {
   "title": "Storefront microfrontends — full-stack feature slice",
-  "stack": "Nx 24 · React 19 + rsbuild Module Federation · Tailwind v4 + shadcn · NestJS 11 microservices over TCP · NestJS gateway · Vitest + Jest · Claude Sonnet 5.5 headless in Docker",
-  "about": "One storefront feature is a full-stack slice: a provider microfrontend, a NestJS TCP microservice, a shared contract library, gateway routes and tests on both sides. Three slices (catalog, cart, orders) were built first by headless agents and fixed until they ran end to end. A Project Builder `feature` schematic was then extracted from them. Three new features (reviews, wishlist, promotions) ran 3 times per arm, one fresh container per run: without-schematics gets a description of the slice, the reference features and the Nx generators; with-schematics gets the same text plus the schematic. The first schematic was measured, lost on review, was fixed, and arm B was rerun.",
+  "stack": "Nx 24 · React 19 + rsbuild Module Federation · Tailwind v4 + shadcn · NestJS 11 microservices over TCP · NestJS gateway · Vitest + Jest · Claude Sonnet 5.5 and Opus 5.5 headless in Docker",
+  "about": "One storefront feature is a full-stack slice: a provider microfrontend, a NestJS TCP microservice, a shared contract library, gateway routes and tests on both sides. Three slices (catalog, cart, orders) were built first by headless agents and fixed until they ran end to end. A Project Builder `feature` schematic was then extracted from them. Three new features (reviews, wishlist, promotions) ran 3 times per arm, one fresh container per run: without-schematics gets a description of the slice, the reference features and the Nx generators; with-schematics gets the same text plus the schematic. The first schematic was measured, lost on review, was fixed, and arm B was rerun. Both arms were then rerun on Claude Opus 5.5 with schematic v2 on @pbuilder/sdk 0.12.0.",
   "proves": "Whether a schematic extracted from working, reviewed code makes the same agent cheaper or faster at equal quality, when the alternative is an agent that can read and copy the existing features. Decision rule, fixed before the runs: median tokens or wall time at least 30% lower, with no more structural deviations and no more review rounds.",
   "experiments": [
     {
@@ -135,11 +135,11 @@
       "interpretation": "Both arms needed 1 review round. Arm A copied an existing feature in all nine runs, so the schematic's measured edge is cost, time and turns; four arm A runs also broke npm ci, partly because only arm B's context says to run npm install."
     },
     {
-      "id": "wb04-sdk010",
-      "title": "Feature schematic v2 on SDK 0.10 and Opus 5.5",
+      "id": "wb04-sdk012",
+      "title": "Feature schematic v2 on Opus 5.5 (SDK 0.12.0)",
       "registered": "before-runs",
-      "hypothesis": "On @pbuilder/sdk 0.10.0 and Opus 5.5, the feature schematic still cuts median tokens or wall time by at least 30% against an agent that copies an existing feature, at no worse quality gates.",
-      "variable": "The with-schematics arm's context adds the feature schematic (info, execute, npm install, then only the domain). Schematic v2 on @pbuilder/sdk 0.10.0 and builder CLI 0.9.11.",
+      "hypothesis": "On @pbuilder/sdk 0.12.0 and Opus 5.5, the feature schematic still cuts median tokens or wall time by at least 30% against an agent that copies an existing feature, at no worse quality gates.",
+      "variable": "The with-schematics arm's context adds the feature schematic (info, execute, npm install, then only the domain). Schematic v2 on @pbuilder/sdk 0.12.0 and builder CLI 0.9.11.",
       "constants": [
         "Same base commit and task prompts (reviews, wishlist, promotions)",
         "One fresh container per run, claude -p --bare",
@@ -150,9 +150,9 @@
       "treatment": {
         "label": "With schematics",
         "sweeps": [
-          "wb04-sdk010-rep1",
-          "wb04-sdk010-rep2",
-          "wb04-sdk010-rep3"
+          "wb04-sdk012-rep1",
+          "wb04-sdk012-rep2",
+          "wb04-sdk012-rep3"
         ],
         "arms": [
           "with-schematics"
@@ -162,9 +162,9 @@
       "baseline": {
         "label": "Without schematics",
         "sweeps": [
-          "wb04-sdk010-rep1",
-          "wb04-sdk010-rep2",
-          "wb04-sdk010-rep3"
+          "wb04-sdk012-rep1",
+          "wb04-sdk012-rep2",
+          "wb04-sdk012-rep3"
         ],
         "arms": [
           "without-schematics"
@@ -185,7 +185,15 @@
             "max_change_pct": -30
           }
         ]
-      }
+      },
+      "recorded_checks": [
+        {
+          "criterion": "No more structural deviations",
+          "outcome": "pass",
+          "source": "harness/EXPERIMENT.md"
+        }
+      ],
+      "interpretation": "On Opus both arms passed every check and the end-to-end probe 9/9, so the npm ci gap seen on Sonnet did not repeat. The schematic uses no dialect, so the change measured here is the model; the with-schematics edge narrows when the agent reads a sibling feature before running builder."
     }
   ]
 }

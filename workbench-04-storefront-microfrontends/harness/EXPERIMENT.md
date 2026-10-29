@@ -247,3 +247,29 @@ Read it against:
 - The first schematic lost: its own defects cost it four review rounds. A schematic passes this rule only after it is reviewed like any other code, which is the cost the decision rule reads against.
 - Arm B's context tells the agent to run `npm install` and arm A's does not; part of the `npm ci` difference may come from that instruction.
 - Small samples: 3 runs per cell for metrics, 1 per cell for review, agent reviewers only.
+
+## Opus 5.5 rerun on SDK 0.12.0
+
+Registered before the runs as `wb04-sdk012`: on `@pbuilder/sdk` 0.12.0 and Claude Opus 5.5, the feature schematic still cuts median tokens or wall time by at least 30% against an agent that copies an existing feature, at no worse quality gates. Both arms reran with `MODEL=claude-opus-5-5` (18 runs `p3s012-*`, same base `7af792e`, same task prompts and arm contexts, arm order alternating per feature), then the end-to-end probe and `analyze.py` with the v2 generated output. No blind review. Arm A $12.18, arm B $7.86.
+
+Before the runs, schematic v2 passed its 11 factory tests on 0.12.0 and a real `builder execute default:feature --name=reviews` in the arm B image passed lint, typecheck, test and sync. The schematic imports only `@pbuilder/sdk/commons`, so the dialect operations added since 0.10 are not exercised; the variable that changed against phase 3b is the model.
+
+| Median, n = 9 per arm | Arm A | Arm B v2 | B against A |
+|---|---|---|---|
+| Cost | $1.33 | $0.84 | -37% |
+| Total tokens | 2.13M | 828k | -61% |
+| Output tokens | 25.2k | 19.7k | -22% |
+| Agent time | 384 s | 267 s | -30% |
+| Turns | 40 | 22 | -45% |
+| Root checks | 9/9 | 9/9 | equal |
+| Structural deviations | 1 (README layout row, promotions-a-3) | 0 | B better |
+| End to end, including `npm ci` | 9/9 | 9/9 | equal |
+
+Every arm B run called `builder execute` once, which succeeded with only the two ambient-root warnings; no arm B run edited by hand a file the schematic had wired (shell, gateway module, workspaces, project references). In wishlist-b-3 the agent read the whole cart feature and part of orders before running `builder`, and that pair saved only 4% of tokens (1.62M against 1.55M).
+
+**Verdict: the hypothesis holds.** Median tokens are 61% lower and agent time 30% lower, with no worse checks. Read it against:
+
+- No arm A run broke `npm ci` on Opus, unlike 4 of 9 on Sonnet; that end-to-end difference does not carry over to this model.
+- The absolute saving is about $0.49, 116 s and 18 turns per feature, against at least 21 minutes of phase 2 authoring (the v2 fixes excluded): about 11 features to pay back in time.
+- Review rounds were not measured, and agent time sits on the 30% line.
+- Small samples: 3 runs per cell.
