@@ -9,7 +9,7 @@ LOG_DIR="${LOG_DIR:-$PWD/logs}"
 mkdir -p "$LOG_DIR"
 
 export WORKBENCH=$WB ARM=$ARM_NAME BENCH_MODEL=$MODEL SWEEP_ID=$SWEEP BENCH_ATTEMPT=1
-export BENCH_PROTOCOL="bench.sh clean-room · @pbuilder/sdk 0.10.1 · builder CLI 0.9.11 · skill dialects 0.10 · ${PROTOCOL_NOTE:-claude-opus-5-5 everywhere}"
+export BENCH_PROTOCOL="bench.sh clean-room · @pbuilder/sdk 0.12.0 · builder CLI 0.9.11 · skill dialects 0.12 · ${PROTOCOL_NOTE:-claude-opus-5-5 everywhere}"
 export HOST_OS="macOS (Darwin $(uname -r)) · Apple Silicon"
 export DOCKER_VERSION="Docker Engine $(docker info --format '{{.ServerVersion}}')"
 # Separate compose projects: WB01 arms would otherwise share one MongoDB.
