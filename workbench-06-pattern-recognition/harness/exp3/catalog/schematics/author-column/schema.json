@@ -1,0 +1,13 @@
+{
+  "description": "Adds a column to the Authors list table, showing an existing Author field with a dash when it is not set.",
+  "properties": {
+    "key": {
+      "type": "string",
+      "label": "Author field to show (camelCase), for example country"
+    },
+    "title": {
+      "type": "string",
+      "label": "Column header"
+    }
+  }
+}

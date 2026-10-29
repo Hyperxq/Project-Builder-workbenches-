@@ -1,0 +1,21 @@
+{
+  "description": "Adds a static page: a route file at /<slug> with an h1 and one paragraph, and its entry at the end of the sidebar.",
+  "properties": {
+    "slug": {
+      "type": "string",
+      "label": "URL path segment (kebab-case), for example help"
+    },
+    "title": {
+      "type": "string",
+      "label": "Page heading and sidebar label, for example Help"
+    },
+    "icon": {
+      "type": "string",
+      "label": "lucide-react icon name for the sidebar, for example CircleHelp"
+    },
+    "body": {
+      "type": "string",
+      "label": "The paragraph below the heading"
+    }
+  }
+}

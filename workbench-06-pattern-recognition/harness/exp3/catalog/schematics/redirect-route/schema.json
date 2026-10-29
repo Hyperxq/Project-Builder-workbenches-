@@ -1,0 +1,13 @@
+{
+  "description": "Adds a route at /<slug> that renders nothing and redirects to another path, for renamed or legacy URLs.",
+  "properties": {
+    "slug": {
+      "type": "string",
+      "label": "URL path segment that redirects (kebab-case)"
+    },
+    "to": {
+      "type": "string",
+      "label": "Existing path it redirects to, for example /authors"
+    }
+  }
+}

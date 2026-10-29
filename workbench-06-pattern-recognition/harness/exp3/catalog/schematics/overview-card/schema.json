@@ -1,0 +1,21 @@
+{
+  "description": "Adds a card linking to an entity's list page as the last card of the Overview page's Entities section.",
+  "properties": {
+    "plural": {
+      "type": "string",
+      "label": "Plural name (kebab-case)"
+    },
+    "title": {
+      "type": "string",
+      "label": "Display name"
+    },
+    "icon": {
+      "type": "string",
+      "label": "lucide-react icon name"
+    },
+    "description": {
+      "type": "string",
+      "label": "Overview card description"
+    }
+  }
+}

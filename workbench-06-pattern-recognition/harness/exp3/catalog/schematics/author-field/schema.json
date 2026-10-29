@@ -1,0 +1,23 @@
+{
+  "description": "Adds an optional field to the Author entity across its layers: the Zod schema, an optional input on the create and edit forms, the mock API's create and update, and a row on the author detail page.",
+  "properties": {
+    "key": {
+      "type": "string",
+      "label": "Field name (camelCase), for example website"
+    },
+    "title": {
+      "type": "string",
+      "label": "Form and detail label, for example Website"
+    },
+    "schema": {
+      "type": "string",
+      "label": "Zod schema of a set value, without .optional(), for example z.url('Must be a valid URL')"
+    },
+    "number": {
+      "type": "boolean",
+      "label": "Numeric field: a number input whose value is stored as a number",
+      "required": false,
+      "default": false
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "title": "Pattern recognition and a schematic catalog",
+  "stack": "React 19 admin (workbench 03 base) · Project Builder CLI 0.9.11 on @pbuilder/sdk 0.12.0 · Claude Opus 5.5 headless in Docker",
+  "about": "An agent works through ten small product changes on the same admin, one session per change, each starting from the repository the previous one left. Two patterns repeat: an optional Author field four times and a static page with its sidebar entry three times, with three one-off changes between them. Experiment 2 gives the agent the option to author schematics and observes whether, and when, it automates a pattern; it is pre-registered in harness/exp2/PROTOCOL.md and reported in results-recognition/. Experiment 3 compares doing the sequence by hand against having a catalog of reviewed schematics, two that fit the patterns and three working distractors, without being told which to use. A hidden checker scores every change.",
+  "proves": "Whether an agent notices a repeated pattern and automates it unprompted, and whether a ready catalog of schematics, with distractors, makes small repeated changes cheaper than writing them by hand.",
+  "experiments": [
+    {
+      "id": "wb06-catalog",
+      "title": "Schematic catalog with distractors against by hand",
+      "registered": "before-runs",
+      "hypothesis": "With a catalog of reviewed schematics, two that fit the repeated changes and three distractors, and no instruction on which to use, the median cost or the median total tokens per task falls by at least 30% against writing every change by hand, at no worse correctness.",
+      "variable": "Whether the repository has the catalog registered (harness/exp3/catalog) and the pbuilder skill, or neither and no builder binary. The base, the ten prompts, their order and the model are the same.",
+      "constants": [
+        "Workbench 03 base; prompts harness/tasks/T01 to T10 in sequence.json order",
+        "One headless session per task, claude -p --bare, one container per sequence, repository carried over and committed between sessions",
+        "claude-opus-5-5 in both arms",
+        "Sequences sequential, never in parallel; arm order alternates per sequence",
+        "3 sequences per arm, 30 sessions per arm",
+        "Correctness scored by harness/checker/check-task.sh, outside the agent"
+      ],
+      "treatment": {
+        "label": "Catalog",
+        "sweeps": [
+          "wb06-exp3-seq1",
+          "wb06-exp3-seq2",
+          "wb06-exp3-seq3"
+        ],
+        "arms": [
+          "with-schematics"
+        ],
+        "expected_runs": 30
+      },
+      "baseline": {
+        "label": "By hand",
+        "sweeps": [
+          "wb06-exp3-seq1",
+          "wb06-exp3-seq2",
+          "wb06-exp3-seq3"
+        ],
+        "arms": [
+          "without-schematics"
+        ],
+        "expected_runs": 30
+      },
+      "prediction": {
+        "combine": "any",
+        "criteria": [
+          {
+            "metric": "cost_usd",
+            "aggregate": "median",
+            "max_change_pct": -30
+          },
+          {
+            "metric": "tokens_all",
+            "aggregate": "median",
+            "max_change_pct": -30
+          }
+        ]
+      }
+    }
+  ]
+}

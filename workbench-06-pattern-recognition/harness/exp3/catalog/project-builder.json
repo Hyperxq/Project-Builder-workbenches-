@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/@pbuilder/sdk/schemas/project-builder.schema.json",
+  "version": "1",
+  "collections": {
+    "default": {
+      "author-field": {
+        "path": "./schematics/author-field"
+      },
+      "static-page": {
+        "path": "./schematics/static-page"
+      },
+      "author-column": {
+        "path": "./schematics/author-column"
+      },
+      "redirect-route": {
+        "path": "./schematics/redirect-route"
+      },
+      "overview-card": {
+        "path": "./schematics/overview-card"
+      }
+    }
+  },
+  "dependencies": {},
+  "settings": {
+    "autoInstall": true,
+    "conflictPolicy": "child-wins",
+    "depValidation": "dev",
+    "schematicCollections": [
+      "default"
+    ]
+  },
+  "skill": {
+    "enabled": true,
+    "path": ".claude/skills/pbuilder/SKILL.md"
+  }
+}
