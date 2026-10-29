@@ -163,6 +163,51 @@
           }
         ]
       }
+    },
+    {
+      "id": "wb03-sdk012",
+      "title": "Plan-time crystallization · SDK 0.12 dialects",
+      "registered": "before-runs",
+      "hypothesis": "With the SDK 0.12.0 dialects documented in the skill, plan-time crystallization ends batch 5 below the manual arm's cumulative cost, at the same quality.",
+      "variable": "A plan directive in the with-schematics arm: extract a schematic from proven code once a pattern repeats three or more times; both arms run the same plan → build → verify harness. @pbuilder/sdk 0.12.0 and builder CLI 0.9.11; the pbuilder skill documents the 0.12.0 dialect operations, including the React JSX ops and sorted imports",
+      "constants": [
+        "Same base app, entities and batch schedule as workbench 02",
+        "Same harness: orchestrator plus scout and mechanic sub-agents",
+        "One fresh clean-room session per batch and arm",
+        "claude-opus-5-5 for every agent in both arms",
+        "Claude Code 2.1.308 runner image",
+        "Both arms run in parallel, in the same time window"
+      ],
+      "treatment": {
+        "label": "With schematics",
+        "sweeps": [
+          "wb03-v3-sdk012"
+        ],
+        "arms": [
+          "with-schematics"
+        ],
+        "expected_runs": 5
+      },
+      "baseline": {
+        "label": "Without schematics",
+        "sweeps": [
+          "wb03-v3-sdk012"
+        ],
+        "arms": [
+          "without-schematics"
+        ],
+        "expected_runs": 5
+      },
+      "prediction": {
+        "combine": "all",
+        "criteria": [
+          {
+            "metric": "cost_usd",
+            "aggregate": "sum",
+            "max_change_pct": 0
+          }
+        ]
+      }
     }
   ]
 }
