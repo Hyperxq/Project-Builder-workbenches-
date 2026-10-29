@@ -18,7 +18,9 @@ project="bench-${WB:10:2}-${ARM_NAME%%-*}"
 for batch in "$@"; do
   args=(); [ "$batch" != "-" ] && args=("$batch")
   echo "[$(date +%H:%M:%S)] $WB $ARM_NAME batch $batch start"
-  docker compose -p "$project" run --rm -T "$SERVICE" bench.sh ${args[@]+"${args[@]}"} \
+  # Same auth as workbench 04: the key comes from the Keychain per run and is never exported.
+  ANTHROPIC_API_KEY="$(security find-generic-password -s anthropic-api-key -w)" \
+    docker compose -p "$project" run --rm -T "$SERVICE" bench.sh ${args[@]+"${args[@]}"} \
     > "$LOG_DIR/${WB:0:12}_${ARM_NAME}_batch${batch}.log" 2>&1
   rc=$?
   echo "[$(date +%H:%M:%S)] $WB $ARM_NAME batch $batch exit $rc"

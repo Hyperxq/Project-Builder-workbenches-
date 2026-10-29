@@ -158,7 +158,7 @@ One session per arm, always — two agents writing into the same bind mount prod
 | Permission prompts | `--dangerously-skip-permissions` — the sandbox is the container |
 | Host credentials (`gh`, git config, keychain) | Never mounted |
 | Host `node_modules` (macOS binaries) | Masked by an anonymous volume; fresh Linux install per run |
-| Auth | `CLAUDE_CODE_OAUTH_TOKEN` at runtime only — never in the image |
+| Auth | `CLAUDE_CODE_OAUTH_TOKEN` in `.env`, or `ANTHROPIC_API_KEY` from the environment (`arm-sweep.sh` reads it from the macOS Keychain per run); runtime only, never in the image |
 | Repo git history | `.git` lives at the repo root and is not mounted; the agent cannot touch it |
 
 ## Pinned toolchain

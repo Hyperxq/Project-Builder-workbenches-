@@ -4,8 +4,11 @@ services:
   # Workbench 01 (NestJS + MongoDB). Needs the database sibling.
   runner:
     build: .
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       # Overrides the localhost URI in the arm's .env — process.env wins over dotenv
       MONGODB_URI: mongodb://root:example@mongodb:27017/?authSource=admin
       ARM: ${ARM:-}
@@ -33,8 +36,11 @@ services:
   # Workbench 02+ (frontend, MSW — no database at all).
   runner-web:
     build: .
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ARM: ${ARM:-}
       # compose run only forwards host vars declared here — without these the
       # model pin silently falls back to the CLI default inside the container.
