@@ -56,7 +56,20 @@
             "max_change_pct": -30
           }
         ]
-      }
+      },
+      "recorded_checks": [
+        {
+          "criterion": "No worse correctness",
+          "outcome": "pass",
+          "source": "harness/checker/check-task.sh (30/30 sessions correct in each arm, no regressions)"
+        },
+        {
+          "criterion": "Catalog selection",
+          "outcome": "pass",
+          "source": "results-selection.json (21/21 pattern tasks used the right schematic, 0 distractor uses, 0 misses)"
+        }
+      ],
+      "interpretation": "Not supported: median cost per task fell 16% with the catalog ($0.147 against $0.175) and median tokens 1%, short of 30%; total cost over the 30 sessions fell 13% ($5.57 against $6.38). The agent picked the right schematic on every pattern task and never used a distractor. The saving sits in the optional Author field (median $0.27 against $0.32 per task); the static page is so cheap by hand that reading the catalog costs more tokens than the schematic saves, and the one-off tasks dilute the median."
     }
   ]
 }

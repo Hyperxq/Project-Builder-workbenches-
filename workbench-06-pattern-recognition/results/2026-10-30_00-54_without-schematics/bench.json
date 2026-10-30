@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-30T00:54:17.815654Z",
+  "arm": "without-schematics",
+  "task": "T01 (P1)",
+  "run": {
+    "sweep_id": "wb06-exp3-seq3",
+    "protocol_version": "harness/bin/run-sequence.sh by-hand \u00b7 task harness/tasks/T01-website.md",
+    "attempt": 1,
+    "context": {
+      "host_os": "macOS (Darwin 25.6.0) \u00b7 Apple Silicon",
+      "harness": "one headless agent per task: claude -p --bare --dangerously-skip-permissions, one container per sequence, sequences sequential",
+      "container": "claude-runner image \u00b7 pbuilder CLI 0.9.11 \u00b7 @pbuilder/sdk 0.12.0"
+    }
+  },
+  "agent": {
+    "model": "claude-opus-5-5",
+    "exit_code": 0,
+    "wall_seconds": 81,
+    "api_seconds": 68,
+    "num_turns": 11,
+    "tokens": {
+      "input_tokens": 20,
+      "cache_creation_input_tokens": 26579,
+      "cache_read_input_tokens": 143332,
+      "output_tokens": 6792,
+      "output_tokens_details": {
+        "thinking_tokens": 1130
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 26579
+      },
+      "inference_geo": "global",
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "cost_usd": 0.29748139999999995,
+    "session_id": "e532a002-ba38-428f-b68c-42817faf9829"
+  },
+  "definition_of_done": {
+    "first_attempt_pass": true,
+    "gates": [
+      {
+        "gate": "typecheck",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "lint",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "test_run",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "hidden tests",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "no regressions",
+        "pass": true,
+        "seconds": null
+      }
+    ]
+  },
+  "output": {
+    "files_created": 0,
+    "loc_delta": 159
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-30T00:34:57.476066Z",
+  "arm": "with-schematics",
+  "task": "T04 (P1)",
+  "run": {
+    "sweep_id": "wb06-exp3-seq2",
+    "protocol_version": "harness/bin/run-sequence.sh catalog \u00b7 task harness/tasks/T04-birth-year.md",
+    "attempt": 1,
+    "context": {
+      "host_os": "macOS (Darwin 25.6.0) \u00b7 Apple Silicon",
+      "harness": "one headless agent per task: claude -p --bare --dangerously-skip-permissions, one container per sequence, sequences sequential",
+      "container": "claude-runner image \u00b7 pbuilder CLI 0.9.11 \u00b7 @pbuilder/sdk 0.12.0"
+    }
+  },
+  "agent": {
+    "model": "claude-opus-5-5",
+    "exit_code": 0,
+    "wall_seconds": 72,
+    "api_seconds": 59,
+    "num_turns": 14,
+    "tokens": {
+      "input_tokens": 28,
+      "cache_creation_input_tokens": 27746,
+      "cache_read_input_tokens": 200278,
+      "output_tokens": 5742,
+      "output_tokens_details": {
+        "thinking_tokens": 918
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 27746
+      },
+      "inference_geo": "global",
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "cost_usd": 0.2937376,
+    "session_id": "846efebd-703f-43db-ab01-e51087b2613c"
+  },
+  "definition_of_done": {
+    "first_attempt_pass": true,
+    "gates": [
+      {
+        "gate": "typecheck",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "lint",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "test_run",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "hidden tests",
+        "pass": true,
+        "seconds": null
+      },
+      {
+        "gate": "no regressions",
+        "pass": true,
+        "seconds": null
+      }
+    ]
+  },
+  "output": {
+    "files_created": 0,
+    "loc_delta": 139
+  }
+}

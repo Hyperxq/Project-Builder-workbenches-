@@ -133,7 +133,9 @@ Full design: [`workbench-05-dialect-authoring/README.md`](./workbench-05-dialect
 
 **Stack**: workbench 03 base · Project Builder CLI 0.9.11 · `@pbuilder/sdk` 0.12.0 · Claude Opus 5.5, one headless session per task
 
-Ten small product changes on the same admin, one session each, with two patterns that repeat (an optional Author field four times, a static page three times) and three one-off changes. Experiment 2 gives the agent the option to author schematics and observes whether, and at which repetition, it automates a pattern. Experiment 3 compares the sequence by hand against a catalog of reviewed schematics that includes three distractors. A hidden checker scores every change. Configured, not run.
+Ten small product changes on the same admin, one session each, with two patterns that repeat (an optional Author field four times, a static page three times) and three one-off changes. Experiment 2 gives the agent the option to author schematics and observes whether, and at which repetition, it automates a pattern. Experiment 3 compares the sequence by hand against a catalog of reviewed schematics that includes three distractors. A hidden checker scores every change.
+
+**Result**: left alone, the agent automated the small static page in 10 of 10 sequences, where it saves nothing, and the larger Author field in 2 of 10, where it does. With a catalog that included three distractors, it chose the right schematic on all 21 pattern tasks and never a distractor, but the median cost per task fell 16%, short of the registered 30%: the saving is in the Author field, and the cheap tasks dilute it.
 
 Full design: [`workbench-06-pattern-recognition/README.md`](./workbench-06-pattern-recognition/README.md).
 

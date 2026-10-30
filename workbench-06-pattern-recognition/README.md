@@ -1,6 +1,6 @@
 # Workbench 06 — Pattern recognition and a schematic catalog
 
-**Status**: configured, not run. No scorecards yet.
+**Status**: run on 2026-10-30. Experiment 2: 10 sequences. Experiment 3: 3 sequences per arm; hypothesis not supported.
 
 Workbenches 01 to 05 hand the agent a schematic, or tell it to write one. This one asks two questions closer to everyday work, on a sequence of small product changes:
 
@@ -60,6 +60,44 @@ The catalog holds five schematics, each with `bun test` factory tests:
 | `overview-card` | distractor: a card on the Overview, close to T03 but not a count |
 
 `harness/exp3/prove-catalog.sh` proves it without an agent: every P1 and P2 task done with one `builder execute` passes the checker, and the three distractors run on the final state with the gates still green. The hypothesis `wb06-catalog` is registered in `workbench.json`: at least 30% lower median cost or tokens per task with the catalog, at no worse correctness, over 3 sequences per arm. `harness/exp3/make_bench.py` writes one scorecard per session and the catalog arm's choices (right use, wrong use, misses, exploration calls) to `results-selection.json`.
+
+## Results
+
+### Experiment 2: what the agent automated on its own
+
+10 sequences, 100 sessions, all correct, no regressions, $27.91 in total (`results-recognition/summary.json`).
+
+| Pattern | Automated | At occurrence | Used after creation |
+|---|---|---|---|
+| P2, static page | 10/10 | 2nd, every time (T05) | 10/10 (T08) |
+| P1, optional Author field | 2/10 | 4th (seq6), 3rd (seq7) | 1/1 (seq7 T09) |
+| One-off tasks | no schematic in any sequence: 0 false positives | | |
+
+Median cost per occurrence:
+
+| Occurrence | P1 | P2 |
+|---|---|---|
+| 1st | $0.41 | $0.12 |
+| 2nd | $0.43 | $0.38 (creates the schematic) |
+| 3rd | $0.39 | $0.13 (uses it) |
+| 4th | $0.36 | — |
+
+The agent recognised the small, uniform pattern every time, even though by hand it costs $0.12 and the schematic saves nothing. It rarely recognised the larger one, whose four occurrences differ in validation (a URL, a number, a length limit, plain text), although that is where a schematic saves: the one reuse cost $0.23 against about $0.40 by hand. When it did automate P1, it scoped the schematic to plain text fields and excluded URLs and numbers. In this sequence, the pattern that is easiest to see is not the one worth automating.
+
+### Experiment 3: catalog against by hand
+
+| Median per task | By hand | Catalog | Change |
+|---|---|---|---|
+| Cost, all tasks | $0.175 | $0.147 | −16% |
+| Tokens, all tasks | 112k | 111k | −1% |
+| Wall time, all tasks | 54 s | 52 s | −5% |
+| Cost, P1 | $0.32 | $0.27 | −17% |
+| Cost, P2 | $0.12 | $0.13 | +9% |
+| Cost, one-off | $0.16 | $0.14 | −15% |
+
+Both arms were correct in 30 of 30 sessions with no regressions; total cost was $6.38 by hand and $5.57 with the catalog. The hypothesis (at least 30% lower median cost or tokens) is not supported.
+
+Selection was exact (`results-selection.json`): `author-field` on all 12 P1 tasks, `static-page` on all 9 P2 tasks, no distractor run, no schematic on a one-off task. The catalog saves on P1; on P2 reading the catalog cost more tokens (median 97k against 60k) than the schematic saved.
 
 ## Run it
 

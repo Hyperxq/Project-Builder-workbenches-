@@ -1,0 +1,153 @@
+{
+  "sequence": "wb06-exp2-seq4",
+  "tasks": [
+    {
+      "task": "T01",
+      "pattern": "P1",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.401717,
+      "num_turns": 17,
+      "wall_seconds": 113,
+      "tokens_all": 310084,
+      "created": {},
+      "executed": []
+    },
+    {
+      "task": "T02",
+      "pattern": "P2",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.1828076,
+      "num_turns": 13,
+      "wall_seconds": 58,
+      "tokens_all": 168791,
+      "created": {},
+      "executed": []
+    },
+    {
+      "task": "T03",
+      "pattern": "one-off",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.2287662,
+      "num_turns": 14,
+      "wall_seconds": 65,
+      "tokens_all": 204702,
+      "created": {},
+      "executed": []
+    },
+    {
+      "task": "T04",
+      "pattern": "P1",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.3391864,
+      "num_turns": 10,
+      "wall_seconds": 89,
+      "tokens_all": 207094,
+      "created": {},
+      "executed": []
+    },
+    {
+      "task": "T05",
+      "pattern": "P2",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.38705059999999997,
+      "num_turns": 19,
+      "wall_seconds": 98,
+      "tokens_all": 410032,
+      "created": {
+        "static-page": "P2"
+      },
+      "executed": [
+        "static-page"
+      ]
+    },
+    {
+      "task": "T06",
+      "pattern": "P1",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.31535019999999997,
+      "num_turns": 10,
+      "wall_seconds": 83,
+      "tokens_all": 200476,
+      "created": {},
+      "executed": []
+    },
+    {
+      "task": "T07",
+      "pattern": "one-off",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.16454439999999998,
+      "num_turns": 9,
+      "wall_seconds": 51,
+      "tokens_all": 108840,
+      "created": {},
+      "executed": []
+    },
+    {
+      "task": "T08",
+      "pattern": "P2",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.1802822,
+      "num_turns": 12,
+      "wall_seconds": 66,
+      "tokens_all": 157048,
+      "created": {},
+      "executed": [
+        "static-page",
+        "static-page"
+      ]
+    },
+    {
+      "task": "T09",
+      "pattern": "P1",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.27240279999999994,
+      "num_turns": 12,
+      "wall_seconds": 65,
+      "tokens_all": 166176,
+      "created": {},
+      "executed": []
+    },
+    {
+      "task": "T10",
+      "pattern": "one-off",
+      "correct": true,
+      "regressions": [],
+      "cost_usd": 0.1297016,
+      "num_turns": 6,
+      "wall_seconds": 37,
+      "tokens_all": 66899,
+      "created": {},
+      "executed": []
+    }
+  ],
+  "patterns": {
+    "P1": {
+      "automated": false,
+      "schematics": [],
+      "created_in": null,
+      "created_at_occurrence": null,
+      "later_occurrences_using_it": 0,
+      "later_occurrences": 0
+    },
+    "P2": {
+      "automated": true,
+      "schematics": [
+        "static-page"
+      ],
+      "created_in": "T05",
+      "created_at_occurrence": 2,
+      "later_occurrences_using_it": 1,
+      "later_occurrences": 1
+    }
+  },
+  "false_positives": []
+}

@@ -1,0 +1,64 @@
+{
+  "sequences": 10,
+  "patterns": {
+    "P1": {
+      "occurrences": [
+        "T01",
+        "T04",
+        "T06",
+        "T09"
+      ],
+      "automation_rate": 0.2,
+      "created_at_occurrence": [
+        4,
+        3
+      ],
+      "use_rate_after_creation": 1.0,
+      "median_cost_by_occurrence": [
+        0.4054251,
+        0.4317062,
+        0.3903367,
+        0.355553
+      ],
+      "median_wall_seconds_by_occurrence": [
+        113.0,
+        116.0,
+        94.0,
+        81.5
+      ]
+    },
+    "P2": {
+      "occurrences": [
+        "T02",
+        "T05",
+        "T08"
+      ],
+      "automation_rate": 1.0,
+      "created_at_occurrence": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "use_rate_after_creation": 1.0,
+      "median_cost_by_occurrence": [
+        0.123751,
+        0.38064939999999997,
+        0.1310157
+      ],
+      "median_wall_seconds_by_occurrence": [
+        36.0,
+        98.5,
+        38.5
+      ]
+    }
+  },
+  "false_positives_total": 0,
+  "correct_rate": 1.0
+}

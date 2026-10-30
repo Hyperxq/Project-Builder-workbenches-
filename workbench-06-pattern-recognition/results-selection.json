@@ -1,0 +1,279 @@
+{
+  "sessions": 30,
+  "right_use_rate": 1.0,
+  "miss_rate": 0.0,
+  "wrong_uses": 0,
+  "exploration_calls": 51,
+  "sessions_detail": [
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T01",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T02",
+      "pattern": "P2",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T03",
+      "pattern": "one-off",
+      "right_use": false,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 1
+    },
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T04",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T05",
+      "pattern": "P2",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T06",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T07",
+      "pattern": "one-off",
+      "right_use": false,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 1
+    },
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T08",
+      "pattern": "P2",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T09",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq1",
+      "task": "T10",
+      "pattern": "one-off",
+      "right_use": false,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 1
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T01",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T02",
+      "pattern": "P2",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T03",
+      "pattern": "one-off",
+      "right_use": false,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 1
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T04",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T05",
+      "pattern": "P2",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T06",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T07",
+      "pattern": "one-off",
+      "right_use": false,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 1
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T08",
+      "pattern": "P2",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T09",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq2",
+      "task": "T10",
+      "pattern": "one-off",
+      "right_use": false,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 1
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T01",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T02",
+      "pattern": "P2",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T03",
+      "pattern": "one-off",
+      "right_use": false,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 1
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T04",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T05",
+      "pattern": "P2",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T06",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T07",
+      "pattern": "one-off",
+      "right_use": false,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 1
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T08",
+      "pattern": "P2",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T09",
+      "pattern": "P1",
+      "right_use": true,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 2
+    },
+    {
+      "sequence": "wb06-exp3-b-seq3",
+      "task": "T10",
+      "pattern": "one-off",
+      "right_use": false,
+      "wrong_use": [],
+      "miss": false,
+      "exploration_calls": 1
+    }
+  ]
+}
